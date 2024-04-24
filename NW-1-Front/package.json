@@ -1,0 +1,27 @@
+{
+  "name": "nw-1-front",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "backend": "json-server --watch ./data/db.json --port 5002",
+    "server": "vite --host ip23nw1.sit.kmutt.ac.th"
+  },
+  "dependencies": {
+    "json-server": "^1.0.0-alpha.23",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.4.19",
+    "daisyui": "^4.10.2",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "vite": "^5.2.8"
+  }
+}
