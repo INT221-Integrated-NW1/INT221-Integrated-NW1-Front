@@ -35,11 +35,11 @@ onBeforeMount(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="task in tasks" :key="task.id">
-            <td>{{ task.id }}</td>
-            <td>{{ task.title }}</td>
-            <td>{{ task.assignees }}</td>
-            <td>{{ task.status }}</td>
+          <tr class="itbkk-item" v-for="task in tasks" :key="task.id">
+            <td class="itbkk-id">{{ task.id }}</td>
+            <td class="itbkk-title">{{ task.title }}</td>
+            <td class="itbkk-assignees">{{ task.assignees }}</td>
+            <td class="itbkk-status">{{ task.status }}</td>
           </tr>
         </tbody>
       </table>
