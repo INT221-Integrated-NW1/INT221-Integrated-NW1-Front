@@ -56,7 +56,7 @@ const closeTaskModal = () => {
           <tr class="itbkk-item text-[1.2em]" v-for="task in tasks" :key="task.id">
             <td class="itbkk-id">{{ task.id }}</td>
             <button>
-              <td class="itbkk-title cursor-pointer" @click="openTaskModal">{{ task.title }}</td>
+              <td class="itbkk-title cursor-pointer underline" @click="openTaskModal">{{ task.title }}</td>
             </button>
             <td class="itbkk-assignees">{{ task.assignees }}</td>
             <td class="itbkk-status">{{ task.status }}</td>
