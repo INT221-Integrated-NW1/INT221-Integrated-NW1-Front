@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, computed } from "vue";
 import { getItems } from "../libs/fetchUtils.js"
 
 const tasks = ref(null)
@@ -16,14 +16,14 @@ onBeforeMount(() => {
   getTasks();
 });
 
-const getTasksById = async (taskId) => {
-  try {
-    const data = await getItems(`http://localhost:8080/v1/tasks/${id}`);
-    taskId.value = data;
-  } catch (error) {
-    console.error(`Failed to fetch task with ID ${id}:`, error);
-  }
-};
+// const getTasksById = async (taskId) => {
+//   try {
+//     const data = await getItems(`http://localhost:8080/v1/tasks/${id}`);
+//     taskId.value = data;
+//   } catch (error) {
+//     console.error(`Failed to fetch task with ID ${id}:`, error);
+//   }
+// };
 
 const editingTask = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
 //Modal Function
@@ -35,12 +35,11 @@ const openTaskModal = (task) => {
 const closeTaskModal = () => {
   showTaskModal.value = false
 }
-
 </script>
 
 <template>
   <header
-    class="text-center mt-10 text-[4em] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">
+    class="text-center mt-8 text-[4em] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">
     <h1>
       IT-Bangmod Kradan Kanban
     </h1>
@@ -62,7 +61,7 @@ const closeTaskModal = () => {
           <tr class="itbkk-item text-[1.2em]" v-for="task in tasks" :key="task.id">
             <td class="itbkk-id">{{ task.id }}</td>
             <button>
-              <td class="itbkk-title cursor-pointer underline" @click="openTaskModal(task)">{{ task.title }}</td>
+              <td class="itbkk-title cursor-pointer hover:underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300" @click="openTaskModal(task)">{{ task.title }}</td>
             </button>
             <td class="itbkk-assignees">{{ task.assignees }}</td>
             <td class="itbkk-status">{{ task.status }}</td>
@@ -84,7 +83,9 @@ const closeTaskModal = () => {
           </div>
           <div class=" w-96">
             <label for="assignees" class="block">Assignees</label>
-            <textarea id="assignees" maxlength="30" v-model="editingTask.assignees"
+            <textarea v-if="!editingTask.assignees" id="assignees" disabled 
+              class="itbkk-assignees text-gray-500 italic itbkk-assignees p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">Unassigned</textarea>
+            <textarea v-else id="assignees" maxlength="30" v-model="editingTask.assignees"
               class="itbkk-assignees p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
           </div>
           <div class="w-96">
@@ -117,7 +118,9 @@ const closeTaskModal = () => {
         <form class="my-4 flex">
           <div class="w-[39em]">
             <label for="description" class="block">Description</label>
-            <textarea id="description" maxlength="500" rows="5" v-model="editingTask.description"
+            <textarea v-if="!editingTask.description" id="assignees" maxlength="500" rows="5" disabled 
+              class="itbkk-description text-gray-500 italic itbkk-assignees p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">No Description Provided</textarea>
+            <textarea v-else id="description" maxlength="500" rows="5" v-model="editingTask.description"
               class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
           </div>
         </form>
@@ -175,5 +178,6 @@ label {
 textarea {
   resize: none;
   font-size: medium;
+  background: #151515;
 }
 </style>
