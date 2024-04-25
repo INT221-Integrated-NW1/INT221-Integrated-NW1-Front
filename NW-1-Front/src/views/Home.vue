@@ -3,7 +3,6 @@ import { ref, onBeforeMount } from "vue";
 import { getItems } from "../libs/fetchUtils.js"
 
 const tasks = ref(null)
-const taskId = ref(null)
 
 const getTasks = async () => {
   try {
@@ -26,9 +25,11 @@ const getTasksById = async (taskId) => {
   }
 };
 
+const editingTask = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
+//Modal Function
 const showTaskModal = ref(false)
-
-const openTaskModal = () => {
+const openTaskModal = (task) => {
+  editingTask.value = { ...task }
   showTaskModal.value = true
 }
 const closeTaskModal = () => {
@@ -61,7 +62,7 @@ const closeTaskModal = () => {
           <tr class="itbkk-item text-[1.2em]" v-for="task in tasks" :key="task.id">
             <td class="itbkk-id">{{ task.id }}</td>
             <button>
-              <td class="itbkk-title cursor-pointer underline" @click="openTaskModal">{{ task.title }}</td>
+              <td class="itbkk-title cursor-pointer underline" @click="openTaskModal(task)">{{ task.title }}</td>
             </button>
             <td class="itbkk-assignees">{{ task.assignees }}</td>
             <td class="itbkk-status">{{ task.status }}</td>
@@ -71,39 +72,62 @@ const closeTaskModal = () => {
     </div>
   </div>
   <!-- Task Modal -->
-  <div v-if="showTaskModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-80">
-    <div class="bg-white rounded-lg p-6 shadow-lg max-w-sm w-full">
-      <div class="flex flex-col items-center">
-        <h2 class="text-2xl font-semibold mb-4">Modal Title</h2>
-        <div class="mb-4">
-          <p>ID</p>
-        </div>
-        <form>
-          <div class="mb-4">
-            <label for="editPlaylistImage" class="block pb-1 text-sm font-medium">Image</label>
-            <!-- Input for editing the playlist image -->
-            <input type="file" id="editPlaylistImage" accept="image/*"/>
+  <div v-if="showTaskModal"
+    class="fixed inset-0 bg-gray-900 bg-opacity-70 flex justify-center items-center text-white z-50">
+    <div class="bg-[#222222] p-6 rounded-sm w-[53em] h-[36em] border-[6px] border-[#37373D]">
+      <div class="flex flex-col items-center text-xl">
+        <form class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="w-96">
+            <label for="title" class="block pb-1">Title</label>
+            <textarea id="title" maxlength="100" v-model="editingTask.title"
+              class="itbkk-title p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
           </div>
-          <div class="mb-4">
-            <label for="editPlaylistName" class="block text-sm font-medium">Name</label>
-            <!-- Input for editing the playlist name -->
-            <input type="text" id="editPlaylistName"
-              class="p-2 mt-1 text-[#FFC745] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+          <div class=" w-96">
+            <label for="assignees" class="block">Assignees</label>
+            <textarea id="assignees" maxlength="30" v-model="editingTask.assignees"
+              class="itbkk-assignees p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
           </div>
-          <div class="mb-4">
-            <label for="editPlaylistDescription" class="block text-sm font-medium ">Description</label>
-            <!-- Input for editing the playlist description -->
-            <textarea id="editPlaylistDescription" rows="3"
-              class="p-2 mt-1 text-[#FFC745] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md resize-none"></textarea>
+          <div class="w-96">
+            <label for="status" class="block">Status</label>
+            <select id="status" v-model="editingTask.status"
+              class="itbkk-status text-xl font-semibold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md">
+              <option value="No Status">No Status</option>
+              <option value="To Do">To Do</option>
+              <option value="Doing">Doing</option>
+              <option value="Done">Done</option>
+            </select>
           </div>
-          <div class="flex justify-end">
-            <button type="submit" class="mr-2 btn btn-success text-white">Save</button>
-            <button type="button" class="btn btn-error text-white" @click="closeModal">Cancel</button>
+
+          <div class="w-96">
+            <label for="createdOn" class="block">Created On</label>
+            <textarea id="createdOn" v-model="editingTask.createdOn"
+              class="itbkk-created-on p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+          </div>
+          <div class="w-96">
+            <label for="updatedOn" class="block">Updated On</label>
+            <textarea id="updatedOn" v-model="editingTask.updatedOn"
+              class="itbkk-updated-on p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+          </div>
+          <div class="w-96">
+            <label for="timezone" class="block">TimeZone</label>
+            <textarea id="timezone" v-model="editingTask.timezone"
+              class="itbkk-timezone p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
           </div>
         </form>
-
-        <button @click="closeTaskModal" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
-          Close Modal
+        <form class="my-4 flex">
+          <div class="w-[39em]">
+            <label for="description" class="block">Description</label>
+            <textarea id="description" maxlength="500" rows="5" v-model="editingTask.description"
+              class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button @click="closeTaskModal" class="bg-green-500 hover:bg-green-600 text-black py-2 px-4 rounded w-24">
+          Save
+        </button>
+        <button @click="closeTaskModal" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded w-24">
+          Close
         </button>
       </div>
     </div>
@@ -142,5 +166,14 @@ h1 {
     0 18px 18px rgba(0, 0, 0, .25),
     0 24px 24px rgba(0, 0, 0, .2),
     0 36px 36px rgba(0, 0, 0, .15);
+}
+
+label {
+  font-weight: bolder;
+}
+
+textarea {
+  resize: none;
+  font-size: medium;
 }
 </style>
