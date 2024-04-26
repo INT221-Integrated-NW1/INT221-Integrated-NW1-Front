@@ -1,14 +1,14 @@
 <script setup>
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, computed } from 'vue';
 import { useRoute } from 'vue-router';
 const route = useRoute();
 
-import { getItemById } from "../libs/fetchUtils.js"
+import { getItems } from "../libs/fetchUtils.js"
 
-const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "", timezone: "" })
+const tasksId = ref({ task_id: "", task_title: "", task_description: "", task_assignees: "", task_status: "", created_on: "", updated_on: ""})
 const getTasksById = async (id) => {
     try {
-        const data = await getItemById('http://localhost:8080/v1/tasks', id);
+        const data = await getItems(`http://localhost:8080/v1/tasks/${id}`);
         if (data) {
             tasksId.value = data;
         } else {
@@ -23,6 +23,24 @@ onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the route parameters
     getTasksById(id);
 });
+
+
+const formatDateTime = (datetime) => {
+    const date = new Date(datetime);
+    const formatDate = date.toLocaleDateString('en-GB');
+    const formatTime = date.toLocaleTimeString('en-GB');
+    return `${formatDate} ${formatTime}`;
+};
+
+const formattedCreatedOn = computed(() => {
+    return formatDateTime(tasksId.value.created_on);
+});
+
+const formattedUpdatedOn = computed(() => {
+    return formatDateTime(tasksId.value.updated_on);
+});
+
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 </script>
 
 <template>
@@ -33,19 +51,19 @@ onBeforeMount(() => {
                 <form class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="w-96">
                         <label for="title" class="block pb-1">Title</label>
-                        <textarea id="title" maxlength="100" v-model.trim="tasksId.title"
+                        <textarea id="title" maxlength="100" v-model.trim="tasksId.task_title"
                             class="itbkk-title p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                     </div>
                     <div class=" w-96">
                         <label for="assignees" class="block">Assignees</label>
-                        <textarea v-if="!tasksId.assignees" id="assignees" disabled
+                        <textarea v-if="!tasksId.task_assignees" id="assignees" disabled
                             class="itbkk-assignees text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">Unassigned</textarea>
-                        <textarea v-else id="assignees" maxlength="30" v-model.trim="tasksId.assignees"
+                        <textarea v-else id="assignees" maxlength="30" v-model.trim="tasksId.task_assignees"
                             class="itbkk-assignees p-2 mt-2 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                     </div>
                     <div class="w-96">
                         <label for="status" class="block">Status</label>
-                        <select id="status" v-model="tasksId.status"
+                        <select id="status" v-model="tasksId.task_status"
                             class="itbkk-status text-xl font-semibold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md">
                             <option value="No Status">No Status</option>
                             <option value="To Do">To Do</option>
@@ -56,28 +74,27 @@ onBeforeMount(() => {
 
                     <div class="w-96">
                         <label for="timezone" class="block">TimeZone</label>
-                        <textarea id="timezone" v-model="tasksId.timezone"
-                            class="itbkk-timezone p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                        <textarea id="timezone" disabled
+                            class="itbkk-timezone p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ timeZone }}</textarea>
                     </div>
                     <div class="w-96 text-center">
                         <label for="createdOn" class="block">Created On</label>
-                        <textarea id="createdOn" rows="1" v-model="tasksId.createdOn"
-                            class="itbkk-created-on text-center p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                        <textarea id="createdOn" rows="1" disabled
+                            class="itbkk-created-on text-center p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ formattedCreatedOn }}</textarea>
                     </div>
                     <div class="w-96 text-center">
                         <label for="updatedOn" class="block">Updated On</label>
-                        <textarea id="updatedOn" rows="1" v-model="tasksId.updatedOn"
-                            class="itbkk-updated-on text-center p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                        <textarea id="updatedOn" rows="1" disabled
+                            class="itbkk-updated-on text-center p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ formattedUpdatedOn }}</textarea>
                     </div>
                 </form>
                 <form class="my-4 flex">
                     <div class="w-[39em]">
                         <label for="description" class="block">Description</label>
-                        <textarea v-if="!tasksId.description" id="description" maxlength="500" rows="5" disabled
+                        <textarea v-if="!tasksId.task_description" id="description" maxlength="500" rows="5" disabled
                             class="itbkk-description text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">No Description Provided</textarea>
-                        <textarea v-else  id="description" maxlength="500" rows="5" v-model.trim="tasksId.description"
-                            class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                        </textarea>
+                        <textarea v-else v-text="tasksId.task_description"  id="description" maxlength="500" rows="5"
+                            class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
                     </div>
                 </form>
             </div>
