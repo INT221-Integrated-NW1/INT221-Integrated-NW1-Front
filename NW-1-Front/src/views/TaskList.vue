@@ -47,7 +47,8 @@ onBeforeMount(() => {
                 class="itbkk-title cursor-pointer hover:underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
                 @click="router.push(`/task/${task.id}`)">{{ task.title }}</td>
             </button>
-            <td class="itbkk-assignees">{{ task.assignees }}</td>
+            <td class="itbkk-assignees italic" v-if="!task.assignees">Unassigned</td>
+            <td class="itbkk-assignees italic" v-else>{{ task.assignees }}</td>
             <td class="itbkk-status">{{ task.status }}</td>
           </tr>
         </tbody>

@@ -33,14 +33,14 @@ onBeforeMount(() => {
                 <form class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="w-96">
                         <label for="title" class="block pb-1">Title</label>
-                        <textarea id="title" maxlength="100" v-model="tasksId.title"
+                        <textarea id="title" maxlength="100" v-model.trim="tasksId.title"
                             class="itbkk-title p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                     </div>
                     <div class=" w-96">
                         <label for="assignees" class="block">Assignees</label>
                         <textarea v-if="!tasksId.assignees" id="assignees" disabled
-                            class="itbkk-assignees text-gray-500 italic itbkk-assignees p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">Unassigned</textarea>
-                        <textarea v-else id="assignees" maxlength="30" v-model="tasksId.assignees"
+                            class="itbkk-assignees text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">Unassigned</textarea>
+                        <textarea v-else id="assignees" maxlength="30" v-model.trim="tasksId.assignees"
                             class="itbkk-assignees p-2 mt-2 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                     </div>
                     <div class="w-96">
@@ -73,10 +73,11 @@ onBeforeMount(() => {
                 <form class="my-4 flex">
                     <div class="w-[39em]">
                         <label for="description" class="block">Description</label>
-                        <textarea v-if="!tasksId.description" id="assignees" maxlength="500" rows="5" disabled
-                            class="itbkk-description text-gray-500 italic itbkk-assignees p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">No Description Provided</textarea>
-                        <textarea v-else id="description" maxlength="500" rows="5" v-model="tasksId.description"
-                            class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                        <textarea v-if="!tasksId.description" id="description" maxlength="500" rows="5" disabled
+                            class="itbkk-description text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">No Description Provided</textarea>
+                        <textarea v-else  id="description" maxlength="500" rows="5" v-model.trim="tasksId.description"
+                            class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </textarea>
                     </div>
                 </form>
             </div>
