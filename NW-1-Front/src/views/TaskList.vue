@@ -17,6 +17,11 @@ const getTasks = async () => {
 onBeforeMount(() => {
   getTasks();
 });
+
+function formatStatus(status) {
+  return status.replace(/_/g, ' ');
+}
+
 </script>
 
 <template>
@@ -39,22 +44,22 @@ onBeforeMount(() => {
           </tr>
         </thead>
         <tbody>
-          <tr class="itbkk-item text-[1.2em]" v-for="task in tasks" :key="task.task_id">
-            <td class="itbkk-id">{{ task.task_id }}</td>
+          <tr class="itbkk-item text-[1.2em]" v-for="task in tasks" :key="task.id">
+            <td class="itbkk-id">{{ task.id }}</td>
             <button>
               <td
                 class="itbkk-title cursor-pointer hover:underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
-                @click="router.push(`/task/${task.task_id}`)">{{ task.task_title }}</td>
+                @click="router.push(`/task/${task.id}`)">{{ task.title }}</td>
             </button>
-            <td class="itbkk-assignees italic" v-if="!task.task_assignees">Unassigned</td>
-            <td class="itbkk-assignees italic" v-else>{{ task.task_assignees }}</td>
-            <td class="itbkk-status">{{ task.task_status }}</td>
+            <td class="itbkk-assignees italic" v-if="!task.assignees">Unassigned</td>
+            <td class="itbkk-assignees italic" v-else>{{ task.assignees }}</td>
+            <td class="itbkk-status">{{ formatStatus(task.status) }}</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
-    <RouterView />
+  <RouterView />
 </template>
 
 <style scoped>
