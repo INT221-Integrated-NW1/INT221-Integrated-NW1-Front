@@ -14,11 +14,11 @@ const routes = [
 				component: () => import("../views/TaskModal.vue"),
 				beforeEnter: async (to, from, next) => {
 					const id = parseInt(to.params.id);
-
 					const response = await fetch(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
 					if (response.ok) {
 						next();
 					} else {
+						window.alert("The requested task does not exist");
 						next(router.go(-1));
 						console.log(`The requested task Id:${id} does not exist `);
 					}
