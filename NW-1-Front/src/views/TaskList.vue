@@ -8,7 +8,7 @@ const tasks = ref([])
 
 const getTasks = async () => {
   try {
-    const data = await getItems(`http://localhost:8080/v1/tasks`);
+    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks`);
     tasks.value = data;
   } catch (error) {
     console.error('Failed to fetch tasks:', error);
@@ -30,7 +30,6 @@ onBeforeMount(() => {
     <div
       class="overflow-x-auto border-[6px] border-slate-600 rounded-2xl h-[28em] hide m-4 hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
       <table class="table table-zebra table-pin-rows text-center">
-        <!-- head -->
         <thead class="text-3xl">
           <tr>
             <th>Id</th>

@@ -8,7 +8,7 @@ import { getItems } from "../libs/fetchUtils.js"
 const tasksId = ref({ task_id: "", task_title: "", task_description: "", task_assignees: "", task_status: "", created_on: "", updated_on: ""})
 const getTasksById = async (id) => {
     try {
-        const data = await getItems(`http://localhost:8080/v1/tasks/${id}`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
         if (data) {
             tasksId.value = data;
         } else {
@@ -18,12 +18,10 @@ const getTasksById = async (id) => {
         console.error(`Failed to fetch task with ID ${id}:`, error);
     }
 }
-
 onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the route parameters
     getTasksById(id);
 });
-
 
 const formatDateTime = (datetime) => {
     const date = new Date(datetime);
