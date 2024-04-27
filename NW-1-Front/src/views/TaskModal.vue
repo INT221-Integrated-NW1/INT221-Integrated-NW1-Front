@@ -5,7 +5,7 @@ const route = useRoute();
 
 import { getItems } from "../libs/fetchUtils.js"
 
-const tasksId = ref({ task_id: "", task_title: "", task_description: "", task_assignees: "", task_status: "", created_on: "", updated_on: ""})
+const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: ""})
 const getTasksById = async (id) => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
@@ -26,16 +26,16 @@ onBeforeMount(() => {
 const formatDateTime = (datetime) => {
     const date = new Date(datetime);
     const formatDate = date.toLocaleDateString('en-GB');
-    const formatTime = date.toLocaleTimeString('en-GB');
+    const formatTime = date.toLocaleTimeString('en-GB', { timeZone: 'Asia/Bangkok' });
     return `${formatDate} ${formatTime}`;
 };
 
 const formattedCreatedOn = computed(() => {
-    return formatDateTime(tasksId.value.created_on);
+    return formatDateTime(tasksId.value.createdOn);
 });
 
 const formattedUpdatedOn = computed(() => {
-    return formatDateTime(tasksId.value.updated_on);
+    return formatDateTime(tasksId.value.updatedOn);
 });
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -49,22 +49,22 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 <form class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="w-96">
                         <label for="title" class="block pb-1">Title</label>
-                        <textarea id="title" maxlength="100" v-model.trim="tasksId.task_title"
+                        <textarea id="title" maxlength="100" v-model.trim="tasksId.title"
                             class="itbkk-title p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                     </div>
                     <div class=" w-96">
                         <label for="assignees" class="block">Assignees</label>
-                        <textarea v-if="!tasksId.task_assignees" id="assignees" disabled
+                        <textarea v-if="!tasksId.assignees" id="assignees" disabled
                             class="itbkk-assignees text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">Unassigned</textarea>
-                        <textarea v-else id="assignees" maxlength="30" v-model.trim="tasksId.task_assignees"
+                        <textarea v-else id="assignees" maxlength="30" v-model.trim="tasksId.assignees"
                             class="itbkk-assignees p-2 mt-2 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                     </div>
                     <div class="w-96">
                         <label for="status" class="block">Status</label>
-                        <select id="status" v-model="tasksId.task_status"
+                        <select id="status" v-model="tasksId.status"
                             class="itbkk-status text-xl font-semibold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md">
-                            <option value="No Status">No Status</option>
-                            <option value="To Do">To Do</option>
+                            <option value="No_Status">No Status</option>
+                            <option value="To_Do">To Do</option>
                             <option value="Doing">Doing</option>
                             <option value="Done">Done</option>
                         </select>
@@ -89,9 +89,9 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 <form class="my-4 flex">
                     <div class="w-[39em]">
                         <label for="description" class="block">Description</label>
-                        <textarea v-if="!tasksId.task_description" id="description" maxlength="500" rows="5" disabled
+                        <textarea v-if="!tasksId.description" id="description" maxlength="500" rows="5" disabled
                             class="itbkk-description text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">No Description Provided</textarea>
-                        <textarea v-else v-text="tasksId.task_description"  id="description" maxlength="500" rows="5"
+                        <textarea v-else v-text="tasksId.description"  id="description" maxlength="500" rows="5"
                             class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
                     </div>
                 </form>
