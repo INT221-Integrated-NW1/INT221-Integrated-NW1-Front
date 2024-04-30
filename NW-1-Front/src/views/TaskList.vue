@@ -49,10 +49,10 @@ function formatStatus(status) {
             <button>
               <td
                 class="itbkk-title cursor-pointer hover:underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
-                @click="router.push(`/task/${task.id}`)">{{ task.title }}</td>
+                @click="router.push(`/task/${task.id}`)">{{ task.title.trim() }}</td>
             </button>
-            <td class="itbkk-assignees italic" v-if="!task.assignees">Unassigned</td>
-            <td class="itbkk-assignees italic" v-else>{{ task.assignees }}</td>
+            <td class="itbkk-assignees italic text-gray-500" v-if="!task.assignees">Unassigned</td>
+            <td class="itbkk-assignees italic" v-else.trim>{{ task.assignees }}</td>
             <td class="itbkk-status">{{ formatStatus(task.status) }}</td>
           </tr>
         </tbody>
