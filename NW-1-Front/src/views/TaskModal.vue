@@ -91,7 +91,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                         <label for="description" class="block">Description</label>
                         <textarea v-if="!tasksId.description" id="description" maxlength="500" rows="5" disabled
                             class="itbkk-description text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">No Description Provided</textarea>
-                        <textarea v-else v-text="tasksId.description"  id="description" maxlength="500" rows="5"
+                        <textarea v-else v-text.trim="tasksId.description"  id="description" maxlength="500" rows="5"
                             class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
                     </div>
                 </form>
