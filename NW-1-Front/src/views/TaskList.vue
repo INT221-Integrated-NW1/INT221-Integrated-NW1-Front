@@ -31,7 +31,28 @@ function formatStatus(status) {
       IT-Bangmod Kradan Kanban
     </h1>
   </header>
-  <div class="flex justify-center mt-5">
+  <div v-if="tasks.length===0" class="flex justify-center mt-5">
+    <div
+      class="overflow-x-auto border-[6px] border-slate-600 rounded-2xl h-auto hide m-4 hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
+      <table class="table table-zebra table-pin-rows text-center">
+        <thead class="text-3xl">
+          <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Assignees</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="itbkk-item text-[1.5em]">
+            <td colspan="4">NO Task</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div v-else class="flex justify-center mt-5">
     <div
       class="overflow-x-auto border-[6px] border-slate-600 rounded-2xl h-[28em] hide m-4 hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
       <table class="table table-zebra table-pin-rows text-center">
