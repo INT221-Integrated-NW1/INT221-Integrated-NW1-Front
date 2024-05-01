@@ -23,6 +23,23 @@ const routes = [
 						console.log(`The requested task Id:${id} does not exist `);
 					}
 				},
+				// children: [
+				// 	{
+				// 		path: "edit",
+				// 		name: "EditTask",
+				// 		component: () => import("../views/EditTask.vue"),
+				// 	},
+				// ]
+			},
+			{
+				path: ":id/edit",
+				name: "EditTask",
+				component: () => import("../views/EditTask.vue"),
+			},
+			{
+				path: "add",
+				name: "AddTask",
+				component: () => import("../views/AddTask.vue"),
 			},
 		],
 	},

@@ -75,7 +75,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                         <textarea id="timezone" disabled
                             class="itbkk-timezone p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ timeZone }}</textarea>
                     </div>
-                    <div class="w-96 text-center">
+                    <!-- <div class="w-96 text-center">
                         <label for="createdOn" class="block">Created On</label>
                         <textarea id="createdOn" rows="1" disabled
                             class="itbkk-created-on text-center p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ formattedCreatedOn }}</textarea>
@@ -84,7 +84,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                         <label for="updatedOn" class="block">Updated On</label>
                         <textarea id="updatedOn" rows="1" disabled
                             class="itbkk-updated-on text-center p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ formattedUpdatedOn }}</textarea>
-                    </div>
+                    </div> -->
                 </form>
                 <form class="my-4 flex">
                     <div class="w-[39em]">
