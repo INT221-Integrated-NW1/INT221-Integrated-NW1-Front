@@ -80,7 +80,6 @@ const formatStatus = (status) => {
                   <li><a @click="">Delete</a></li>
                 </ul>
               </button>
-
             </td>
             <button>
               <td
