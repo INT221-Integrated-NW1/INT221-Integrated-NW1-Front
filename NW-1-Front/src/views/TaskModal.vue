@@ -63,10 +63,10 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                         <label for="status" class="block">Status</label>
                         <select id="status" v-model="tasksId.status"
                             class="itbkk-status text-xl bg-[#151515] font-semibold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md">
-                            <option value="No_Status">No Status</option>
-                            <option value="To_Do">To Do</option>
-                            <option value="Doing">Doing</option>
-                            <option value="Done">Done</option>
+                            <option value="NO_STATUS">No Status</option>
+                            <option value="TO_DO">To Do</option>
+                            <option value="DOING">Doing</option>
+                            <option value="DONE">Done</option>
                         </select>
                     </div>
 

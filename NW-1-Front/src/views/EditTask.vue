@@ -1,27 +1,26 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue';
 import { useRoute } from 'vue-router';
-const route = useRoute();
-
-import { getItems } from "../libs/fetchUtils.js"
+import { editItem, getItemById } from '../libs/fetchUtils.js'
 
 const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: ""})
-const getTasksById = async (id) => {
+// Assuming taskId and editedTask are defined somewhere in your component
+
+const editTask = async (id) => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
-        if (data) {
-            tasksId.value = data;
-        } else {
-            console.warn(`Task with ID ${id} not found.`);
-        }
+        // URL สำหรับ API endpoint ของ task ที่ต้องการแก้ไข (ควรปรับให้เข้ากับ API ของคุณเอง)
+        const url = `/api/tasks`;
+
+        // เรียกใช้ editItem เพื่อแก้ไข task โดยส่ง URL, ID ของ task, และข้อมูลที่ต้องการแก้ไข
+        const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`, id, addTask.value);
+        console.log('Task updated:', updatedTask);
+
+        // หลังจากที่ task ถูกแก้ไขสำเร็จ คุณอาจต้องการทำการนำทางไปยังหน้าอื่น (เช่นหน้า task list) โดยใช้ Vue Router
+        // ตัวอย่าง: router.push('/task');
     } catch (error) {
-        console.error(`Failed to fetch task with ID ${id}:`, error);
+        console.error('Error updating task:', error);
     }
-}
-onBeforeMount(() => {
-    const id = route.params.id; // Get the task ID from the route parameters
-    getTasksById(id);
-});
+};
 
 const formatDateTime = (datetime) => {
     const date = new Date(datetime);
@@ -75,7 +74,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                         <textarea id="timezone" disabled
                             class="itbkk-timezone p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ timeZone }}</textarea>
                     </div>
-                    <!-- <div class="w-96 text-center">
+                    <div class="w-96 text-center">
                         <label for="createdOn" class="block">Created On</label>
                         <textarea id="createdOn" rows="1" disabled
                             class="itbkk-created-on text-center p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ formattedCreatedOn }}</textarea>
@@ -84,7 +83,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                         <label for="updatedOn" class="block">Updated On</label>
                         <textarea id="updatedOn" rows="1" disabled
                             class="itbkk-updated-on text-center p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ formattedUpdatedOn }}</textarea>
-                    </div> -->
+                    </div>
                 </form>
                 <form class="my-4 flex">
                     <div class="w-[39em]">

@@ -9,6 +9,11 @@ const routes = [
 		component: TaskList,
 		children: [
 			{
+				path: "add",
+				name: "AddTask",
+				component: () => import("../views/AddTask.vue"),
+			},
+			{
 				path: ":id",
 				name: "TaskModal",
 				component: () => import("../views/TaskModal.vue"),
@@ -35,11 +40,6 @@ const routes = [
 				path: ":id/edit",
 				name: "EditTask",
 				component: () => import("../views/EditTask.vue"),
-			},
-			{
-				path: "add",
-				name: "AddTask",
-				component: () => import("../views/AddTask.vue"),
 			},
 		],
 	},
