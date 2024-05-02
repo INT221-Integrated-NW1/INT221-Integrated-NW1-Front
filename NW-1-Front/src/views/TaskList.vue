@@ -37,7 +37,7 @@ const formatStatus = (status) => {
   </div>
   <div v-if="tasks.length === 0" class="flex justify-center">
     <div
-      class="overflow-x-auto border-[4px] border-slate-600 rounded-lg h-[28em] hide m-4 hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
+      class="overflow-x-auto border-[4px] border-slate-600 rounded-lg hide m-4 hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
       <table class="table table-zebra table-pin-rows text-center">
         <thead class="text-3xl">
           <tr>
