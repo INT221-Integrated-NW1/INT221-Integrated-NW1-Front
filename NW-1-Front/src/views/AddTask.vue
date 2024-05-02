@@ -1,22 +1,25 @@
 <script setup>
-import { ref, onBeforeMount, computed } from 'vue';
+import { ref } from 'vue';
 import { addItem } from '../libs/fetchUtils.js';
+import { tasks } from '../stores/taskStore.js';
+import router from '@/router';
 
 const addTask = ref({ title: "", description: "", assignees: "", status: "" })
 
-const saveTask = async () => {
+const saveTask = async (event) => {
+    event.preventDefault();
     try {
         if (addTask.value.status.trim() === "") {
             // ตั้งค่าเริ่มต้นหากสถานะว่าง
-            addTask.value.status = "NO_STATUS"; // ใช้ค่าที่เหมาะสมตามต้องการ
+            addTask.value.status = "NO_STATUS";
         }
         const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, addTask.value);
         console.log('New task added:', newTask);
-        // เคลียร์ข้อมูลใน addTask หลังจากที่ task ถูกเพิ่มเรียบร้อยแล้ว
+        // เพิ่ม task ใหม่ลงในรายการ tasks
+        tasks.value.push(newTask);
+        // รีเซ็ตฟอร์ม
         addTask.value = { title: "", description: "", assignees: "", status: "" };
-        // ทำการนำทางไปยังหน้าอื่น (เช่นหน้า task list) โดยใช้ Vue Router
-        // ตัวอย่าง: router.push('/task');
-        router.push('/task')
+        router.push('/task');
     } catch (error) {
         console.error('Error saving task:', error);
     }
@@ -56,7 +59,7 @@ const saveTask = async () => {
                             class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
                     </div>
                     <div class="flex justify-end gap-4">
-                        <button type="submit" @click="saveTask"
+                        <button @click="saveTask"
                             class="bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow">Save</button>
                         <router-link to="/task">
                             <button

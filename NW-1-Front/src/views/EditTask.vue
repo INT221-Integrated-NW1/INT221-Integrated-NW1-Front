@@ -3,24 +3,48 @@ import { ref, onBeforeMount, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { editItem, getItemById } from '../libs/fetchUtils.js'
 
-const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: ""})
-// Assuming taskId and editedTask are defined somewhere in your component
+const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
 
-const editTask = async (id) => {
+const editTask = async () => {
+    // รับค่าจาก tasksId
+    const { id, title, description, assignees, status, createdOn, updatedOn } = tasksId.value;
+    // สร้างอ็อบเจกต์ editItem จาก tasksId
+    const editItemData = {
+        title,
+        description,
+        assignees,
+        status,
+        createdOn,
+        updatedOn,
+    };
     try {
-        // URL สำหรับ API endpoint ของ task ที่ต้องการแก้ไข (ควรปรับให้เข้ากับ API ของคุณเอง)
-        const url = `/api/tasks`;
-
-        // เรียกใช้ editItem เพื่อแก้ไข task โดยส่ง URL, ID ของ task, และข้อมูลที่ต้องการแก้ไข
-        const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`, id, addTask.value);
-        console.log('Task updated:', updatedTask);
-
-        // หลังจากที่ task ถูกแก้ไขสำเร็จ คุณอาจต้องการทำการนำทางไปยังหน้าอื่น (เช่นหน้า task list) โดยใช้ Vue Router
-        // ตัวอย่าง: router.push('/task');
+        // เรียกใช้ editItem เพื่อแก้ไขงานตาม id
+        const editedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, id, editItemData);
+        // ตรวจสอบว่ามีการแก้ไขสำเร็จหรือไม่
+        if (editedTask) {
+            console.log(`Task with ID ${id} has been edited successfully.`);
+            // คุณสามารถอัปเดตข้อมูลใน tasksId ตามข้อมูลที่แก้ไขแล้วได้ที่นี่
+            tasksId.value = { ...tasksId.value, ...editedTask };
+        } else {
+            console.error(`Failed to edit task with ID ${id}.`);
+        }
     } catch (error) {
-        console.error('Error updating task:', error);
+        console.error(`Error editing task with ID ${id}: ${error}`);
     }
 };
+
+// const editTask = async () => {
+//     try {
+//         // เรียกใช้ editItem เพื่อแก้ไข task โดยส่ง URL, ID ของ task, และข้อมูลที่ต้องการแก้ไข
+//         const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`, addTask.value);
+//         console.log('Task updated:', updatedTask);
+
+//         // หลังจากที่ task ถูกแก้ไขสำเร็จ คุณอาจต้องการทำการนำทางไปยังหน้าอื่น (เช่นหน้า task list) โดยใช้ Vue Router
+//         // ตัวอย่าง: router.push('/task');
+//     } catch (error) {
+//         console.error('Error updating task:', error);
+//     }
+// };
 
 const formatDateTime = (datetime) => {
     const date = new Date(datetime);
@@ -90,14 +114,13 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                         <label for="description" class="block">Description</label>
                         <textarea v-if="!tasksId.description" id="description" maxlength="500" rows="5" disabled
                             class="itbkk-description text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">No Description Provided</textarea>
-                        <textarea v-else v-text.trim="tasksId.description"  id="description" maxlength="500" rows="5"
+                        <textarea v-else v-text.trim="tasksId.description" id="description" maxlength="500" rows="5"
                             class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
                     </div>
                 </form>
             </div>
             <div class="flex justify-end gap-2 mr-4">
-                <button @click="closeTaskModal"
-                    class="bg-green-500 hover:bg-green-600 text-black py-2 px-4 rounded w-24">
+                <button @click="editTask" class="bg-green-500 hover:bg-green-600 text-black py-2 px-4 rounded w-24">
                     Save
                 </button>
                 <RouterLink to="/task">

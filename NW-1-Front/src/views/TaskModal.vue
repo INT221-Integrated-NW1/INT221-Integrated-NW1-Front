@@ -22,11 +22,12 @@ onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the route parameters
     getTasksById(id);
 });
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const formatDateTime = (datetime) => {
     const date = new Date(datetime);
     const formatDate = date.toLocaleDateString('en-GB');
-    const formatTime = date.toLocaleTimeString('en-GB', { timeZone: 'Asia/Bangkok' });
+    const formatTime = date.toLocaleTimeString('en-GB', { timeZone: `${timeZone}` });
     return `${formatDate} ${formatTime}`;
 };
 
@@ -37,8 +38,6 @@ const formattedCreatedOn = computed(() => {
 const formattedUpdatedOn = computed(() => {
     return formatDateTime(tasksId.value.updatedOn);
 });
-
-const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 </script>
 
 <template>

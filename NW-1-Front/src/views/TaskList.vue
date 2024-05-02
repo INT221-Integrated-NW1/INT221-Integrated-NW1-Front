@@ -1,11 +1,10 @@
 <script setup>
-import { ref, onBeforeMount } from "vue";
-import { getItems } from "../libs/fetchUtils.js"
+import { onBeforeMount, ref } from "vue";
+import { getItems, deleteItemById } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
+import { tasks } from '../stores/taskStore.js';
 
 const router = useRouter()
-
-const tasks = ref([])
 
 const getTasks = async () => {
   try {
@@ -13,6 +12,23 @@ const getTasks = async () => {
     tasks.value = data;
   } catch (error) {
     console.error('Failed to fetch tasks:', error);
+  }
+};
+
+const deleteTask = async (id) => {
+  try {
+    const status = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, id);
+
+    // Check if the deletion was successful (HTTP status code 200 means success)
+    if (status === 200) {
+      // Remove the deleted task from the tasks array
+      tasks.value = tasks.value.filter(task => task.id !== id);
+      console.log(`Task with ID ${id} deleted successfully.`);
+    } else {
+      console.error(`Failed to delete task with ID ${id}. HTTP status: ${status}`);
+    }
+  } catch (error) {
+    console.error(`Failed to delete task with ID ${id}: ${error}`);
   }
 };
 onBeforeMount(() => {
@@ -33,7 +49,6 @@ const formatStatus = (status) => {
       return status;
   }
 };
-
 </script>
 
 <template>
@@ -46,8 +61,7 @@ const formatStatus = (status) => {
   </header>
   <div class="flex justify-end absolute right-[8rem] top-[8.2rem]">
     <button @click="router.push('/task/add')">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
-        class="w-8 h-8 rounded-md fill-[#00215E]">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-8 h-8 rounded-md fill-[#00215E]">
         <path
           d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
       </svg>
@@ -81,7 +95,7 @@ const formatStatus = (status) => {
       class="overflow-x-auto border-[4px] border-slate-600 rounded-lg h-[28em] hide hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
       <table class="table table-zebra table-pin-rows text-center w-full">
         <thead class="text-3xl">
-          <tr class = "lobster-regular text-black">
+          <tr class="lobster-regular text-black">
             <th>Id</th>
             <th></th>
             <th>Title</th>
@@ -97,7 +111,7 @@ const formatStatus = (status) => {
                 <div tabindex="0" class="">⋮</div>
                 <ul tabindex="0" class="dropdown-content z-10 menu mt-2 p-2 shadow bg-base-100 rounded-box w-52">
                   <li><a @click="router.push(`/task/${task.id}/edit`)">Edit</a></li>
-                  <li><a @click="">Delete</a></li>
+                  <li><a @click="deleteTask(task.id)">Delete</a></li>
                 </ul>
               </button>
             </td>
