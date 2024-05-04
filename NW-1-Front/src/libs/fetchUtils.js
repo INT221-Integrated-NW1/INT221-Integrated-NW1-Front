@@ -54,18 +54,18 @@ async function addItem(url, newItem) {
 }
 
 async function editItem(url, data) {
-  const response = await fetch(url, {
-      method: 'PUT',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-  });
+	const response = await fetch(url, {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(data),
+	});
 
-  if (!response.ok) {
-      throw new Error(`error: ${response.status}`);
-  }
+	if (!response.ok) {
+		throw new Error(`error: ${response.status}`);
+	}
 
-  return await response.json();
+	return await response.json();
 }
 export { getItems, getItemById, deleteItemById, addItem, editItem };
