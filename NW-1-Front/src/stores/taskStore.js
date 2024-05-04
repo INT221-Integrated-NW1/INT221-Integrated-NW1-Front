@@ -28,6 +28,15 @@ export const useTaskStore = defineStore("taskStore", () => {
 	const setTasks = (newTasks) => {
 		tasks.value = newTasks;
 	};
+	const editTask = (newTask) => {
+		tasks.value.forEach((task) => {
+			if (task.id === newTask.id) {
+				task.title = newTask.title;
+				task.assignees = newTask.assignees;
+				task.status = newTask.status;
+			}
+		});
+	};
 	return {
 		getTasks,
 		addTask,
@@ -36,6 +45,7 @@ export const useTaskStore = defineStore("taskStore", () => {
 		findIndexTasks,
 		removeTasks,
 		setTasks,
+		editTask,
 	};
 });
 if (import.meta.hot) {

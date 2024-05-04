@@ -1,42 +1,57 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { editItem, getItemById } from '../libs/fetchUtils.js'
+import { getItems } from "../libs/fetchUtils.js"
+import { useRoute, useRouter } from 'vue-router';
+import { useTaskStore } from '../stores/taskStore.js';
+import { editItem } from '../libs/fetchUtils.js';
+const taskStore = useTaskStore();
+
+const route = useRoute();
+const router = useRouter();
 
 const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
-
-const editTask = async () => {
-    // รับค่าจาก tasksId
-    const { id, title, description, assignees, status, createdOn, updatedOn } = tasksId.value;
-    // สร้างอ็อบเจกต์ editItem จาก tasksId
-    const editItemData = {
-        title,
-        description,
-        assignees,
-        status,
-        createdOn,
-        updatedOn,
-    };
+const getTasksById = async (id) => {
     try {
-        // เรียกใช้ editItem เพื่อแก้ไขงานตาม id
-        const editedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, id, editItemData);
-        // ตรวจสอบว่ามีการแก้ไขสำเร็จหรือไม่
-        if (editedTask) {
-            console.log(`Task with ID ${id} has been edited successfully.`);
-            // คุณสามารถอัปเดตข้อมูลใน tasksId ตามข้อมูลที่แก้ไขแล้วได้ที่นี่
-            tasksId.value = { ...tasksId.value, ...editedTask };
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
+        if (data) {
+            tasksId.value = data;
         } else {
-            console.error(`Failed to edit task with ID ${id}.`);
+            console.warn(`Task with ID ${id} not found.`);
         }
     } catch (error) {
-        console.error(`Error editing task with ID ${id}: ${error}`);
+        console.error(`Failed to fetch task with ID ${id}:`, error);
+    }
+}
+
+onBeforeMount(() => {
+    const id = route.params.id; // Get the task ID from the router parameters
+    getTasksById(id);
+});
+
+const saveTask = async () => {
+    try {
+        // Send PUT request to update task
+        const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${tasksId.value.id}`, tasksId.value);
+        console.log('Updated task:', updatedTask);
+
+        // Update task in store
+        taskStore.editTask(updatedTask);
+
+        // Reset form and navigate back to task list
+        tasksId.value = {id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" };
+        router.push('/task');
+    } catch (error) {
+        console.error('Error saving task:', error);
     }
 };
+
+
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const formatDateTime = (datetime) => {
     const date = new Date(datetime);
     const formatDate = date.toLocaleDateString('en-GB');
-    const formatTime = date.toLocaleTimeString('en-GB', { timeZone: 'Asia/Bangkok' });
+    const formatTime = date.toLocaleTimeString('en-GB', { timeZone: `${timeZone}` });
     return `${formatDate} ${formatTime}`;
 };
 
@@ -47,8 +62,6 @@ const formattedCreatedOn = computed(() => {
 const formattedUpdatedOn = computed(() => {
     return formatDateTime(tasksId.value.updatedOn);
 });
-
-const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 </script>
 
 <template>
@@ -64,7 +77,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                     </div>
                     <div class=" w-96">
                         <label for="assignees" class="block">Assignees</label>
-                        <textarea v-if="!tasksId.assignees" id="assignees" disabled
+                        <textarea v-if="!tasksId.assignees" id="assignees"
                             class="itbkk-assignees text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">Unassigned</textarea>
                         <textarea v-else id="assignees" maxlength="30" v-model.trim="tasksId.assignees"
                             class="itbkk-assignees p-2 mt-2 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
@@ -72,11 +85,11 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                     <div class="w-96">
                         <label for="status" class="block">Status</label>
                         <select id="status" v-model="tasksId.status"
-                            class="itbkk-status text-xl bg-[#151515] font-semibold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md">
-                            <option value="No_Status">No Status</option>
-                            <option value="To_Do">To Do</option>
-                            <option value="Doing">Doing</option>
-                            <option value="Done">Done</option>
+                            class="itbkk-status text-xl bg-[#151515] font-semi bold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md">
+                            <option value="NO_STATUS">No Status</option>
+                            <option value="TO_DO">To Do</option>
+                            <option value="DOING">Doing</option>
+                            <option value="DONE">Done</option>
                         </select>
                     </div>
 
@@ -99,7 +112,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 <form class="my-4 flex">
                     <div class="w-[39em]">
                         <label for="description" class="block">Description</label>
-                        <textarea v-if="!tasksId.description" id="description" maxlength="500" rows="5" disabled
+                        <textarea v-if="!tasksId.description" id="description" maxlength="500" rows="5"
                             class="itbkk-description text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">No Description Provided</textarea>
                         <textarea v-else v-text.trim="tasksId.description" id="description" maxlength="500" rows="5"
                             class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
@@ -107,9 +120,8 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 </form>
             </div>
             <div class="flex justify-end gap-2 mr-4">
-                <button @click="editTask" class="bg-green-500 hover:bg-green-600 text-black py-2 px-4 rounded w-24">
-                    Save
-                </button>
+                <button @click="saveTask"
+                    class="bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow">Save</button>
                 <RouterLink to="/task">
                     <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded w-24">
                         Close
