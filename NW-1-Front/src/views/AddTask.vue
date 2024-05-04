@@ -1,15 +1,15 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-const router = useRouter();
 import { addItem } from '../libs/fetchUtils.js';
 import { useTaskStore } from '../stores/taskStore.js';
 const taskStore = useTaskStore();
 
-const addTask = ref({ title: "", description: "", assignees: "", status: "" })
+const router = useRouter();
 
-const saveTask = async (event) => {
-    event.preventDefault();
+const addTask = ref({id:"", title: "", description: "", assignees: "", status: "" })
+
+const saveTask = async () => {
     try {
         if (addTask.value.status.trim() === "") {
             // ตั้งค่าเริ่มต้นหากสถานะว่าง
@@ -31,8 +31,8 @@ const saveTask = async (event) => {
 <template>
     <!-- Add Task Modal -->
     <div class="fixed inset-0 bg-gray-900 bg-opacity-70 flex justify-center items-center text-white z-50">
-        <div class="bg-[#222222] p-8 rounded-lg w-4/5 max-w-5xl border-4 border-[#37373D] shadow-lg scale-90">
-            <div class="flex flex-col text-2xl mb-4">
+        <div class="bg-[#222222] p-6 rounded-md w-4/5 max-w-5xl border-4 border-[#37373D] shadow-lg scale-90">
+            <div class="flex flex-col text-2xl">
                 <h2 class="text-[#BFF1FF] mb-2 bg-[#333333] p-2">Add New Task</h2>
                 <form class="grid grid-cols-1 gap-6 sm:grid-cols-2 w-full">
                     <div>
@@ -60,15 +60,15 @@ const saveTask = async (event) => {
                         <textarea id="description" maxlength="500" rows="5" v-model="addTask.description" required
                             class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
                     </div>
-                    <div class="flex justify-end gap-4">
-                        <button @click="saveTask"
-                            class="bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow">Save</button>
-                        <router-link to="/task">
-                            <button
-                                class="bg-[#F44336] hover:bg-[#E53935] text-white py-2 px-4 rounded-lg shadow">Cancel</button>
-                        </router-link>
-                    </div>
                 </form>
+                <div class="flex justify-end gap-4 mt-4">
+                    <button @click="saveTask"
+                        class="bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow">Save</button>
+                    <router-link to="/task">
+                        <button
+                            class="bg-[#F44336] hover:bg-[#E53935] text-white py-2 px-4 rounded-lg shadow">Cancel</button>
+                    </router-link>
+                </div>
             </div>
         </div>
     </div>

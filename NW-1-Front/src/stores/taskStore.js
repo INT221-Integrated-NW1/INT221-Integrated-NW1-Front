@@ -28,7 +28,6 @@ export const useTaskStore = defineStore("taskStore", () => {
 	const setTasks = (newTasks) => {
 		tasks.value = newTasks;
 	};
-
 	return {
 		getTasks,
 		addTask,

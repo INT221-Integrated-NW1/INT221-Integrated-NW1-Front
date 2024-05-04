@@ -33,19 +33,6 @@ const editTask = async () => {
     }
 };
 
-// const editTask = async () => {
-//     try {
-//         // เรียกใช้ editItem เพื่อแก้ไข task โดยส่ง URL, ID ของ task, และข้อมูลที่ต้องการแก้ไข
-//         const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`, addTask.value);
-//         console.log('Task updated:', updatedTask);
-
-//         // หลังจากที่ task ถูกแก้ไขสำเร็จ คุณอาจต้องการทำการนำทางไปยังหน้าอื่น (เช่นหน้า task list) โดยใช้ Vue Router
-//         // ตัวอย่าง: router.push('/task');
-//     } catch (error) {
-//         console.error('Error updating task:', error);
-//     }
-// };
-
 const formatDateTime = (datetime) => {
     const date = new Date(datetime);
     const formatDate = date.toLocaleDateString('en-GB');

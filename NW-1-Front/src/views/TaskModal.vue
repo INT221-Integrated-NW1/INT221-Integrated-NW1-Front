@@ -1,16 +1,11 @@
 <script setup>
-import { ref, onBeforeMount, computed, watch } from 'vue';
+import { ref, onBeforeMount, computed } from 'vue';
 import { getItems } from "../libs/fetchUtils.js"
-import { useTaskStore } from '../stores/taskStore.js';
-
 import { useRoute } from 'vue-router';
-const router = useRoute();
 
-const taskStore = useTaskStore();
-const tasks = taskStore.getTasks();
+const route = useRoute();
 
-
-const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: ""})
+const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
 const getTasksById = async (id) => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
@@ -25,7 +20,7 @@ const getTasksById = async (id) => {
 }
 
 onBeforeMount(() => {
-    const id = router.params.id; // Get the task ID from the router parameters
+    const id = route.params.id; // Get the task ID from the router parameters
     getTasksById(id);
 });
 
@@ -55,20 +50,20 @@ const formattedUpdatedOn = computed(() => {
                 <form class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="w-96">
                         <label for="title" class="block pb-1">Title</label>
-                        <textarea id="title" maxlength="100" v-model.trim="tasksId.title"
+                        <textarea id="title" maxlength="100" v-model.trim="tasksId.title" disabled
                             class="itbkk-title p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                     </div>
                     <div class=" w-96">
                         <label for="assignees" class="block">Assignees</label>
                         <textarea v-if="!tasksId.assignees" id="assignees" disabled
                             class="itbkk-assignees text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">Unassigned</textarea>
-                        <textarea v-else id="assignees" maxlength="30" v-model.trim="tasksId.assignees"
+                        <textarea v-else id="assignees" maxlength="30" v-model.trim="tasksId.assignees" disabled
                             class="itbkk-assignees p-2 mt-2 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                     </div>
                     <div class="w-96">
                         <label for="status" class="block">Status</label>
-                        <select id="status" v-model="tasksId.status"
-                            class="itbkk-status text-xl bg-[#151515] font-semibold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md">
+                        <select id="status" v-model="tasksId.status" disabled
+                            class="itbkk-status text-xl bg-[#151515] font-semi bold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md">
                             <option value="NO_STATUS">No Status</option>
                             <option value="TO_DO">To Do</option>
                             <option value="DOING">Doing</option>
@@ -97,16 +92,13 @@ const formattedUpdatedOn = computed(() => {
                         <label for="description" class="block">Description</label>
                         <textarea v-if="!tasksId.description" id="description" maxlength="500" rows="5" disabled
                             class="itbkk-description text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">No Description Provided</textarea>
-                        <textarea v-else v-text.trim="tasksId.description"  id="description" maxlength="500" rows="5"
+                        <textarea v-else v-text.trim="tasksId.description" id="description" maxlength="500" rows="5"
+                            disabled
                             class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
                     </div>
                 </form>
             </div>
             <div class="flex justify-end gap-2 mr-4">
-                <button @click="closeTaskModal"
-                    class="bg-green-500 hover:bg-green-600 text-black py-2 px-4 rounded w-24">
-                    Save
-                </button>
                 <RouterLink to="/task">
                     <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded w-24">
                         Close
