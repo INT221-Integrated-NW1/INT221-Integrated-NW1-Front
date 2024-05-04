@@ -1,9 +1,14 @@
 <script setup>
-import { ref, onBeforeMount, computed } from 'vue';
-import { useRoute } from 'vue-router';
-const route = useRoute();
-
+import { ref, onBeforeMount, computed, watch } from 'vue';
 import { getItems } from "../libs/fetchUtils.js"
+import { useTaskStore } from '../stores/taskStore.js';
+
+import { useRoute } from 'vue-router';
+const router = useRoute();
+
+const taskStore = useTaskStore();
+const tasks = taskStore.getTasks();
+
 
 const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: ""})
 const getTasksById = async (id) => {
@@ -18,10 +23,12 @@ const getTasksById = async (id) => {
         console.error(`Failed to fetch task with ID ${id}:`, error);
     }
 }
+
 onBeforeMount(() => {
-    const id = route.params.id; // Get the task ID from the route parameters
+    const id = router.params.id; // Get the task ID from the router parameters
     getTasksById(id);
 });
+
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const formatDateTime = (datetime) => {

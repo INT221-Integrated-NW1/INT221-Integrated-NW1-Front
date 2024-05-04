@@ -1,12 +1,14 @@
 <script setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount } from "vue";
 import { getItems, deleteItemById } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
-import { tasks } from '../stores/taskStore.js';
+import { useTaskStore } from '../stores/taskStore.js';
+const taskStore = useTaskStore();
+const tasks = taskStore.getTasks();
 
 const router = useRouter()
 
-const getTasks = async () => {
+const getAllTasks = async () => {
   try {
     const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks`);
     tasks.value = data;
@@ -18,7 +20,6 @@ const getTasks = async () => {
 const deleteTask = async (id) => {
   try {
     const status = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, id);
-
     // Check if the deletion was successful (HTTP status code 200 means success)
     if (status === 200) {
       // Remove the deleted task from the tasks array
@@ -32,7 +33,7 @@ const deleteTask = async (id) => {
   }
 };
 onBeforeMount(() => {
-  getTasks();
+  getAllTasks();
 });
 
 const formatStatus = (status) => {
@@ -67,7 +68,7 @@ const formatStatus = (status) => {
       </svg>
     </button>
   </div>
-  <img src="../../public/images/pin.png" height="50px" width="50px" class="z-99 absolute inset-0 left-100">
+  <img src="/images/pin.png" height="50px" width="50px" class="z-99 absolute inset-0 left-100">
   <div v-if="tasks.length === 0" class="flex justify-center">
     <div
       class="overflow-x-auto border-[4px] border-slate-600 rounded-lg hide m-4 hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
@@ -118,7 +119,7 @@ const formatStatus = (status) => {
             <button>
               <td
                 class="itbkk-title overflow-hidden cursor-pointer hover:no-underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
-                @click="router.push(`/task/${task.id}`)">{{ task.title.trim() }}</td>
+                @click="router.push(`/task/${task.id}`)">{{ task.title }}</td>
             </button>
             <td class="itbkk-assignees italic text-gray-500" v-if="!task.assignees">Unassigned</td>
             <td class="itbkk-assignees italic" v-else.trim>{{ task.assignees }}</td>

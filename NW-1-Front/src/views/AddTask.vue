@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 import { addItem } from '../libs/fetchUtils.js';
-import { tasks } from '../stores/taskStore.js';
-import router from '@/router';
+import { useTaskStore } from '../stores/taskStore.js';
+const taskStore = useTaskStore();
 
 const addTask = ref({ title: "", description: "", assignees: "", status: "" })
 
@@ -16,7 +18,7 @@ const saveTask = async (event) => {
         const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, addTask.value);
         console.log('New task added:', newTask);
         // เพิ่ม task ใหม่ลงในรายการ tasks
-        tasks.value.push(newTask);
+        taskStore.addTask(newTask);
         // รีเซ็ตฟอร์ม
         addTask.value = { title: "", description: "", assignees: "", status: "" };
         router.push('/task');
