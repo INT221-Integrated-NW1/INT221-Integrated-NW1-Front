@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, onMounted, computed } from "vue";
+import { onBeforeMount } from "vue";
 import Notification from "../components/Notification.vue";
 import { getItems, deleteItemById } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
@@ -54,7 +54,6 @@ const formatStatus = (status) => {
       return status;
   }
 };
-
 </script>
 
 <template>
@@ -75,68 +74,68 @@ const formatStatus = (status) => {
   </div>
   <img src="/images/pin.png" height="50px" width="50px" class="z-99 absolute inset-0 left-100">
 
-  
   <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" :duration="5000" />
+
   <div v-if="tasks.length === 0" class="flex justify-center">
     <div
-    class="overflow-x-auto border-[4px] border-slate-600 rounded-lg hide m-4 hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
-    <table class="table table-zebra table-pin-rows text-center">
-      <thead class="text-3xl">
-        <tr class="lobster-regular text-black">
-          <th>Id</th>
-          <th>Title</th>
-          <th>Assignees</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="itbkk-item text-[1.5em] lobster-regular  ">
-          <td colspan="4">No Task</td>
-        </tr>
-      </tbody>
-    </table>
+      class="overflow-x-auto border-[4px] border-slate-600 rounded-lg hide m-4 hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
+      <table class="table table-zebra table-pin-rows text-center">
+        <thead class="text-3xl">
+          <tr class="lobster-regular text-black">
+            <th>Id</th>
+            <th>Title</th>
+            <th>Assignees</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="itbkk-item text-[1.5em] lobster-regular  ">
+            <td colspan="4">No Task</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
 
-<div v-else class="flex justify-center">
-  <div
-  class="overflow-x-auto border-[4px] border-slate-600 rounded-lg h-[28em] hide hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
-  <table class="table table-zebra table-pin-rows text-center w-full">
-    <thead class="text-3xl">
-      <tr class="lobster-regular text-black">
-        <th>Id</th>
-        <th></th>
-        <th>Title</th>
-        <th>Assignees</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="itbkk-item text-[1.2em]" v-for="(task, index) in tasks" :key="index">
-        <td class="itbkk-id">{{ index + 1 }}</td>
-        <td class="p-0">
-          <button class="text-[1.8em] dropdown dropdown-right">
-            <div tabindex="0" class="">⋮</div>
-            <ul tabindex="0" class="dropdown-content z-10 menu mt-2 p-2 shadow bg-base-100 rounded-box w-52">
-              <li><a @click="router.push(`/task/${task.id}/edit`)">Edit</a></li>
-              <li><a @click="deleteTask(task.id)">Delete</a></li>
-            </ul>
-          </button>
-        </td>
-        <button>
-          <td
-          class="itbkk-title overflow-hidden cursor-pointer hover:no-underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
-          @click="router.push(`/task/${task.id}`)">{{ task.title }}</td>
-        </button>
-        <td class="itbkk-assignees italic text-gray-500" v-if="!task.assignees">Unassigned</td>
-        <td class="itbkk-assignees italic" v-else.trim>{{ task.assignees }}</td>
-        <td class="itbkk-status">{{ formatStatus(task.status) }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-</div>
-<RouterView />
+  <div v-else class="flex justify-center">
+    <div
+      class="overflow-x-auto border-[4px] border-slate-600 rounded-lg h-[28em] hide hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
+      <table class="table table-zebra table-pin-rows text-center w-full">
+        <thead class="text-3xl">
+          <tr class="lobster-regular text-black">
+            <th>Id</th>
+            <th></th>
+            <th>Title</th>
+            <th>Assignees</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="itbkk-item text-[1.2em]" v-for="(task, index) in tasks" :key="index">
+            <td class="itbkk-id">{{ index + 1 }}</td>
+            <td class="p-0">
+              <button class="text-[1.8em] dropdown dropdown-right">
+                <div tabindex="0" class="">⋮</div>
+                <ul tabindex="0" class="dropdown-content z-10 menu mt-2 p-2 shadow bg-base-100 rounded-box w-52">
+                  <li><a @click="router.push(`/task/${task.id}/edit`)">Edit</a></li>
+                  <li><a @click="deleteTask(task.id)">Delete</a></li>
+                </ul>
+              </button>
+            </td>
+            <button>
+              <td
+                class="itbkk-title overflow-hidden cursor-pointer hover:no-underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
+                @click="router.push(`/task/${task.id}`)">{{ task.title }}</td>
+            </button>
+            <td class="itbkk-assignees italic text-gray-500" v-if="!task.assignees">Unassigned</td>
+            <td class="itbkk-assignees italic" v-else.trim>{{ task.assignees }}</td>
+            <td class="itbkk-status">{{ formatStatus(task.status) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <RouterView />
 </template>
 
 <style scoped>
@@ -159,6 +158,5 @@ const formatStatus = (status) => {
 .button-shadow {
   filter: drop-shadow(#2C4E80 3px 3px 0px)
 }
-
 /* Hex Codes: #2BAF90, #A1D4B1, #F1A512, #DD4111 , #ed673e, #8C0027*/
 </style>
