@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router';
 import { addItem } from '../libs/fetchUtils.js';
 import { useTaskStore } from '../stores/taskStore.js';
 const taskStore = useTaskStore();
+import { useNotiStore } from '../stores/notificationStore.js';
+const notiStore = useNotiStore();
 
 const router = useRouter();
 
@@ -16,12 +18,14 @@ const saveTask = async () => {
             addTask.value.status = "NO_STATUS";
         }
         const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, addTask.value);
-        console.log('New task added:', newTask);
         // เพิ่ม task ใหม่ลงในรายการ tasks
         taskStore.addTask(newTask);
         // รีเซ็ตฟอร์ม
         addTask.value = { title: "", description: "", assignees: "", status: "" };
-        router.push('/task');
+        // ตั้งค่า notificationMessage ใน notiStore
+        notiStore.setNotificationMessage('Task added successfully!');
+        notiStore.setShowNotification(true);
+        router.push({ path: '/task' });
     } catch (error) {
         console.error('Error saving task:', error);
     }
