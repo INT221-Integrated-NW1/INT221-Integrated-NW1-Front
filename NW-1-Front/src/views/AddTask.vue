@@ -7,7 +7,7 @@ const taskStore = useTaskStore();
 
 const router = useRouter();
 
-const addTask = ref({id:"", title: "", description: "", assignees: "", status: "" })
+const addTask = ref({ id: "", title: "", description: "", assignees: "", status: "" })
 
 const saveTask = async () => {
     try {
@@ -25,6 +25,13 @@ const saveTask = async () => {
     } catch (error) {
         console.error('Error saving task:', error);
     }
+};
+
+const isFormValid = () => {
+    return addTask.value.title.trim() !== "" ||
+        addTask.value.description.trim() !== "" ||
+        addTask.value.assignees.trim() !== "" ||
+        addTask.value.status !== "";
 };
 </script>
 
@@ -62,8 +69,8 @@ const saveTask = async () => {
                     </div>
                 </form>
                 <div class="flex justify-end gap-4 mt-4">
-                    <button @click="saveTask"
-                        class="bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow">Save</button>
+                    <button @click="saveTask" :disabled="!isFormValid()"
+                        class="bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Save</button>
                     <router-link to="/task">
                         <button
                             class="bg-[#F44336] hover:bg-[#E53935] text-white py-2 px-4 rounded-lg shadow">Cancel</button>
