@@ -13,11 +13,13 @@ const route = useRoute();
 const router = useRouter();
 
 const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
+const originalTask = ref(null);
 const getTasksById = async (id) => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
         if (data) {
             tasksId.value = data;
+            originalTask.value = { ...data };
         } else {
             console.warn(`Task with ID ${id} not found.`);
         }
@@ -33,7 +35,6 @@ onBeforeMount(() => {
 
 const saveTask = async () => {
     try {
-        // Send PUT request to update task
         const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${tasksId.value.id}`, tasksId.value);
         console.log('Updated task:', updatedTask);
 
@@ -69,6 +70,15 @@ const formattedCreatedOn = computed(() => {
 const formattedUpdatedOn = computed(() => {
     return formatDateTime(tasksId.value.updatedOn);
 });
+
+const isFormValid = () => {
+    return (
+        tasksId.value.title !== originalTask.value.title ||
+        tasksId.value.description !== originalTask.value.description ||
+        tasksId.value.assignees !== originalTask.value.assignees ||
+        tasksId.value.status !== originalTask.value.status
+    );
+};
 </script>
 
 <template>
@@ -135,8 +145,8 @@ const formattedUpdatedOn = computed(() => {
                 </form>
             </div>
             <div class="flex justify-end gap-2 mr-4">
-                <button @click="saveTask"
-                    class="bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg shadow">Ok</button>
+                <button @click="saveTask" :disabled="!isFormValid()"
+                    class="bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Save</button>
                 <RouterLink to="/task">
                     <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded w-24">
                         Cancel
