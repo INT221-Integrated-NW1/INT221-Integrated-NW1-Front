@@ -24,17 +24,11 @@ const routes = [
 						next();
 					} else {
 						window.alert("The requested task does not exist");
-						next(router.go(-1));
+						next('/task');
+						// next(router.go(-1));
 						console.log(`The requested task Id:${id} does not exist `);
 					}
 				},
-				// children: [
-				// 	{
-				// 		path: "edit",
-				// 		name: "EditTask",
-				// 		component: () => import("../views/EditTask.vue"),
-				// 	},
-				// ]
 			},
 			{
 				path: ":id/edit",
