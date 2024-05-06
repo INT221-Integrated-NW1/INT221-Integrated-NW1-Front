@@ -49,23 +49,45 @@ const closeConfirmModal = () => {
   deleteConfirmModal.value = false;
   taskToDelete.value = null;
 };
-
 const deleteTask = async (id) => {
   try {
     const status = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, id);
     // Check if the deletion was successful (HTTP status code 200 means success)
     if (status === 200) {
-      // Remove the deleted task from the tasks array
+      // Create a new array that doesn't include the deleted task
       tasks.value = tasks.value.filter(task => task.id !== id);
       console.log(`Task with ID ${id} deleted successfully.`);
+      // Show success notification
+      notiStore.setNotificationMessage('Task deleted successfully');
+      notiStore.setShowNotification(true);
+      // Close confirm modal
       closeConfirmModal();
+    } else if (status === 404) {
+      console.error(`Failed to delete task with ID ${id}. Task does not exist.`);
+      // Show error message
+      notiStore.setNotificationMessage('An error has occurred, the task does not exist.');
+      notiStore.setShowNotification(true);
+      // Close confirm modal
+      
+      closeConfirmModal();
+      refreshTasks();
+      
     } else {
       console.error(`Failed to delete task with ID ${id}. HTTP status: ${status}`);
     }
   } catch (error) {
-    console.error(`Failed to delete task with ID ${id}: ${error}`);
+    console.error(`Failed to delete task with ID ${id}:`, error);
   }
 };
+
+// Method to refresh tasks
+const refreshTasks = async () => {
+  await getAllTasks();
+};
+
+// Add this inside the if statement where tasks are deleted successfully
+refreshTasks();
+
 onBeforeMount(() => {
   getAllTasks();
 });
