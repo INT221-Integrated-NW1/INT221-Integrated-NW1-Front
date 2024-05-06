@@ -20,14 +20,18 @@ const saveTask = async () => {
         const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, addTask.value);
         // เพิ่ม task ใหม่ลงในรายการ tasks
         taskStore.addTask(newTask);
+        notiStore.setNotificationMessage(`The task "${addTask.value.title}" is added successfully`);
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("success");
         // รีเซ็ตฟอร์ม
         addTask.value = { title: "", description: "", assignees: "", status: "" };
         // ตั้งค่า notificationMessage ใน notiStore
-        notiStore.setNotificationMessage('Task added successfully!');
-        notiStore.setShowNotification(true);
         router.push({ path: '/task' });
     } catch (error) {
         console.error('Error saving task:', error);
+        notiStore.setNotificationMessage(`An error occurred deleting the task "${addTask.value.title}`);
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("error"); // Specify the type as 'error'
     }
 };
 
@@ -74,10 +78,10 @@ const isFormValid = () => {
                 </form>
                 <div class="flex justify-end gap-4 mt-4">
                     <button @click="saveTask" :disabled="!isFormValid()"
-                        class="bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Save</button>
+                        class="itbkk-button-confirm bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Save</button>
                     <router-link to="/task">
                         <button
-                            class="bg-[#F44336] hover:bg-[#E53935] text-white py-2 px-4 rounded-lg shadow">Cancel</button>
+                            class="itbkk-button-cancel bg-[#F44336] hover:bg-[#E53935] text-white py-2 px-4 rounded-lg shadow">Cancel</button>
                     </router-link>
                 </div>
             </div>

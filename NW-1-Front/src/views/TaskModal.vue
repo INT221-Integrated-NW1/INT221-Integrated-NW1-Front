@@ -51,7 +51,7 @@ const formattedUpdatedOn = computed(() => {
                     <div class="w-96">
                         <label for="title" class="block pb-1">Title</label>
                         <textarea id="title" maxlength="100" v-model.trim="tasksId.title" disabled
-                            class="itbkk-title p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                            class="itbkk-title hide p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                     </div>
                     <div class=" w-96">
                         <label for="assignees" class="block">Assignees</label>
@@ -110,6 +110,10 @@ const formattedUpdatedOn = computed(() => {
 </template>
 
 <style scoped>
+.hide::-webkit-scrollbar {
+  display: none;
+}
+
 label {
     font-weight: bolder;
 }
