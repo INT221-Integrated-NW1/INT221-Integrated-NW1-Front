@@ -1,12 +1,13 @@
 <script setup>
+import 'animate.css';
 import { useNotiStore } from '../stores/notificationStore.js';
-import { onMounted, defineProps } from 'vue';
+import { onMounted } from 'vue';
 const notiStore = useNotiStore();
 
 const props = defineProps({
     duration: {
         type: Number,
-        default: 5000 // Default duration of 3 seconds
+        default: 3000
     }
 });
 
@@ -23,52 +24,17 @@ onMounted(() => {
 </script>
 
 <template>
-    <div v-if="notiStore.showNotification" class="notification-container fixed top-20 left-[8rem] z-50 mt-2 animate-bounce delay-300">
-        <div class="notification">
-            <p>{{ notiStore.notificationMessage }}</p>
-            <button class="close-button" @click="closeNotification">&times;</button>
+    <div v-if="notiStore.showNotification" :class="`text-white z-[20] animate-bounce rounded-lg shadow-lg m-2 p-2
+                ${notiStore.notificationType === 'success' ? 'bg-green-500' : 'bg-red-500'}`">
+        <div class="notification flex items-center justify-between">
+            <p class="flex-grow">{{ notiStore.notificationMessage }}</p>
+            <button
+                class="close-button text-lg font-bold p-2 rounded-md bg-white text-black hover:text-red-600 hover:bg-gray-100 transition-colors duration-200 ml-4"
+                @click="closeNotification">&times;</button>
         </div>
     </div>
 </template>
 
+
 <style scoped>
-.notification-container {
-    display: flex;
-    justify-content: flex-end;
-    padding: 0.5rem;
-}
-
-.notification {
-    background-color: #4CAF50;
-    /* Success color */
-    padding: 1rem;
-    border-radius: 0.5rem;
-    color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.close-button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    margin-left: 1rem;
-}
-
-.close-button:hover {
-    color: #d32f2f;
-    /* Red color on hover for close button */
-}
-
-@media (max-width: 768px) {
-    .notification-container {
-        top: 2rem;
-        right: 2rem;
-    }
-}
 </style>
