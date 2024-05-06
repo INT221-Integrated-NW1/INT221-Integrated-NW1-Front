@@ -116,7 +116,9 @@ onBeforeMount(() => {
   </div>
 
   <div v-else class="flex justify-center flex-wrap">
-    <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" duration="5000" />
+    <div>
+      <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" duration="5000" />
+    </div>
     <div class="flex">
       <button @click="router.push('/task/add')" class="m-2 itbkk-button-add">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
@@ -142,10 +144,10 @@ onBeforeMount(() => {
               <td class="itbkk-id">{{ index + 1 }}</td>
               <td class="p-0">
                 <button class="text-[1.8em] dropdown dropdown-right">
-                  <div tabindex="0" class="">⋮</div>
+                  <div tabindex="0" class="itbkk-button-action">⋮</div>
                   <ul tabindex="0" class="dropdown-content z-10 menu mt-2 p-2 shadow bg-base-100 rounded-box w-52">
-                    <li><a @click="router.push(`/task/${task.id}/edit`)">Edit</a></li>
-                    <li><a @click="openConfirmModal(task)" class="itbkk-button-action">Delete</a></li>
+                    <li><a @click="router.push(`/task/${task.id}/edit`)" class="itbkk-button-edit">Edit</a></li>
+                    <li><a @click="openConfirmModal(task)" class="itbkk-button-delete">Delete</a></li>
                   </ul>
                 </button>
               </td>
