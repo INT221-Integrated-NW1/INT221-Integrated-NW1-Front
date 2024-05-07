@@ -17,6 +17,12 @@ const saveTask = async () => {
             // ตั้งค่าเริ่มต้นหากสถานะว่าง
             addTask.value.status = "NO_STATUS";
         }
+        if (addTask.value.title.trim() === "") {
+            notiStore.setNotificationMessage("Title cannot be empty");
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            return; // Stop further execution
+        }
         const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, addTask.value);
         // เพิ่ม task ใหม่ลงในรายการ tasks
         taskStore.addTask(newTask);
