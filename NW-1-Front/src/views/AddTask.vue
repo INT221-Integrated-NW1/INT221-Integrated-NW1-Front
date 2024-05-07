@@ -42,10 +42,7 @@ const saveTask = async () => {
 };
 
 const isFormValid = () => {
-    return addTask.value.title.trim() !== "" ||
-        addTask.value.description.trim() !== "" ||
-        addTask.value.assignees.trim() !== "" ||
-        addTask.value.status !== "";
+    return addTask.value.title.trim() !== "" 
 };
 </script>
 

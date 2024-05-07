@@ -60,6 +60,7 @@ const deleteTask = async (id) => {
       // Show success notification
       notiStore.setNotificationMessage('Task deleted successfully');
       notiStore.setShowNotification(true);
+      notiStore.setNotificationType("success");
       // Close confirm modal
       closeConfirmModal();
     } else if (status === 404) {
@@ -67,6 +68,7 @@ const deleteTask = async (id) => {
       // Show error message
       notiStore.setNotificationMessage('An error has occurred, the task does not exist.');
       notiStore.setShowNotification(true);
+      notiStore.setNotificationType("error");
       // Close confirm modal
       
       closeConfirmModal();
