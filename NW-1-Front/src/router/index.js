@@ -49,6 +49,11 @@ const routes = [
 		],
 	},
 	{
+		path: "/status/manage",
+		name: "StatusList",
+		component: () => import("../views/StatusList.vue"),
+	},
+	{
 		path: "/:pathMatch(.*)",
 		name: "NotFound",
 		component: () => import("../views/NotFound.vue"),
