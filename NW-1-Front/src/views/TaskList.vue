@@ -70,10 +70,10 @@ const deleteTask = async (id) => {
       notiStore.setShowNotification(true);
       notiStore.setNotificationType("error");
       // Close confirm modal
-      
+
       closeConfirmModal();
       refreshTasks();
-      
+
     } else {
       console.error(`Failed to delete task with ID ${id}. HTTP status: ${status}`);
     }
@@ -102,6 +102,11 @@ onBeforeMount(() => {
       <!-- Hex Codes: #2BAF90, #A1D4B1, #F1A512, #DD4111, #8C0027 -->
     </h1>
   </header>
+  <div>
+    <RouterLink :to="{ name: 'StatusList' }">
+    <p>Status</p>
+  </RouterLink>
+  </div>
   <!-- <div class="flex justify-end absolute right-[8rem] top-[10rem]">
     <button @click="router.push('/task/add')">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-8 h-8 rounded-md fill-[#00215E]">
@@ -112,7 +117,7 @@ onBeforeMount(() => {
   </div> -->
   <!-- <img src="/images/pin.png" height="50px" width="50px" class="absolute inset-0 left-100"> -->
 
-  <div v-if="tasks.length === 0" class="flex justify-center">
+  <div v-if=" tasks.length === 0 " class="flex justify-center">
     <button class="itbkk-button-add" @click="router.push('/task/add')">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-8 h-8 rounded-md fill-[#00215E]">
         <path
@@ -141,7 +146,7 @@ onBeforeMount(() => {
 
   <div v-else class="flex justify-center flex-wrap">
     <div>
-      <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" duration="5000" />
+      <Notification :message=" notiStore.notificationMessage " v-if=" notiStore.showNotification " duration="5000" />
     </div>
     <div class="flex">
       <button @click="router.push('/task/add')" class="m-2 itbkk-button-add">
@@ -164,13 +169,13 @@ onBeforeMount(() => {
             </tr>
           </thead>
           <tbody>
-            <tr class="itbkk-item text-[1.2em]" v-for="(task, index) in tasks" :key="index">
+            <tr class="itbkk-item text-[1.2em]" v-for="( task, index ) in tasks" :key=" index ">
               <td class="itbkk-id">{{ index + 1 }}</td>
               <td class="p-0">
                 <button class="text-[1.8em] dropdown dropdown-right">
                   <div tabindex="0" class="itbkk-button-action">⋮</div>
                   <ul tabindex="0" class="dropdown-content z-10 menu mt-2 p-2 shadow bg-base-100 rounded-box w-52">
-                    <li><a @click="router.push(`/task/${task.id}/edit`)" class="itbkk-button-edit">Edit</a></li>
+                    <li><a @click="router.push(`/ task / ${ task.id } /edit`)" class="itbkk-button-edit">Edit</a></li>
                     <li><a @click="openConfirmModal(task)" class="itbkk-button-delete">Delete</a></li>
                   </ul>
                 </button>
