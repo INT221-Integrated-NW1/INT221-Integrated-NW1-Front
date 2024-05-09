@@ -96,12 +96,17 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <header class="lobster-regular text-[#FC4100] head-shadow text-center mt-4 text-[3rem] font-extrabold mb-6">
+  <header class="lobster-regular text-[#FC4100] head-shadow text-center pt-4 text-[3rem] font-extrabold mb-6">
     <h1>
       IT-Bangmod Kradan Kanban
       <!-- Hex Codes: #2BAF90, #A1D4B1, #F1A512, #DD4111, #8C0027 -->
     </h1>
   </header>
+  <div class="text-center">
+    <RouterLink :to="{ name: 'StatusList' }">
+      <button class="bg-red-200 p-3 rounded-lg text-xl font-bold hover:scale-125 duration-150">Status</button>
+    </RouterLink>
+  </div>
   <!-- Empty Table -->
   <div v-if="tasks.length === 0" class="flex justify-center">
     <div class="flex items-center">
@@ -131,58 +136,62 @@ onBeforeMount(() => {
       </div>
     </div>
   </div>
-
+  <!-- Table with Tasks -->
   <div v-else>
     <div class="flex justify-center w-auto">
       <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" duration="50009999" />
     </div>
     <div class="flex justify-center items-baseline">
-      <button @click="router.push('/task/add')" class="m-2 itbkk-button-add">
+      <button @click="router.push('/task/add')" class="itbkk-button-add">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
           class="w-[3rem] h-[3rem] rounded-md bg-[#c5daff] fill-[#00215E] hover:scale-125 duration-150">
           <path
             d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
         </svg>
       </button>
-      <div
-        class="overflow-x-auto border-[4px] border-slate-600 rounded-lg h-[25em] hide hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
-        <table class="table table-zebra table-pin-rows text-center w-full">
-          <thead class="text-3xl">
-            <tr class="lobster-regular text-black">
-              <th>Id</th>
-              <th></th>
-              <th>Title</th>
-              <th>Assignees</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="itbkk-item text-[1.2em]" v-for="(task, index) in tasks" :key="index">
-              <td class="itbkk-id">{{ index + 1 }}</td>
-              <td class="p-0">
-                <button class="text-[1.8em] dropdown dropdown-right">
-                  <div tabindex="0" class="itbkk-button-action">⋮</div>
-                  <ul tabindex="0" class="dropdown-content z-10 menu mt-2 p-2 shadow bg-base-100 rounded-box w-52">
-                    <li><a @click="router.push(`/task/${task.id}/edit`)" class="itbkk-button-edit">Edit</a></li>
-                    <li><a @click="openConfirmModal(task)" class="itbkk-button-delete">Delete</a></li>
-                  </ul>
-                </button>
-              </td>
-              <button>
-                <td
-                  class="itbkk-title overflow-hidden cursor-pointer hover:no-underline max-w-[45rem] hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
-                  @click="router.push(`/task/${task.id}`)">{{ task.title }}</td>
-              </button>
-              <td class="itbkk-assignees italic text-gray-500" v-if="!task.assignees">Unassigned</td>
-              <td class="itbkk-assignees italic" v-else.trim>{{ task.assignees }}</td>
-              <td class="itbkk-status">{{ formatStatus(task.status) }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="max-h-screen flex justify-center">
+        <div class="w-full max-w-screen-lg pl-2">
+          <div class="relative h-[26.3em] overflow-x-auto hide shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-fixed">
+              <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr class="text-black">
+                  <th class="px-6 py-3 w-[4%] text-center">Id</th>
+                  <th class="px-6 py-3 w-[3%]"></th>
+                  <th class="px-6 py-3 w-1/4 text-center">Title</th>
+                  <th class="px-6 py-3 w-1/4 text-center">Assignees</th>
+                  <th class="px-6 py-3 w-1/6 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody class="font-semibold">
+                <tr v-for="(task, index) in tasks" :key="index"
+                  class="itbkk-item text-[1.2em] bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition hover:-translate-x-2 duration-300 ease-in-out">
+                  <td class="itbkk-id px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white text-center">{{ index + 1 }}</td>
+                  <td class="p-0">
+                    <button class="text-[1.8em] dropdown dropdown-right">
+                      <div tabindex="0" class="itbkk-button-action">⋮</div>
+                      <ul tabindex="0" class="dropdown-content z-10 menu mt-2 p-2 shadow bg-base-100 rounded-box w-52">
+                        <li><a @click="router.push(`/task/${task.id}/edit`)" class="itbkk-button-edit">Edit</a></li>
+                        <li><a @click="openConfirmModal(task)" class="itbkk-button-delete">Delete</a></li>
+                      </ul>
+                    </button>
+                  </td>
+                  <td class="text-center">
+                    <button
+                      class="itbkk-title max-w-[15rem] truncate cursor-pointer hover:no-underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
+                      @click="router.push(`/task/${task.id}`)">{{ task.title }}</button>
+                  </td>
+                  <td class="itbkk-assignees italic text-gray-500 text-center" v-if="!task.assignees">Unassigned</td>
+                  <td class="itbkk-assignees italic text-center" v-else.trim>{{ task.assignees }}</td>
+                  <td class="itbkk-status text-center">{{ formatStatus(task.status) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
+  <!-- Delete Confirm Modal -->
   <div
     class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
     v-if="deleteConfirmModal">
@@ -206,10 +215,6 @@ onBeforeMount(() => {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
-
-.hide::-webkit-scrollbar {
-  display: none;
-}
 
 .lobster-regular {
   font-family: "Lobster", sans-serif;

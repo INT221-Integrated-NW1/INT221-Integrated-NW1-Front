@@ -110,10 +110,6 @@ const formattedUpdatedOn = computed(() => {
 </template>
 
 <style scoped>
-.hide::-webkit-scrollbar {
-  display: none;
-}
-
 label {
     font-weight: bolder;
 }

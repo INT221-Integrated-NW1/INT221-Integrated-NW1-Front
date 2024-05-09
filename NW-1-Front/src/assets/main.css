@@ -3,12 +3,21 @@
 @tailwind utilities;
 
 * {
-    padding: 0;
-    margin: 0;
+	padding: 0;
+	margin: 0;
 }
 
 @font-face {
-    font-family: "Comodo Regular";
-    src: url('../../fonts/Comodo-Regular.ttf');
-    font-display: auto;
+	font-family: "Comodo Regular";
+	src: url("../../fonts/Comodo-Regular.ttf");
+	font-display: auto;
+}
+
+.hide::-webkit-scrollbar {
+	display: none;
+}
+body{
+	background-image: url("/images/wallpaper.jpg");	
+	height: 100vh;
+	background-size: cover;
 }

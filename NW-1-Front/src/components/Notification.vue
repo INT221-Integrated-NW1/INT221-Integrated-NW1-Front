@@ -24,7 +24,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div v-if="notiStore.showNotification" :class="`text-white z-[20] animate-bounce rounded-lg shadow-lg m-2 p-2
+    <div v-if="notiStore.showNotification" :class="`text-white z-[20] animate-bounce rounded-lg shadow-lg p-2
                 ${notiStore.notificationType === 'success' ? 'bg-green-500' : 'bg-red-500'}`">
         <div class="notification flex items-center justify-between">
             <p class="flex-grow">{{ notiStore.notificationMessage }}</p>
