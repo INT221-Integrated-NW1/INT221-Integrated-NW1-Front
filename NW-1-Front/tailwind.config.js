@@ -7,7 +7,7 @@ export default {
 	],
 	plugins: [require("daisyui"), require("flowbite/plugin")],
 	daisyui: {
-		themes: ["nord","dracula"],
+		themes: [],
 	},
 	// darkMode: "class",
 	// darkMode: "media",

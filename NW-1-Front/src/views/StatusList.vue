@@ -41,11 +41,16 @@ onBeforeMount(() => {
 
 </script>
 <template>
-    <div class="min-h-screen dark:bg-gray-800 flex justify-center">
+    <header class="pt-8 flex justify-center sm:">
+        <h1
+            class="mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(63,77,204)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
+            IT-Bangmod<span class="text-gray-900 dark:text-white"> Kradan Kanban</span></h1>
+    </header>
+    <div class="max-h-screen dark:bg-gray-800 flex justify-center">
         <div class="w-full max-w-screen-lg p-8">
-            <div class="relative h-[26em] hide overflow-x-auto shadow-md sm:rounded-lg">
+            <div class="relative h-[25.7em] bg-[rgba(0,0,0,0.5)] hide overflow-x-auto shadow-md sm:rounded-lg">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-fixed">
-                    <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
                         <tr>
                             <th class="px-6 py-3 w-1/12">Id</th>
                             <th class="px-6 py-3 w-1/6">Name</th>
@@ -56,7 +61,7 @@ onBeforeMount(() => {
                     <tbody class="font-semibold">
                         <!-- Dynamically rendered rows from API -->
                         <tr v-for="(task, index) in tasks" :key="index"
-                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 border-b dark:border-gray-700 transition hover:-translate-x-2 duration-300 ease-in-out">
+                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1 }}</td>
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
                                 <div class="flex items-center">

@@ -139,7 +139,7 @@ onBeforeMount(() => {
   <!-- Table with Tasks -->
   <div v-else>
     <div class="flex justify-center w-auto">
-      <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" duration="50009999" />
+      <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" duration="5000" />
     </div>
     <div class="flex justify-center items-baseline">
       <button @click="router.push('/task/add')" class="itbkk-button-add">
@@ -151,9 +151,9 @@ onBeforeMount(() => {
       </button>
       <div class="max-h-screen flex justify-center">
         <div class="w-full max-w-screen-lg pl-2">
-          <div class="relative h-[26.3em] overflow-x-auto hide shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-fixed">
-              <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <div class="relative max-h-[24.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left rtl:text-right table-fixed">
+              <thead class="text-lg uppercase bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                 <tr class="text-black">
                   <th class="px-6 py-3 w-[4%] text-center">Id</th>
                   <th class="px-6 py-3 w-[3%]"></th>
@@ -164,20 +164,20 @@ onBeforeMount(() => {
               </thead>
               <tbody class="font-semibold">
                 <tr v-for="(task, index) in tasks" :key="index"
-                  class="itbkk-item text-[1.2em] bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition hover:-translate-x-2 duration-300 ease-in-out">
-                  <td class="itbkk-id px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white text-center">{{ index + 1 }}</td>
+                  class="itbkk-item text-[1.2em] odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
+                  <td class="itbkk-id px-6 py-6 text-gray-900 whitespace-nowrap dark:text-white text-center">{{ index + 1 }}</td>
                   <td class="p-0">
                     <button class="text-[1.8em] dropdown dropdown-right">
                       <div tabindex="0" class="itbkk-button-action">⋮</div>
-                      <ul tabindex="0" class="dropdown-content z-10 menu mt-2 p-2 shadow bg-base-100 rounded-box w-52">
-                        <li><a @click="router.push(`/task/${task.id}/edit`)" class="itbkk-button-edit">Edit</a></li>
-                        <li><a @click="openConfirmModal(task)" class="itbkk-button-delete">Delete</a></li>
+                      <ul tabindex="0" class="dropdown-content menu mt-2 p-2 shadow bg-red-100 rounded-box w-52 z-[1]">
+                        <li><a @click="router.push(`/task/${task.id}/edit`)" class="itbkk-button-edit hover:bg-red-200">Edit</a></li>
+                        <li><a @click="openConfirmModal(task)" class="itbkk-button-delete hover:bg-red-200">Delete</a></li>
                       </ul>
                     </button>
                   </td>
                   <td class="text-center">
                     <button
-                      class="itbkk-title max-w-[15rem] truncate cursor-pointer hover:no-underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
+                      class="itbkk-title max-w-[12rem] truncate cursor-pointer hover:no-underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
                       @click="router.push(`/task/${task.id}`)">{{ task.title }}</button>
                   </td>
                   <td class="itbkk-assignees italic text-gray-500 text-center" v-if="!task.assignees">Unassigned</td>
@@ -203,9 +203,9 @@ onBeforeMount(() => {
         <p>"{{ taskToDelete.title }}" ?</p>
       </div>
       <div class="flex justify-center mt-4">
-        <button class="itbkk-button-confirm btn btn-success mr-4 flex-grow hover:scale-105 duration-150 text-white"
+        <button class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
           @click="deleteTask(taskToDelete.id)">Confirm</button>
-        <button class="itbkk-button-cancel btn btn-error flex-grow hover:scale-105 duration-200 text-white"
+        <button class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
           @click="closeConfirmModal">Cancel</button>
       </div>
     </div>
@@ -230,5 +230,22 @@ onBeforeMount(() => {
   filter: drop-shadow(#2C4E80 3px 3px 0px)
 }
 
-/* Hex Codes: #2BAF90, #A1D4B1, #F1A512, #DD4111 , #ed673e, #8C0027*/
+/* .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+} */
 </style>
