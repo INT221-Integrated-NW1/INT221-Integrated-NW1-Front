@@ -43,33 +43,34 @@ onBeforeMount(() => {
 <template>
     <div class="min-h-screen dark:bg-gray-800 flex justify-center">
         <div class="w-full max-w-screen-lg p-8">
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <div class="relative h-[26em] hide overflow-x-auto shadow-md sm:rounded-lg">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-fixed">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="px-6 py-3 w-1/12">Id</th>
-                            <th scope="col" class="px-6 py-3 w-1/6">Name</th>
-                            <th scope="col" class="px-6 py-3 w-[20%]">Description</th>
-                            <th scope="col" class="px-6 py-3 w-1/6">Action</th>
+                            <th class="px-6 py-3 w-1/12">Id</th>
+                            <th class="px-6 py-3 w-1/6">Name</th>
+                            <th class="px-6 py-3 w-[20%]">Description</th>
+                            <th class="px-[68px] py-3 w-1/6">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="font-semibold">
                         <!-- Dynamically rendered rows from API -->
                         <tr v-for="(task, index) in tasks" :key="index"
-                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition hover:-translate-x-2 duration-300 ease-in-out">
+                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 border-b dark:border-gray-700 transition hover:-translate-x-2 duration-300 ease-in-out">
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1 }}</td>
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
                                 <div class="flex items-center">
                                     <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> {{ task.status }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 font-normal text-gray-500 max-w-xs truncate">{{ task.description }} LoveLove</td>
+                            <td class="px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">{{
+                            task.description }} LoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLove</td>
                             <td class="px-6 py-4">
                                 <button type="button"
-                                    class="px-5 py-2.5 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    class="px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                     Edit</button>
                                 <button type="button"
-                                    class="px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    class="px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                                     Delete</button>
                             </td>
                         </tr>
