@@ -102,8 +102,8 @@ const isFormValid = () => {
                     <div class="w-96">
                         <label for="status" class="block">Status</label>
                         <select id="status" v-model="tasksId.status"
-                            class="itbkk-status text-xl bg-[#151515] font-semi bold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md"
-                            :disabled="tasksId.status === 'NO_STATUS'">>
+                            class="itbkk-status text-xl bg-[#151515] font-semi bold h-14 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md">
+                            <!-- :disabled="tasksId.status === 'NO_STATUS'"> -->
                             <option value="NO_STATUS">No Status</option>
                             <option value="TO_DO">To Do</option>
                             <option value="DOING">Doing</option>
