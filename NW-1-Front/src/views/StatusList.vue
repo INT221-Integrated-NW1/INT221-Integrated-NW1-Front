@@ -46,6 +46,16 @@ const openModal = () => {
 const closeModal = () => {
     addModal.value = false;
 };
+
+const deleteConfirmModal = ref(false);
+
+const openConfirmModal = () => {
+  deleteConfirmModal.value = true;
+};
+
+const closeConfirmModal = () => {
+  deleteConfirmModal.value = false;
+};
 </script>
 <template>
     <header class="pt-8 flex justify-center">
@@ -97,7 +107,7 @@ const closeModal = () => {
                                 <button type="button"
                                     class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                     Edit</button>
-                                <button type="button"
+                                <button type="button" @click="openConfirmModal"
                                     class="itbkk-button-delete px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                                     Delete</button>
                             </td>
@@ -181,6 +191,28 @@ const closeModal = () => {
             </div>
         </div>
     </div>
+
+    <!-- Delete Confirm Modal -->
+  <div
+    class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
+    v-if="deleteConfirmModal">
+    <div class="bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
+      <h3 class="text-[#FFC745] font-bold text-lg ">Delete a Task</h3>
+      <hr>
+      <div class="text-center overflow-hidden">
+        <p>Do you want to delete the task</p>
+        <!-- <p>"{{ taskToDelete.title }}" ?</p> -->
+      </div>
+      <div class="flex justify-center mt-4">
+        <button
+          class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
+          @click="">Confirm</button>
+        <button
+          class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
+          @click="closeConfirmModal">Cancel</button>
+      </div>
+    </div>
+  </div>
 
 </template>
 
