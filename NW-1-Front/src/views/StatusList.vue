@@ -41,16 +41,32 @@ onBeforeMount(() => {
 
 </script>
 <template>
-    <header class="pt-8 flex justify-center sm:">
+    <header class="pt-8 flex justify-center">
         <h1
             class="mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(63,77,204)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
             IT-Bangmod<span class="text-gray-900 dark:text-white"> Kradan Kanban</span></h1>
     </header>
     <div class="max-h-screen dark:bg-gray-800 flex justify-center">
         <div class="w-full max-w-screen-lg p-8">
+            <div class="flex pb-2 gap-2 justify-between">
+                <div>
+                    <RouterLink :to="{ name: 'TaskList' }">
+                        <button
+                            class="bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-[#0062ff] hover:text-[#f0f0f0]">Home</button>
+                    </RouterLink>
+                </div>
+                <div>
+                    <RouterLink :to="{ name: 'StatusList' }">
+                        <button
+                            class=" bg-green-400 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-white hover:bg-green-500 hover:text-[#f0f0f0] focus:ring-4 focus:outline-none focus:ring-green-300">Add
+                            Status</button>
+                    </RouterLink>
+                </div>
+            </div>
             <div class="relative h-[25.7em] bg-[rgba(0,0,0,0.5)] hide overflow-x-auto shadow-md sm:rounded-lg">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-fixed">
-                    <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
+                    <thead
+                        class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
                         <tr>
                             <th class="px-6 py-3 w-1/12">Id</th>
                             <th class="px-6 py-3 w-1/6">Name</th>
@@ -64,12 +80,12 @@ onBeforeMount(() => {
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1 }}</td>
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                <div class="flex items-center">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> {{ task.status }}
+                                <div class="flex items-center text-lg">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> {{ formatStatus(task.status) }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">{{
-                            task.description }} LoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLove</td>
+                        task.description }} LoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLove</td>
                             <td class="px-6 py-4">
                                 <button type="button"
                                     class="px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
