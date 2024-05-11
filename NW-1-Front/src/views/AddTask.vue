@@ -13,6 +13,15 @@ const statuses = statusStore.getStatuses();
 const router = useRouter();
 
 const addTask = ref({ id: "", title: "", description: "", assignees: "", statusId: "" })
+const getAllStatus = async () => {
+    try {
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
+        statuses.value = data;
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+};
+
 const saveTask = async () => {
     try {
         if (addTask.value.title.trim() === "") {
@@ -49,6 +58,10 @@ const saveTask = async () => {
 const isFormValid = () => {
     return addTask.value.title.trim() !== ""
 };
+
+onBeforeMount(() => {
+    getAllStatus();
+});
 </script>
 
 <template>
