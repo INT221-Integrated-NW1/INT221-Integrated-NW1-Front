@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import TaskList from "../views/TaskList.vue";
 
-const history = createWebHistory();
+const history = createWebHistory("/nw1");
 const routes = [
 	{
 		path: "/task",

@@ -62,13 +62,9 @@ const formattedUpdatedOn = computed(() => {
                     </div>
                     <div class="w-96">
                         <label for="status" class="block">Status</label>
-                        <select id="status" v-model="tasksId.status" disabled
+                        <textarea id="status" v-model="tasksId.status" disabled
                             class="itbkk-status text-xl bg-[#151515] font-semi bold h-16 p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-[3px] border-gray-300 rounded-md">
-                            <option value="NO_STATUS">No Status</option>
-                            <option value="TO_DO">To Do</option>
-                            <option value="DOING">Doing</option>
-                            <option value="DONE">Done</option>
-                        </select>
+                        </textarea>
                     </div>
 
                     <div class="w-96">

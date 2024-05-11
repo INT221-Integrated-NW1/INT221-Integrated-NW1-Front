@@ -94,7 +94,7 @@ const deleteStatus = async (id) => {
 
             closeConfirmModal();
         } else {
-            console.error(`Failed to delete status with ID ${id}. HTTP status: ${res}`);
+            console.error(`Failed to delete status with ID ${id} HTTP status: ${res}`);
         }
     } catch (error) {
         console.error(`Failed to delete status with ID ${id}:`, error);

@@ -5,11 +5,14 @@ import { getItems, deleteItemById } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
 import { useTaskStore } from '../stores/taskStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
+import { useStatusStore } from '../stores/statusStore.js';
 import 'animate.css';
 
 const taskStore = useTaskStore();
 const tasks = taskStore.getTasks();
 const notiStore = useNotiStore();
+const statusStore = useStatusStore();
+const statuses = statusStore.getStatuses();
 
 const router = useRouter()
 
@@ -22,20 +25,14 @@ const getAllTasks = async () => {
   }
 };
 
-const formatStatus = (status) => {
-  switch (status) {
-    case "NO_STATUS":
-      return "No Status";
-    case "TO_DO":
-      return "To Do";
-    case "DOING":
-      return "Doing";
-    case "DONE":
-      return "Done";
-    default:
-      return status;
-  }
-};
+// const getAllStatus = async () => {
+//   try {
+//     const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
+//     statuses.value = data;
+//   } catch (error) {
+//     console.error('Failed to fetch status:', error);
+//   }
+// };
 
 const deleteConfirmModal = ref(false);
 const taskToDelete = ref(null);
@@ -69,11 +66,7 @@ const deleteTask = async (id) => {
       notiStore.setNotificationMessage('An error has occurred, the task does not exist.');
       notiStore.setShowNotification(true);
       notiStore.setNotificationType("error");
-      // Close confirm modal
-
       closeConfirmModal();
-      refreshTasks();
-
     } else {
       console.error(`Failed to delete task with ID ${id}. HTTP status: ${status}`);
     }
@@ -82,13 +75,9 @@ const deleteTask = async (id) => {
   }
 };
 
-// Method to refresh tasks
-const refreshTasks = async () => {
-  await getAllTasks();
-};
-
 onBeforeMount(() => {
   getAllTasks();
+  // getAllStatus();
 });
 </script>
 
@@ -99,16 +88,25 @@ onBeforeMount(() => {
       IT-Bangmod<span class="text-gray-900 dark:text-white"> Kradan Kanban</span></h1>
   </header>
   <!-- Empty Table -->
-  <div v-if="tasks.length === 0" class="flex justify-center">
-    <div class="flex items-center">
-      <button class="itbkk-button-add" @click="router.push('/task/add')">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-8 h-8 rounded-md fill-[#00215E]">
-          <path
-            d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
-        </svg>
-      </button>
+  <div v-if="tasks.length === 0">
+    <div class="flex justify-center pb-2 mt-6">
+      <RouterLink :to="{ name: 'StatusList' }">
+        <button
+          class="bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
+          Status</button>
+      </RouterLink>
+    </div>
+    <div class="flex justify-center">
+      <div class="flex items-center">
+        <button class="itbkk-button-add" @click="router.push('/task/add')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-8 h-8 rounded-md fill-[#00215E]">
+            <path
+              d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
+          </svg>
+        </button>
+      </div>
       <div
-        class="overflow-x-auto border-[4px] border-slate-600 rounded-lg hide m-4 hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow mt-8">
+        class="overflow-x-auto border-[4px] border-slate-600 rounded-lg hide  hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
         <table class="table table-zebra table-pin-rows text-center">
           <thead class="text-3xl">
             <tr class="lobster-regular text-black">
@@ -130,7 +128,7 @@ onBeforeMount(() => {
   <!-- Table with Tasks -->
   <div v-else class="mt-8">
     <div class="flex justify-center w-auto">
-      <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" duration="5000" />
+      <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
     </div>
     <div class="flex justify-center">
       <div class="max-h-screen flex justify-center">
@@ -185,7 +183,7 @@ onBeforeMount(() => {
                   </td>
                   <td class="itbkk-assignees italic text-gray-500 text-center" v-if="!task.assignees">Unassigned</td>
                   <td class="itbkk-assignees italic text-center" v-else.trim>{{ task.assignees }}</td>
-                  <td class="itbkk-status text-center">{{ formatStatus(task.status) }}</td>
+                  <td class="itbkk-status text-center">{{ task.status }}</td>
                 </tr>
               </tbody>
             </table>

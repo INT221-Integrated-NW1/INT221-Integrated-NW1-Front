@@ -12,45 +12,37 @@ const statuses = statusStore.getStatuses();
 
 const router = useRouter();
 
-const addTask = ref({ id: "", title: "", description: "", assignees: "", status: "" })
-const getAllStatus = async () => {
-    try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
-        statuses.value = data;
-    } catch (error) {
-        console.error('Failed to fetch status:', error);
-    }
-};
-onBeforeMount(() => {
-    getAllStatus();
-});
+const addTask = ref({ id: "", title: "", description: "", assignees: "", statusId: "" })
 const saveTask = async () => {
     try {
-        // if (addTask.value.status.trim() === "") {
-        //     // ตั้งค่าเริ่มต้นหากสถานะว่าง
-        //     addTask.value.status = "NO_STATUS";
-        // }
         if (addTask.value.title.trim() === "") {
             notiStore.setNotificationMessage("Title cannot be empty");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
             return; // Stop further execution
         }
+        // // Fetch statuses if not already fetched
+        // if (!statuses.value || statuses.value.length === 0) {
+        //     await getAllStatus();
+        // }
+        console.log('Selected status name:', addTask.value);
         const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, addTask.value);
-        // เพิ่ม task ใหม่ลงในรายการ tasks
+        // Add the new task to the task store
         taskStore.addTask(newTask);
+        // Show success notification
         notiStore.setNotificationMessage(`The task "${addTask.value.title}" is added successfully`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("success");
-        // รีเซ็ตฟอร์ม
-        addTask.value = { title: "", description: "", assignees: "", status: "" };
-        // ตั้งค่า notificationMessage ใน notiStore
+        // Reset the form
+        addTask.value = { title: "", description: "", assignees: "", statusId: "" };
+        // Redirect to the task list page
         router.push({ path: '/task' });
     } catch (error) {
         console.error('Error saving task:', error);
-        notiStore.setNotificationMessage(`An error occurred deleting the task "${addTask.value.title}`);
+        // Show error notification
+        notiStore.setNotificationMessage(`An error occurred adding the task "${addTask.value.title}`);
         notiStore.setShowNotification(true);
-        notiStore.setNotificationType("error"); // Specify the type as 'error'
+        notiStore.setNotificationType("error");
     }
 };
 
@@ -76,7 +68,7 @@ const isFormValid = () => {
                         <textarea id="assignees" maxlength="30" v-model="addTask.assignees" required
                             class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
                     </div>
-                    <select id="status" v-model="addTask.status" required
+                    <select id="status" v-model="addTask.statusId" required
                         class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm">
                         <option value="">Select Status</option>
                         <!-- Loop through status options -->
