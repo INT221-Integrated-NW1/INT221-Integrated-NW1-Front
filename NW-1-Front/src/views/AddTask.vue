@@ -1,22 +1,35 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
-import { addItem } from '../libs/fetchUtils.js';
+import { addItem, getItems } from '../libs/fetchUtils.js';
+import { useStatusStore } from '../stores/statusStore.js';
+import { useNotiStore } from '../stores/notificationStore.js';
 import { useTaskStore } from '../stores/taskStore.js';
 const taskStore = useTaskStore();
-import { useNotiStore } from '../stores/notificationStore.js';
 const notiStore = useNotiStore();
+const statusStore = useStatusStore();
+const statuses = statusStore.getStatuses();
 
 const router = useRouter();
 
 const addTask = ref({ id: "", title: "", description: "", assignees: "", status: "" })
-
+const getAllStatus = async () => {
+    try {
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
+        statuses.value = data;
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+};
+onBeforeMount(() => {
+    getAllStatus();
+});
 const saveTask = async () => {
     try {
-        if (addTask.value.status.trim() === "") {
-            // ตั้งค่าเริ่มต้นหากสถานะว่าง
-            addTask.value.status = "NO_STATUS";
-        }
+        // if (addTask.value.status.trim() === "") {
+        //     // ตั้งค่าเริ่มต้นหากสถานะว่าง
+        //     addTask.value.status = "NO_STATUS";
+        // }
         if (addTask.value.title.trim() === "") {
             notiStore.setNotificationMessage("Title cannot be empty");
             notiStore.setShowNotification(true);
@@ -42,7 +55,7 @@ const saveTask = async () => {
 };
 
 const isFormValid = () => {
-    return addTask.value.title.trim() !== "" 
+    return addTask.value.title.trim() !== ""
 };
 </script>
 
@@ -63,16 +76,13 @@ const isFormValid = () => {
                         <textarea id="assignees" maxlength="30" v-model="addTask.assignees" required
                             class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
                     </div>
-                    <div>
-                        <label for="status" class="block pb-1">Status</label>
-                        <select id="status" v-model="addTask.status" required
-                            class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm">
-                            <option value="NO_STATUS">No Status</option>
-                            <option value="TO_DO">To Do</option>
-                            <option value="DOING">Doing</option>
-                            <option value="DONE">Done</option>
-                        </select>
-                    </div>
+                    <select id="status" v-model="addTask.status" required
+                        class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm">
+                        <option value="">Select Status</option>
+                        <!-- Loop through status options -->
+                        <option v-for="status in statuses" :value="status.id" :key="status.id">{{ status.name }}
+                        </option>
+                    </select>
                     <div class="col-span-2">
                         <label for="description" class="block pb-1">Description</label>
                         <textarea id="description" maxlength="500" rows="5" v-model="addTask.description" required

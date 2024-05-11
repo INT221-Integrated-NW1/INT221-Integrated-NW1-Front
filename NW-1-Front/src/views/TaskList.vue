@@ -46,8 +46,8 @@ const openConfirmModal = (task) => {
 };
 
 const closeConfirmModal = () => {
-  deleteConfirmModal.value = false;
   taskToDelete.value = null;
+  deleteConfirmModal.value = false;
 };
 const deleteTask = async (id) => {
   try {
@@ -86,9 +86,6 @@ const deleteTask = async (id) => {
 const refreshTasks = async () => {
   await getAllTasks();
 };
-
-// Add this inside the if statement where tasks are deleted successfully
-refreshTasks();
 
 onBeforeMount(() => {
   getAllTasks();
@@ -237,23 +234,4 @@ onBeforeMount(() => {
 .button-shadow {
   filter: drop-shadow(#2C4E80 3px 3px 0px)
 }
-
-/* .dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  padding: 12px 16px;
-  z-index: 1;
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-} */
 </style>

@@ -2,42 +2,52 @@
 import { onBeforeMount, ref } from "vue";
 import Notification from "../components/Notification.vue";
 import { getItems, deleteItemById } from "../libs/fetchUtils.js"
+import { addItem } from '../libs/fetchUtils.js';
 import { useRouter, RouterView } from "vue-router";
-import { useTaskStore } from '../stores/taskStore.js';
+import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import 'animate.css';
 
-const taskStore = useTaskStore();
-const tasks = taskStore.getTasks();
+const statusStore = useStatusStore();
+const statuses = statusStore.getStatuses();
 const notiStore = useNotiStore();
 
+const addStatus = ref({ id: "", name: "", description: "" })
+
 const router = useRouter()
-const getAllTasks = async () => {
+
+const getAllStatus = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks`);
-        tasks.value = data;
-        console.log(data);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
+        statuses.value = data;
     } catch (error) {
-        console.error('Failed to fetch tasks:', error);
+        console.error('Failed to fetch status:', error);
     }
 };
-const formatStatus = (status) => {
-    switch (status) {
-        case "NO_STATUS":
-            return "No Status";
-        case "TO_DO":
-            return "To Do";
-        case "DOING":
-            return "Doing";
-        case "DONE":
-            return "Done";
-        default:
-            return status;
+
+const saveStatus = async () => {
+    try {
+        // if (addStatus.value.name.trim() === "") {
+        //     // ตั้งค่าเริ่มต้นหากสถานะว่าง
+        //     addStatus.value.name = "NO_STATUS";
+        // }
+        if (addStatus.value.title === "") {
+            notiStore.setNotificationMessage("Title cannot be empty");
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            return; // Stop further execution
+        }
+        statusStore.addStatus();
+        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/status`, addStatus.value);
+        statusStore.addStatus(newStatus);
+        addStatus.value = { title: "", description: "" };
+    } catch (error) {
+        console.error('Error saving task:', error);
+        notiStore.setNotificationMessage(`An error occurred deleting the task "${addStatus.value.title}`);
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("error"); // Specify the type as 'error'
     }
 };
-onBeforeMount(() => {
-    getAllTasks();
-});
 
 const addModal = ref(false);
 const openModal = () => {
@@ -48,14 +58,52 @@ const closeModal = () => {
 };
 
 const deleteConfirmModal = ref(false);
+const statusToDelete = ref(null);
 
-const openConfirmModal = () => {
-  deleteConfirmModal.value = true;
+const openConfirmModal = (status) => {
+    statusToDelete.value = status;
+    deleteConfirmModal.value = true;
 };
 
 const closeConfirmModal = () => {
-  deleteConfirmModal.value = false;
+    statusToDelete.value = null;
+    deleteConfirmModal.value = false;
 };
+
+const deleteStatus = async (id) => {
+    try {
+        const res = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v2/status`, id);
+        // Check if the deletion was successful (HTTP status code 200 means success)
+        if (res === 200) {
+            // Create a new array that doesn't include the deleted task
+            statuses.value = statuses.value.filter(status => status.id !== id);
+            console.log(`Status with ID ${id} deleted successfully.`);
+            // Show success notification
+            notiStore.setNotificationMessage('Status deleted successfully');
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("success");
+            // Close confirm modal
+            closeConfirmModal();
+        } else if (res === 404) {
+            console.error(`Failed to delete status with ID ${id}. Status does not exist.`);
+            // Show error message
+            notiStore.setNotificationMessage('An error has occurred, the status does not exist.');
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            // Close confirm modal
+
+            closeConfirmModal();
+        } else {
+            console.error(`Failed to delete status with ID ${id}. HTTP status: ${res}`);
+        }
+    } catch (error) {
+        console.error(`Failed to delete status with ID ${id}:`, error);
+    }
+};
+
+onBeforeMount(() => {
+    getAllStatus();
+});
 </script>
 <template>
     <header class="pt-8 flex justify-center">
@@ -92,22 +140,21 @@ const closeConfirmModal = () => {
                         </tr>
                     </thead>
                     <tbody class="font-semibold">
-                        <!-- Dynamically rendered rows from API -->
-                        <tr v-for="(task, index) in tasks" :key="index"
+                        <tr v-for="(status, index) in statuses" :key="index"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1 }}</td>
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
                                 <div class="flex items-center text-lg">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> {{ formatStatus(task.status) }}
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> {{ status.name }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">{{
-                        task.description }} LoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLoveLove</td>
+                        status.description }}</td>
                             <td class="px-6 py-4">
                                 <button type="button"
                                     class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                     Edit</button>
-                                <button type="button" @click="openConfirmModal"
+                                <button type="button" @click="openConfirmModal(status)"
                                     class="itbkk-button-delete px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                                     Delete</button>
                             </td>
@@ -118,7 +165,7 @@ const closeConfirmModal = () => {
         </div>
     </div>
 
-    <!-- Main modal -->
+    <!-- Add modal -->
     <div v-if="addModal"
         class="itbkk-modal-status bg-gray-900 bg-opacity-70 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full inset-0 max-h-full">
         <div class="relative p-4 w-full max-w-xl max-h-full">
@@ -145,9 +192,9 @@ const closeConfirmModal = () => {
                         <div class="itbkk-status-name col-span-2">
                             <label for="name"
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-                            <input type="text" name="name" id="name"
+                            <input type="text" id="name" v-model="addStatus.name"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                placeholder="Type product name" required="">
+                                placeholder="Type status name" required="">
                         </div>
                         <!-- <div class="col-span-2 sm:col-span-1">
                             <label for="price"
@@ -172,12 +219,12 @@ const closeConfirmModal = () => {
                             <label for="description"
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                 Description</label>
-                            <textarea id="description" rows="4"
+                            <textarea id="description" rows="4" v-model="addStatus.description"
                                 class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 resize-none"
-                                placeholder="Write product description here"></textarea>
+                                placeholder="Write status description here"></textarea>
                         </div>
                     </div>
-                    <button
+                    <div @click="saveStatus"
                         class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg">
@@ -185,34 +232,33 @@ const closeConfirmModal = () => {
                                 d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                                 clip-rule="evenodd"></path>
                         </svg>
-                        Add new product
-                    </button>
+                        Add new status
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 
     <!-- Delete Confirm Modal -->
-  <div
-    class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
-    v-if="deleteConfirmModal">
-    <div class="bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
-      <h3 class="text-[#FFC745] font-bold text-lg ">Delete a Task</h3>
-      <hr>
-      <div class="text-center overflow-hidden">
-        <p>Do you want to delete the task</p>
-        <!-- <p>"{{ taskToDelete.title }}" ?</p> -->
-      </div>
-      <div class="flex justify-center mt-4">
-        <button
-          class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
-          @click="">Confirm</button>
-        <button
-          class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
-          @click="closeConfirmModal">Cancel</button>
-      </div>
+    <div class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
+        v-if="deleteConfirmModal">
+        <div class="bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
+            <h3 class="text-[#FFC745] font-bold text-lg ">Delete a Task</h3>
+            <hr>
+            <div class="text-center overflow-hidden">
+                <p>Do you want to delete the task</p>
+                <!-- <p>"{{ taskToDelete.title }}" ?</p> -->
+            </div>
+            <div class="flex justify-center mt-4">
+                <button
+                    class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
+                    @click="deleteStatus(statusToDelete.id)">Confirm</button>
+                <button
+                    class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
+                    @click="closeConfirmModal">Cancel</button>
+            </div>
+        </div>
     </div>
-  </div>
 
 </template>
 
