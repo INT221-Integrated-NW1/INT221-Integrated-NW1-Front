@@ -19,12 +19,14 @@ const routes = [
 				component: () => import("../views/TaskModal.vue"),
 				beforeEnter: async (to, from, next) => {
 					const id = parseInt(to.params.id);
-					const response = await fetch(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
+					const response = await fetch(
+						`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`
+					);
 					if (response.ok) {
 						next();
 					} else {
 						window.alert("The requested task does not exist");
-						next('/task');
+						next("/task");
 						// next(router.go(-1));
 						console.log(`The requested task Id:${id} does not exist `);
 					}
@@ -36,12 +38,14 @@ const routes = [
 				component: () => import("../views/EditTask.vue"),
 				beforeEnter: async (to, from, next) => {
 					const id = parseInt(to.params.id);
-					const response = await fetch(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
+					const response = await fetch(
+						`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`
+					);
 					if (response.ok) {
 						next();
 					} else {
 						window.alert("The requested task does not exist");
-						next('/task');
+						next("/task");
 						console.log(`The requested task Id:${id} does not exist `);
 					}
 				},
@@ -52,6 +56,31 @@ const routes = [
 		path: "/status/manage",
 		name: "StatusList",
 		component: () => import("../views/StatusList.vue"),
+		children: [
+			{
+				path: "/status/add",
+				name: "AddStatus",
+				component: () => import("../views/AddStatus.vue"),
+			},
+			{
+				path: "/status/:id/edit",
+				name: "EditStatus",
+				component: () => import("../views/EditStatus.vue"),
+				beforeEnter: async (to, from, next) => {
+					const id = parseInt(to.params.id);
+					const response = await fetch(
+						`${import.meta.env.VITE_BASE_URL}/v2/status/${id}`
+					);
+					if (response.ok) {
+						next();
+					} else {
+						window.alert("The requested task does not exist");
+						next("/task");
+						console.log(`The requested task Id:${id} does not exist `);
+					}
+				},
+			},
+		],
 	},
 	{
 		path: "/:pathMatch(.*)",
