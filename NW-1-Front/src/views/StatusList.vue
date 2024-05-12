@@ -31,8 +31,8 @@ const saveStatus = async () => {
         //     // ตั้งค่าเริ่มต้นหากสถานะว่าง
         //     addStatus.value.name = "NO_STATUS";
         // }
-        if (addStatus.value.title === "") {
-            notiStore.setNotificationMessage("Title cannot be empty");
+        if (addStatus.value.name === "") {
+            notiStore.setNotificationMessage("Name cannot be empty");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
             return; // Stop further execution
@@ -40,10 +40,10 @@ const saveStatus = async () => {
         statusStore.addStatus();
         const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/status`, addStatus.value);
         statusStore.addStatus(newStatus);
-        addStatus.value = { title: "", description: "" };
+        addStatus.value = { name: "", description: "" };
     } catch (error) {
         console.error('Error saving task:', error);
-        notiStore.setNotificationMessage(`An error occurred deleting the task "${addStatus.value.title}`);
+        notiStore.setNotificationMessage(`An error occurred deleting the task "${addStatus.value.name}`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("error"); // Specify the type as 'error'
     }

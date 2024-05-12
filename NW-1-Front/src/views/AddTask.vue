@@ -12,7 +12,7 @@ const statuses = statusStore.getStatuses();
 
 const router = useRouter();
 
-const addTask = ref({ id: "", title: "", description: "", assignees: "", statusId: "" })
+const addTask = ref({ id: "", title: "", description: "", assignees: "", status: "" })
 const getAllStatus = async () => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
@@ -30,11 +30,6 @@ const saveTask = async () => {
             notiStore.setNotificationType("error");
             return; // Stop further execution
         }
-        // // Fetch statuses if not already fetched
-        // if (!statuses.value || statuses.value.length === 0) {
-        //     await getAllStatus();
-        // }
-        console.log('Selected status name:', addTask.value);
         const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, addTask.value);
         // Add the new task to the task store
         taskStore.addTask(newTask);
@@ -43,7 +38,7 @@ const saveTask = async () => {
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("success");
         // Reset the form
-        addTask.value = { title: "", description: "", assignees: "", statusId: "" };
+        addTask.value = { title: "", description: "", assignees: "", status: "" };
         // Redirect to the task list page
         router.push({ path: '/task' });
     } catch (error) {
@@ -81,11 +76,11 @@ onBeforeMount(() => {
                         <textarea id="assignees" maxlength="30" v-model="addTask.assignees" required
                             class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
                     </div>
-                    <select id="status" v-model="addTask.statusId" required
+                    <select id="status" v-model="addTask.status" required
                         class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm">
                         <option value="">Select Status</option>
                         <!-- Loop through status options -->
-                        <option v-for="status in statuses" :value="status.id" :key="status.id">{{ status.name }}
+                        <option v-for="status in statuses" :value="status" :key="status.id">{{ status.name }}
                         </option>
                     </select>
                     <div class="col-span-2">

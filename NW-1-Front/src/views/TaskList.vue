@@ -25,15 +25,6 @@ const getAllTasks = async () => {
   }
 };
 
-// const getAllStatus = async () => {
-//   try {
-//     const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
-//     statuses.value = data;
-//   } catch (error) {
-//     console.error('Failed to fetch status:', error);
-//   }
-// };
-
 const deleteConfirmModal = ref(false);
 const taskToDelete = ref(null);
 
@@ -77,7 +68,6 @@ const deleteTask = async (id) => {
 
 onBeforeMount(() => {
   getAllTasks();
-  // getAllStatus();
 });
 </script>
 
@@ -183,7 +173,7 @@ onBeforeMount(() => {
                   </td>
                   <td class="itbkk-assignees italic text-gray-500 text-center" v-if="!task.assignees">Unassigned</td>
                   <td class="itbkk-assignees italic text-center" v-else.trim>{{ task.assignees }}</td>
-                  <td class="itbkk-status text-center">{{ task.status }}</td>
+                  <td class="itbkk-status text-center">{{ task.status.name }}</td>
                 </tr>
               </tbody>
             </table>
