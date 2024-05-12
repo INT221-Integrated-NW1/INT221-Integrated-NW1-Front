@@ -139,7 +139,7 @@ onBeforeMount(() => {
                 Status</button>
             </RouterLink>
           </div>
-          <div class="relative max-h-[24.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
+          <div class="relative max-h-[26.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left rtl:text-right table-fixed">
               <thead class="text-lg uppercase bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                 <tr class="text-black">
