@@ -5,12 +5,24 @@ import { useRoute, useRouter } from 'vue-router';
 import { useTaskStore } from '../stores/taskStore.js';
 import { editItem } from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
+import { useStatusStore } from '../stores/statusStore.js';
 
 const notiStore = useNotiStore();
 const taskStore = useTaskStore();
+const statusStore = useStatusStore();
+const statuses = statusStore.getStatuses();
 
 const route = useRoute();
 const router = useRouter();
+
+const getAllStatus = async () => {
+    try {
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
+        statuses.value = data;
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+};
 
 const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
 const originalTask = ref(null);
@@ -31,17 +43,19 @@ const getTasksById = async (id) => {
 onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the router parameters
     getTasksById(id);
+    getAllStatus();
 });
 
 const saveTask = async () => {
     try {
+        if (!tasksId.value.status) {
+            tasksId.value.status = "No Status";
+        }
         const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${tasksId.value.id}`, tasksId.value);
-        console.log('Updated task:', updatedTask);
-
         // Update task in store
         taskStore.editTask(updatedTask);
 
-        notiStore.setNotificationMessage("The task has been updated");
+        notiStore.setNotificationMessage(`The task "${tasksId.value.title}" has been updated`);
         notiStore.setNotificationType("success");
         notiStore.setShowNotification(true);
 
@@ -49,10 +63,13 @@ const saveTask = async () => {
         tasksId.value = { id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" };
         router.push('/task');
     } catch (error) {
+        notiStore.setNotificationMessage(`An error occurred updating the task "${tasksId.value.title}"`);
+        notiStore.setNotificationType("error");
+        notiStore.setShowNotification(true);
         console.error('Error saving task:', error);
+        router.push('/task');
     }
 };
-
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -73,7 +90,7 @@ const formattedUpdatedOn = computed(() => {
 
 const isFormValid = () => {
     return (
-        tasksId.value.title !== originalTask.value.title ||
+        tasksId.value.title !== originalTask.value?.title ||
         tasksId.value.description !== originalTask.value.description ||
         tasksId.value.assignees !== originalTask.value.assignees ||
         tasksId.value.status !== originalTask.value.status
@@ -101,13 +118,12 @@ const isFormValid = () => {
                     </div>
                     <div class="w-96">
                         <label for="status" class="block">Status</label>
-                        <select id="status" v-model="tasksId.status"
+                        <select id="status" v-model="tasksId.status" required
                             class="itbkk-status text-xl bg-[#151515] font-semi bold h-[60.8px] p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-[3px] border-gray-300 rounded-md">
                             <!-- :disabled="tasksId.status === 'NO_STATUS'"> -->
-                            <option value="NO_STATUS">No Status</option>
-                            <option value="TO_DO">To Do</option>
-                            <option value="DOING">Doing</option>
-                            <option value="DONE">Done</option>
+                            <option value="" disabled selected>Select Status</option>
+                            <option v-for="status in statuses" :value="status" :key="status.id">{{ status.name }}
+                            </option>
                         </select>
                     </div>
                     <div class="w-96">
