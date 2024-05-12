@@ -37,15 +37,18 @@ const saveStatus = async () => {
             notiStore.setNotificationType("error");
             return; // Stop further execution
         }
-        statusStore.addStatus();
         const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/status`, addStatus.value);
         statusStore.addStatus(newStatus);
+        notiStore.setNotificationMessage(`The status "${addStatus.value.name}" is added successfully`);
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("success");
+        closeModal();
         addStatus.value = { name: "", description: "" };
     } catch (error) {
         console.error('Error saving task:', error);
-        notiStore.setNotificationMessage(`An error occurred deleting the task "${addStatus.value.name}`);
+        notiStore.setNotificationMessage(`An error occurred adding the task "${addStatus.value.name}"`);
         notiStore.setShowNotification(true);
-        notiStore.setNotificationType("error"); // Specify the type as 'error'
+        notiStore.setNotificationType("error");
     }
 };
 
@@ -79,7 +82,7 @@ const deleteStatus = async (id) => {
             statuses.value = statuses.value.filter(status => status.id !== id);
             console.log(`Status with ID ${id} deleted successfully.`);
             // Show success notification
-            notiStore.setNotificationMessage('Status deleted successfully');
+            notiStore.setNotificationMessage(`The status "${statusToDelete.value.name}" is deleted successfully`);
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
             // Close confirm modal
@@ -87,11 +90,9 @@ const deleteStatus = async (id) => {
         } else if (res === 404) {
             console.error(`Failed to delete status with ID ${id}. Status does not exist.`);
             // Show error message
-            notiStore.setNotificationMessage('An error has occurred, the status does not exist.');
+            notiStore.setNotificationMessage(`An error occurred deleting the status "${statusToDelete.value.name}"`);
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
-            // Close confirm modal
-
             closeConfirmModal();
         } else {
             console.error(`Failed to delete status with ID ${id} HTTP status: ${res}`);
@@ -106,13 +107,16 @@ onBeforeMount(() => {
 });
 </script>
 <template>
-    <header class="pt-8 flex justify-center">
+    <header class="pt-8 pb-8 flex justify-center">
         <h1
             class="mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(63,77,204)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
             IT-Bangmod<span class="text-gray-900 dark:text-white"> Kradan Kanban</span></h1>
     </header>
+    <div class="flex justify-center w-auto">
+        <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
+    </div>
     <div class="max-h-screen dark:bg-gray-800 flex justify-center">
-        <div class="w-full max-w-screen-lg p-8">
+        <div class="w-full max-w-screen-lg px-8">
             <div class="flex pb-2 gap-2 justify-between">
                 <div>
                     <RouterLink :to="{ name: 'TaskList' }">
@@ -141,15 +145,15 @@ onBeforeMount(() => {
                     </thead>
                     <tbody class="font-semibold">
                         <tr v-for="(status, index) in statuses" :key="index"
-                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
+                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out text-[1.2em]">
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1 }}</td>
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                <div class="flex items-center text-lg">
+                                <div class="flex items-center">
                                     <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> {{ status.name }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">{{
-                        status.description }}</td>
+            status.description }}</td>
                             <td class="px-6 py-4">
                                 <button type="button"
                                     class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
@@ -196,25 +200,6 @@ onBeforeMount(() => {
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type status name" required="">
                         </div>
-                        <!-- <div class="col-span-2 sm:col-span-1">
-                            <label for="price"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Price</label>
-                            <input type="number" name="price" id="price"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                placeholder="$2999" required="">
-                        </div>
-                        <div class="col-span-2 sm:col-span-1">
-                            <label for="category"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
-                            <select id="category"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option selected="">Select category</option>
-                                <option value="TV">TV/Monitors</option>
-                                <option value="PC">PC</option>
-                                <option value="GA">Gaming/Console</option>
-                                <option value="PH">Phones</option>
-                            </select>
-                        </div> -->
                         <div class="itbkk-status-description col-span-2">
                             <label for="description"
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -247,7 +232,7 @@ onBeforeMount(() => {
             <hr>
             <div class="text-center overflow-hidden">
                 <p>Do you want to delete the task</p>
-                <!-- <p>"{{ taskToDelete.title }}" ?</p> -->
+                <p>"{{ statusToDelete.name }}" ?</p>
             </div>
             <div class="flex justify-center mt-4">
                 <button

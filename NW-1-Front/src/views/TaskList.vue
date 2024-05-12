@@ -46,7 +46,7 @@ const deleteTask = async (id) => {
       tasks.value = tasks.value.filter(task => task.id !== id);
       console.log(`Task with ID ${id} deleted successfully.`);
       // Show success notification
-      notiStore.setNotificationMessage('Task deleted successfully');
+      notiStore.setNotificationMessage(`The task "${taskToDelete.value.title}" is deleted successfully`);
       notiStore.setShowNotification(true);
       notiStore.setNotificationType("success");
       // Close confirm modal
@@ -54,7 +54,7 @@ const deleteTask = async (id) => {
     } else if (status === 404) {
       console.error(`Failed to delete task with ID ${id}. Task does not exist.`);
       // Show error message
-      notiStore.setNotificationMessage('An error has occurred, the task does not exist.');
+      notiStore.setNotificationMessage(`An error occurred deleting the task "${taskToDelete.value.title}"`);
       notiStore.setShowNotification(true);
       notiStore.setNotificationType("error");
       closeConfirmModal();
