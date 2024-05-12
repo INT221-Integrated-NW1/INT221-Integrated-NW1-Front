@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeMount, computed } from 'vue';
+import { ref, onMounted, onBeforeMount, computed } from 'vue';
 import { getItems } from "../libs/fetchUtils.js"
 import { useRoute, useRouter } from 'vue-router';
 import { useTaskStore } from '../stores/taskStore.js';
@@ -15,21 +15,28 @@ const statuses = statusStore.getStatuses();
 const route = useRoute();
 const router = useRouter();
 
-const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
-const originalTask = ref(null);
+const statusIda = router.currentRoute.value.params.id
+
+
+const statusId = ref({ id: "", name: "", description: "" })
+const statusIdOriginal = ref({ id: "", name: "", description: "" })
+
+const originalStatus = ref(null);
+
 const getStatusById = async (id) => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status/${id}`);
-        if (data) {
-            tasksId.value = data;
-            originalTask.value = { ...data };
-        } else {
-            console.warn(`Task with ID ${id} not found.`);
-        }
+        statusId.value = data;
+        statusIdOriginal.value = { ...data };
+        // console.log('Fetched Status:', data);
     } catch (error) {
-        console.error(`Failed to fetch task with ID ${id}:`, error);
+        console.error(`Failed to fetch status with ID ${id}:`, error);
     }
 }
+
+// const isDataChanged = computed(() => {
+//     return JSON.stringify(statusId.value) !== statusIdOriginal.value;
+// });
 
 onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the router parameters
@@ -38,69 +45,52 @@ onBeforeMount(() => {
 
 const saveStatus = async () => {
     try {
-        if (!tasksId.value.status) {
-            tasksId.value.status = "No Status";
+        // Ensure there's a default status if none is set
+        if (!statusId.value.status) {
+            statusId.value.status = "No Status";
         }
-        const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${tasksId.value.id}`, tasksId.value);
-        // Update task in store
-        taskStore.editTask(updatedTask);
+        // Update the status using your edit API function
+        const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/status/${statusId.value.id}`, statusId.value);
 
-        notiStore.setNotificationMessage(`The task "${tasksId.value.title}" has been updated`);
+        // Assuming taskStore should be statusStore since you're working with statuses
+        statusStore.editStatus(updatedStatus); // Update status in store, adjusted method name as per typical naming conventions
+
+        // Set success notification
+        notiStore.setNotificationMessage(`The Status "${statusId.value.name}" has been updated`);
         notiStore.setNotificationType("success");
         notiStore.setShowNotification(true);
-
-        // Reset form and navigate back to task list
-        tasksId.value = { id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" };
-        router.push('/task');
+        // Reset form to initial state and navigate back to the status list
+        statusId.value = { id: "", name: "", description: "" };
+        router.push({ name: 'StatusList' }); // Ensure navigation is to 'StatusList', not 'TaskList'
     } catch (error) {
-        notiStore.setNotificationMessage(`An error occurred updating the task "${tasksId.value.title}"`);
+        // Set error notification, corrected to use status name instead of task title
+        notiStore.setNotificationMessage(`An error occurred updating the status "${statusId.value.name}"`);
         notiStore.setNotificationType("error");
         notiStore.setShowNotification(true);
-        console.error('Error saving task:', error);
-        router.push('/task');
+        console.error('Error saving status:', error);
+        // Navigate back to the status list on error as well
+        router.push({ name: 'StatusList' });
     }
 };
 
-const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-const formatDateTime = (datetime) => {
-    const date = new Date(datetime);
-    const formatDate = date.toLocaleDateString('en-GB');
-    const formatTime = date.toLocaleTimeString('en-GB', { timeZone: `${timeZone}` });
-    return `${formatDate} ${formatTime}`;
-};
-
-const formattedCreatedOn = computed(() => {
-    return formatDateTime(tasksId.value.createdOn);
-});
-
-const formattedUpdatedOn = computed(() => {
-    return formatDateTime(tasksId.value.updatedOn);
-});
-
 const isFormValid = () => {
     return (
-        tasksId.value.title !== originalTask.value?.title ||
-        tasksId.value.description !== originalTask.value.description ||
-        tasksId.value.assignees !== originalTask.value.assignees ||
-        tasksId.value.status !== originalTask.value.status
+        statusId.value.name !== originalStatus.value?.name ||
+        statusId.value.description !== originalStatus.value.description
     );
 };
 </script>
 
 <template>
-     <!-- Add modal -->
-     <div 
+    <div
         class="itbkk-modal-status bg-gray-900 bg-opacity-70 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full inset-0 max-h-full">
         <div class="relative p-4 w-full max-w-xl max-h-full">
-            <!-- Modal content -->
             <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <!-- Modal header -->
                 <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                       edit status
+                        Add New Status
                     </h3>
-                    <button @click="closeModal" type="button"
+                    <button @click="router.push({ name: 'StatusList' })" type="button"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
                         data-modal-toggle="crud-modal">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -110,13 +100,12 @@ const isFormValid = () => {
                         </svg>
                     </button>
                 </div>
-                <!-- Modal body -->
-                <form class="p-4 md:p-5">
+                <form class="p-4 pb-0 md:p-5 md:pb-0">
                     <div class="grid gap-4 mb-4 grid-cols-2">
                         <div class="itbkk-status-name col-span-2">
                             <label for="name"
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-                            <input type="text" id="name" v-model="addStatus.name"
+                            <input type="text" id="name" v-model="statusId.name"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type status name" required="">
                         </div>
@@ -124,22 +113,28 @@ const isFormValid = () => {
                             <label for="description"
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                 Description</label>
-                            <textarea id="description" rows="4" v-model="addStatus.description"
+                            <textarea id="description" rows="4" v-model="statusId.description"
                                 class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 resize-none"
                                 placeholder="Write status description here"></textarea>
                         </div>
                     </div>
-                    <div @click="saveStatus"
-                        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        Add new status
-                    </div>
                 </form>
+                    <div class="flex justify-end gap-2 pb-2 mr-[20px]">
+                        <!-- <button @click="saveTask" :disabled="!isDataChanged"
+                            :class="['bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg w-24 shadow',
+                        !isDataChanged ? 'btn-disabled disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed' : '']">
+                            Save
+                        </button> -->
+                        <button @click="saveStatus"
+                            class="bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg w-24 shadow">
+                            Save
+                        </button>
+                        <RouterLink :to="{ name: 'StatusList' }">
+                            <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded w-24">
+                                Cancel
+                            </button>
+                        </RouterLink>
+                    </div>
             </div>
         </div>
     </div>
@@ -148,11 +143,5 @@ const isFormValid = () => {
 <style scoped>
 label {
     font-weight: bolder;
-}
-
-textarea {
-    resize: none;
-    font-size: medium;
-    background: #151515;
 }
 </style>

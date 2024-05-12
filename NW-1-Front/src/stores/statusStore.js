@@ -31,9 +31,9 @@ export const useStatusStore = defineStore("statusStore", () => {
 	const editStatus = (newStatus) => {
 		statuses.value.forEach((status) => {
 			if (status.id === newStatus.id) {
-				status.title = newStatus.title;
-				status.assignees = newStatus.assignees;
-				status.status = newStatus.status;
+				status.name = newStatus.name;
+				status.description = newStatus.description;
+			
 			}
 		});
 	};

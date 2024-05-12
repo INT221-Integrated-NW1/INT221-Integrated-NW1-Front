@@ -88,7 +88,7 @@ onBeforeMount(() => {
     </div>
     <div class="flex justify-center">
       <div class="flex items-center">
-        <button class="itbkk-button-add" @click="router.push('/task/add')">
+        <button class="itbkk-button-add" @click="router.push({ name: 'AddTask' })">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-8 h-8 rounded-md fill-[#00215E]">
             <path
               d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
@@ -123,7 +123,7 @@ onBeforeMount(() => {
     <div class="flex justify-center">
       <div class="max-h-screen flex justify-center">
         <div class="flex items-start pt-8">
-          <button @click="router.push('/task/add')" class="itbkk-button-add">
+          <button @click="router.push({ name: 'AddTask' })" class="itbkk-button-add">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
               class="w-[3rem] h-[3rem] rounded-md bg-[#c5daff] fill-[#00215E] hover:scale-125 duration-150">
               <path
@@ -159,7 +159,7 @@ onBeforeMount(() => {
                     <button class="text-[1.8em] dropdown dropdown-right">
                       <div tabindex="0" class="itbkk-button-action">⋮</div>
                       <ul tabindex="0" class="dropdown-content menu mt-2 p-2 shadow bg-red-100 rounded-box w-52 z-[1]">
-                        <li><a @click="router.push(`/task/${task.id}/edit`)"
+                        <li><a @click="router.push({ name: 'EditTask', params: { id: task.id } })"
                             class="itbkk-button-edit hover:bg-red-200">Edit</a></li>
                         <li><a @click="openConfirmModal(task)" class="itbkk-button-delete hover:bg-red-200">Delete</a>
                         </li>
@@ -169,7 +169,7 @@ onBeforeMount(() => {
                   <td class="text-center">
                     <button
                       class="itbkk-title max-w-[12rem] truncate cursor-pointer hover:no-underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
-                      @click="router.push(`/task/${task.id}`)">{{ task.title }}</button>
+                      @click="router.push({ name: 'TaskModal', params: { id: task.id } })">{{ task.title }}</button>
                   </td>
                   <td class="itbkk-assignees italic text-gray-500 text-center" v-if="!task.assignees">Unassigned</td>
                   <td class="itbkk-assignees italic text-center" v-else.trim>{{ task.assignees }}</td>

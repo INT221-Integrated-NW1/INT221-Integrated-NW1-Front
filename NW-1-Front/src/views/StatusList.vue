@@ -13,6 +13,7 @@ const statuses = statusStore.getStatuses();
 const notiStore = useNotiStore();
 
 const addStatus = ref({ id: "", name: "", description: "" })
+const canDelete = ref({ id: "", name: "", modal: false })
 
 const router = useRouter()
 
@@ -125,7 +126,7 @@ onBeforeMount(() => {
                     </RouterLink>
                 </div>
                 <div>
-                    <button @click="router.push('/status/add')"
+                    <button @click="router.push({ name: 'AddStatus' })"
                         class="itbkk-button-add bg-green-400 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-white hover:bg-green-500 hover:text-[#f0f0f0] focus:ring-4 focus:outline-none focus:ring-green-300">Add
                         Status</button>
                 </div>
@@ -153,7 +154,7 @@ onBeforeMount(() => {
                             <td class="px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">{{
             status.description }}</td>
                             <td class="px-6 py-4">
-                                <button @click="router.push(`/status/edit/${status.id}`)"
+                                <button @click="router.push({ name: 'EditStatus', params: { id: status.id } })"
                                     class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                     Edit</button>
                                 <button @click="openConfirmModal(status)"

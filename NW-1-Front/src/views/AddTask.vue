@@ -40,7 +40,7 @@ const saveTask = async () => {
         // Reset the form
         addTask.value = { title: "", description: "", assignees: "", status: "" };
         // Redirect to the task list page
-        router.push({ path: '/task' });
+        router.push({ name: 'TaskList' });
     } catch (error) {
         console.error('Error saving task:', error);
         // Show error notification
@@ -92,10 +92,8 @@ onBeforeMount(() => {
                 <div class="flex justify-end gap-4 mt-4">
                     <button @click="saveTask" :disabled="!isFormValid()"
                         class="itbkk-button-confirm bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Save</button>
-                    <router-link to="/task">
-                        <button
-                            class="itbkk-button-cancel bg-[#F44336] hover:bg-[#E53935] text-white py-2 px-4 rounded-lg shadow">Cancel</button>
-                    </router-link>
+                    <button @click="router.push({ name: 'TaskList' })"
+                        class="itbkk-button-cancel bg-[#F44336] hover:bg-[#E53935] text-white py-2 px-4 rounded-lg shadow">Cancel</button>
                 </div>
             </div>
         </div>

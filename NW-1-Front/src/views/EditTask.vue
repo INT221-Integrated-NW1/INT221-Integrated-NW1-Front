@@ -61,13 +61,13 @@ const saveTask = async () => {
 
         // Reset form and navigate back to task list
         tasksId.value = { id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" };
-        router.push('/task');
+        router.push({ name: 'TaskList' });
     } catch (error) {
         notiStore.setNotificationMessage(`An error occurred updating the task "${tasksId.value.title}"`);
         notiStore.setNotificationType("error");
         notiStore.setShowNotification(true);
         console.error('Error saving task:', error);
-        router.push('/task');
+        router.push({ name: 'TaskList' });
     }
 };
 
