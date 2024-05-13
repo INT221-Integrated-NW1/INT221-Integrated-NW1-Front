@@ -6,14 +6,17 @@ import { addItem } from '../libs/fetchUtils.js';
 import { useRouter, RouterView } from "vue-router";
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
+import { useTaskStore } from '../stores/taskStore.js';
 import 'animate.css';
 
+const taskStore = useTaskStore();
+const tasks = taskStore.getTasks();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const notiStore = useNotiStore();
 
 const addStatus = ref({ id: "", name: "", description: "" })
-const canDelete = ref({ id: "", name: "", modal: false })
+const statusToDelete = ref({ id: "", name: "", modal: false })
 
 const router = useRouter()
 
@@ -25,7 +28,14 @@ const getAllStatus = async () => {
         console.error('Failed to fetch status:', error);
     }
 };
-
+const getAllTasks = async () => {
+    try {
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks`);
+        tasks.value = data;
+    } catch (error) {
+        console.error('Failed to fetch tasks:', error);
+    }
+};
 const saveStatus = async () => {
     try {
         // if (addStatus.value.name.trim() === "") {
@@ -61,18 +71,21 @@ const closeModal = () => {
     addModal.value = false;
 };
 
-const deleteConfirmModal = ref(false);
-const statusToDelete = ref(null);
+const confirmDeleteModal = ref(false);
+const deleteTransferModal = ref(false);
 
-const openConfirmModal = (status) => {
-    statusToDelete.value = status;
-    deleteConfirmModal.value = true;
-};
 
 const closeConfirmModal = () => {
-    statusToDelete.value = null;
-    deleteConfirmModal.value = false;
+    confirmDeleteModal.value = false;
 };
+
+const closeDeleteTransferModal = () => {
+    deleteTransferModal.value = false;
+};
+
+const closeConfirmDeleteModal = () => {
+    confirmDeleteModal.value = false;
+}
 
 const deleteStatus = async (id) => {
     try {
@@ -105,7 +118,36 @@ const deleteStatus = async (id) => {
 
 onBeforeMount(() => {
     getAllStatus();
+    getAllTasks();
 });
+
+const checkStatusUsage = (statusId) => {
+    const status = statuses.value.find(status => status.id === statusId);
+    if (!status) {
+        console.error(`Status with ID ${statusId} not found.`);
+        return;
+    }
+    const isUsed = tasks.value.some(task => task.status.id === status.id);
+    if (isUsed) {
+        openDeleteTransferModal(status);
+    } else {
+        openConfirmModal(status);
+    }
+};
+
+
+// Function to open the deleteTransferModal
+const openDeleteTransferModal = (status) => {
+    statusToDelete.value = status;
+    deleteTransferModal.value = true;
+};
+
+// Function to open the confirmDeleteModal
+const openConfirmModal = (status) => {
+    statusToDelete.value = status;
+    confirmDeleteModal.value = true;
+};
+
 </script>
 <template>
     <header class="pt-8 pb-8 flex justify-center">
@@ -157,7 +199,7 @@ onBeforeMount(() => {
                                 <button @click="router.push({ name: 'EditStatus', params: { id: status.id } })"
                                     class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                     Edit</button>
-                                <button @click="openConfirmModal(status)"
+                                <button @click="checkStatusUsage(status.id)"
                                     class="itbkk-button-delete px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                                     Delete</button>
                             </td>
@@ -168,15 +210,43 @@ onBeforeMount(() => {
         </div>
     </div>
 
-    <!-- Delete Confirm Modal -->
+    <!-- Delete Transfer Modal -->
     <div class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
-        v-if="deleteConfirmModal">
+        v-if="deleteTransferModal">
         <div class="bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
-            <h3 class="text-[#FFC745] font-bold text-lg ">Delete a Task</h3>
+            <!-- Modal content -->
+            <h3 class="text-[#FFC745] font-bold text-lg">Delete Status with Transfer</h3>
             <hr>
             <div class="text-center overflow-hidden">
-                <p>Do you want to delete the task</p>
-                <p>"{{ statusToDelete.name }}" ?</p>
+                <p>Deleting this status will transfer its tasks to another status.</p>
+                <!-- You can add a select dropdown here to choose the status for transferring tasks -->
+                <label for="transferStatus" class="block text-sm font-medium text-gray-300">Transfer tasks to:</label>
+                <select id="transferStatus" name="transferStatus"
+                    class="mt-1 block w-full p-2 rounded-md bg-gray-700 text-gray-300">
+                    <!-- Loop through statuses and generate options -->
+                    <option v-for="status in statuses" :key="status.id" :value="status.id">{{ status.name }}</option>
+                </select>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button
+                    class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
+                    @click="deleteStatusWithTransfer(statusToDelete.id)">Delete with Transfer</button>
+                <button
+                    class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
+                    @click="closeDeleteTransferModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
+        v-if="confirmDeleteModal">
+        <div class="bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
+            <!-- Modal content -->
+            <h3 class="text-[#FFC745] font-bold text-lg">Confirm Delete</h3>
+            <hr>
+            <div class="text-center overflow-hidden">
+                <p>Are you sure you want to delete the status "{{ statusToDelete.name }}"?</p>
             </div>
             <div class="flex justify-center mt-4">
                 <button
@@ -184,7 +254,7 @@ onBeforeMount(() => {
                     @click="deleteStatus(statusToDelete.id)">Confirm</button>
                 <button
                     class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
-                    @click="closeConfirmModal">Cancel</button>
+                    @click="closeConfirmDeleteModal">Cancel</button>
             </div>
         </div>
     </div>
