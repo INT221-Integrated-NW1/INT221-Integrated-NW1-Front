@@ -30,7 +30,7 @@ const saveTask = async () => {
             notiStore.setNotificationType("error");
             return; // Stop further execution
         }
-        const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, addTask.value);
+        const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, addTask.value);
         // Add the new task to the task store
         taskStore.addTask(newTask);
         // Show success notification

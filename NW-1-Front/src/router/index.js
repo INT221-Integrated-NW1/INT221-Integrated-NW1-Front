@@ -20,7 +20,7 @@ const routes = [
 				beforeEnter: async (to, from, next) => {
 					const id = parseInt(to.params.id);
 					const response = await fetch(
-						`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`
+						`${import.meta.env.VITE_BASE_URL}/v2/tasks/${id}`
 					);
 					if (response.ok) {
 						next();
@@ -39,7 +39,7 @@ const routes = [
 				beforeEnter: async (to, from, next) => {
 					const id = parseInt(to.params.id);
 					const response = await fetch(
-						`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`
+						`${import.meta.env.VITE_BASE_URL}/v2/tasks/${id}`
 					);
 					if (response.ok) {
 						next();

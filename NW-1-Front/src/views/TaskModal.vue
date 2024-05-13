@@ -8,7 +8,7 @@ const route = useRoute();
 const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
 const getTasksById = async (id) => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/tasks/${id}`);
         if (data) {
             tasksId.value = data;
         } else {
