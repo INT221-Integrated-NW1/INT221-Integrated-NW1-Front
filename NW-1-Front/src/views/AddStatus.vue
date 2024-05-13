@@ -34,7 +34,7 @@ const saveStatus = async () => {
             return; // Stop further execution
         }
         const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, addStatus.value);
-        if(!newStatus.ok){
+        if(!newStatus.status === 201){
             throw new Error("Failed to add status");
         }
         statusStore.addStatus(newStatus);
@@ -44,7 +44,7 @@ const saveStatus = async () => {
         router.push({ name: 'StatusList' });
         addStatus.value = { name: "", description: "" };
     } catch (error) {
-        console.error('Error saving task:', error);
+        console.error('Error saving status:', error);
         notiStore.setNotificationMessage(`An error occurred, the status "${addStatus.value.name}" could not be added.`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("error");
