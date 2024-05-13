@@ -1,42 +1,29 @@
 <script setup>
-import { ref, onMounted, onBeforeMount, computed } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import { getItems } from "../libs/fetchUtils.js"
 import { useRoute, useRouter } from 'vue-router';
-import { useTaskStore } from '../stores/taskStore.js';
 import { editItem } from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
 
 const notiStore = useNotiStore();
-const taskStore = useTaskStore();
 const statusStore = useStatusStore();
-const statuses = statusStore.getStatuses();
 
 const route = useRoute();
 const router = useRouter();
 
-const statusIda = router.currentRoute.value.params.id
-
-
 const statusId = ref({ id: "", name: "", description: "" })
 const statusIdOriginal = ref({ id: "", name: "", description: "" })
 
-const originalStatus = ref(null);
-
 const getStatusById = async (id) => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status/${id}`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses/${id}`);
         statusId.value = data;
         statusIdOriginal.value = { ...data };
-        // console.log('Fetched Status:', data);
     } catch (error) {
         console.error(`Failed to fetch status with ID ${id}:`, error);
     }
 }
-
-// const isDataChanged = computed(() => {
-//     return JSON.stringify(statusId.value) !== statusIdOriginal.value;
-// });
 
 onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the router parameters
@@ -45,40 +32,36 @@ onBeforeMount(() => {
 
 const saveStatus = async () => {
     try {
-        // Ensure there's a default status if none is set
         if (!statusId.value.status) {
             statusId.value.status = "No Status";
         }
-        // Update the status using your edit API function
-        const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/status/${statusId.value.id}`, statusId.value);
+        const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses/${statusId.value.id}`, statusId.value);
+        statusStore.editStatus(updatedStatus); // Update status in store
 
-        // Assuming taskStore should be statusStore since you're working with statuses
-        statusStore.editStatus(updatedStatus); // Update status in store, adjusted method name as per typical naming conventions
-
-        // Set success notification
-        notiStore.setNotificationMessage(`The Status "${statusId.value.name}" has been updated`);
+        // Set notification
+        notiStore.setNotificationMessage(`The status "${statusId.value.name}" has been updated`);
         notiStore.setNotificationType("success");
         notiStore.setShowNotification(true);
-        // Reset form to initial state and navigate back to the status list
+        // Reset form
         statusId.value = { id: "", name: "", description: "" };
-        router.push({ name: 'StatusList' }); // Ensure navigation is to 'StatusList', not 'TaskList'
+        router.push({ name: 'StatusList' });
     } catch (error) {
         // Set error notification, corrected to use status name instead of task title
-        notiStore.setNotificationMessage(`An error occurred updating the status "${statusId.value.name}"`);
+        notiStore.setNotificationMessage(`An error occurred, the status "${statusId.value.name}" does not exist. `);
         notiStore.setNotificationType("error");
         notiStore.setShowNotification(true);
         console.error('Error saving status:', error);
-        // Navigate back to the status list on error as well
         router.push({ name: 'StatusList' });
     }
 };
 
 const isFormValid = () => {
     return (
-        statusId.value.name !== originalStatus.value?.name ||
-        statusId.value.description !== originalStatus.value.description
+        statusId.value.name.trim() !== statusIdOriginal.value.name.trim() ||
+        statusId.value.description?.trim() !== statusIdOriginal.value.description?.trim() 
     );
 };
+
 </script>
 
 <template>
@@ -119,22 +102,18 @@ const isFormValid = () => {
                         </div>
                     </div>
                 </form>
-                    <div class="flex justify-end gap-2 pb-2 mr-[20px]">
-                        <!-- <button @click="saveTask" :disabled="!isDataChanged"
-                            :class="['bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg w-24 shadow',
-                        !isDataChanged ? 'btn-disabled disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed' : '']">
-                            Save
-                        </button> -->
-                        <button @click="saveStatus"
-                            class="bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg w-24 shadow">
-                            Save
+                <div class="flex justify-end gap-2 pb-2 mr-[20px]">
+                    <button @click="saveStatus" :disabled="!isFormValid()"
+                        :class="{ 'cursor-not-allowed opacity-50': !isFormValid() }"
+                        class="bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg w-24 shadow">
+                        Save
+                    </button>
+                    <RouterLink :to="{ name: 'StatusList' }">
+                        <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded w-24">
+                            Cancel
                         </button>
-                        <RouterLink :to="{ name: 'StatusList' }">
-                            <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded w-24">
-                                Cancel
-                            </button>
-                        </RouterLink>
-                    </div>
+                    </RouterLink>
+                </div>
             </div>
         </div>
     </div>

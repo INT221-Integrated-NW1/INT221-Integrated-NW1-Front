@@ -17,7 +17,7 @@ const router = useRouter();
 
 const getAllStatus = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`);
         statuses.value = data;
     } catch (error) {
         console.error('Failed to fetch status:', error);
@@ -26,10 +26,6 @@ const getAllStatus = async () => {
 
 const saveStatus = async () => {
     try {
-        // if (addStatus.value.name.trim() === "") {
-        //     // ตั้งค่าเริ่มต้นหากสถานะว่าง
-        //     addStatus.value.name = "NO_STATUS";
-        // }
         if (addStatus.value.name === "") {
             notiStore.setNotificationMessage("Name cannot be empty");
             notiStore.setShowNotification(true);
@@ -37,7 +33,7 @@ const saveStatus = async () => {
             router.push({ name: 'StatusList' });
             return; // Stop further execution
         }
-        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/status`, addStatus.value);
+        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, addStatus.value);
         statusStore.addStatus(newStatus);
         notiStore.setNotificationMessage(`The status "${addStatus.value.name}" has been added.`);
         notiStore.setShowNotification(true);

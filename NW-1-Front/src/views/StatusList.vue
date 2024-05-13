@@ -17,7 +17,7 @@ const router = useRouter()
 
 const getAllStatus = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`);
         statuses.value = data;
     } catch (error) {
         console.error('Failed to fetch status:', error);
@@ -48,16 +48,26 @@ const closeConfirmDeleteModal = () => {
     confirmDeleteModal.value = false;
 }
 
+const editStatus = (status) => {
+    const statusName = status.name.toLowerCase();
+    if (statusName.includes("no status")) {
+        notiStore.setNotificationMessage("Cannot edit status named 'No Status'");
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("error");
+        return;
+    }
+    router.push({ name: 'EditStatus', params: { id: status.id } });
+};
+
 const statusToDelete = ref({ id: "", name: "", modal: false })
 
 const deleteStatus = async (id) => {
     try {
-        const res = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v2/status`, id);
+        const res = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, id);
         // Check if the deletion was successful (HTTP status code 200 means success)
         if (res === 200) {
             // Create a new array that doesn't include the deleted task
             statuses.value = statuses.value.filter(status => status.id !== id);
-            console.log(`Status with ID ${id} deleted successfully.`);
             // Show success notification
             notiStore.setNotificationMessage(`The status "${statusToDelete.value.name}" is deleted successfully`);
             notiStore.setShowNotification(true);
@@ -85,6 +95,12 @@ const checkStatusUsage = (statusId) => {
         console.error(`Status with ID ${statusId} not found.`);
         return;
     }
+    if (status.name === "No Status") {
+        notiStore.setNotificationMessage("Cannot delete status named 'No Status'");
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("error");
+        return;
+    }
     const isUsed = tasks.value.some(task => task.status.id === status.id);
     if (isUsed) {
         openDeleteTransferModal(status);
@@ -108,11 +124,11 @@ const openConfirmModal = (status) => {
 const newStatusId = ref({ id: "", name: "", description: "" });
 const deleteStatusWithTransfer = async () => {
     try {
-        const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v2/status`, statusToDelete.value.id, newStatusId.value.id);
+        const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, statusToDelete.value.id, newStatusId.value.id);
         if (res === 200) {
             statusStore.removeStatuses(statusToDelete.value);
             statusStore.addStatus(newStatusId.value);
-
+            //Notify user
             notiStore.setNotificationMessage("Transfer and delete operation successful");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
@@ -189,7 +205,7 @@ onBeforeMount(() => {
                                 <span v-else>{{ status.description }}</span>
                             </td>
                             <td class="px-6 py-4">
-                                <button @click="router.push({ name: 'EditStatus', params: { id: status.id } })"
+                                <button @click="editStatus(status)"
                                     class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                     Edit</button>
                                 <button @click="checkStatusUsage(status.id)"

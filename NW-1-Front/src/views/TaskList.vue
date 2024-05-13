@@ -44,7 +44,6 @@ const deleteTask = async (id) => {
     if (status === 200) {
       // Create a new array that doesn't include the deleted task
       tasks.value = tasks.value.filter(task => task.id !== id);
-      console.log(`Task with ID ${id} deleted successfully.`);
       // Show success notification
       notiStore.setNotificationMessage(`The task "${taskToDelete.value.title}" is deleted successfully`);
       notiStore.setShowNotification(true);

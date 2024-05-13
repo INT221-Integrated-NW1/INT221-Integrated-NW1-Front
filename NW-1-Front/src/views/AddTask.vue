@@ -15,7 +15,7 @@ const router = useRouter();
 const addTask = ref({ id: "", title: "", description: "", assignees: "", status: "" })
 const getAllStatus = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/status`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`);
         statuses.value = data;
     } catch (error) {
         console.error('Failed to fetch status:', error);
