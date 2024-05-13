@@ -197,10 +197,10 @@ onBeforeMount(() => {
                     </thead>
                     <tbody class="font-semibold">
                         <tr v-for="(status, index) in statuses" :key="index"
-                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out text-[1.2em]">
+                            class="itbkk-item odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out text-[1.2em]">
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1 }}</td>
-                            <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white truncate">{{ status.name }}</td>
-                            <td class="px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">
+                            <td class="itbkk-status-name px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white truncate">{{ status.name }}</td>
+                            <td class="itbkk-status-description px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">
                                 <span v-if="!status.description" class="text-gray-400 italic">No description is
                                     provided.</span>
                                 <span v-else>{{ status.description }}</span>
@@ -223,7 +223,7 @@ onBeforeMount(() => {
     <!-- Delete Transfer Modal -->
     <div class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
         v-if="deleteTransferModal">
-        <div class="bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
+        <div class="itbkk-message bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
             <!-- Modal content -->
             <h3 class="text-[#FFC745] font-bold text-lg">Delete Status with Transfer</h3>
             <hr>
@@ -251,7 +251,7 @@ onBeforeMount(() => {
     <!-- Confirm Delete Modal -->
     <div class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
         v-if="confirmDeleteModal">
-        <div class="bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
+        <div class="itbkk-message bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
             <!-- Modal content -->
             <h3 class="text-[#FFC745] font-bold text-lg">Confirm Delete</h3>
             <hr>

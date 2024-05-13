@@ -134,7 +134,7 @@ onBeforeMount(() => {
           <div class="flex justify-end pb-2">
             <RouterLink :to="{ name: 'StatusList' }">
               <button
-                class="bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
+                class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
                 Status</button>
             </RouterLink>
           </div>
