@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, computed, ref } from "vue";
 import Notification from "../components/Notification.vue";
 import { getItems, deleteItemById, deleteTransfer } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
@@ -150,6 +150,11 @@ const deleteStatusWithTransfer = async () => {
     }
 };
 
+const filteredStatuses = computed(() => {
+    // Filter out the selected status
+    return statuses.value.filter(status => status.id !== statusToDelete.value.id);
+});
+
 onBeforeMount(() => {
     getAllStatus();
     getAllTasks();
@@ -194,11 +199,7 @@ onBeforeMount(() => {
                         <tr v-for="(status, index) in statuses" :key="index"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out text-[1.2em]">
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1 }}</td>
-                            <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                <div class="flex items-center">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> {{ status.name }}
-                                </div>
-                            </td>
+                            <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white truncate">{{ status.name }}</td>
                             <td class="px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">
                                 <span v-if="!status.description" class="text-gray-400 italic">No description is
                                     provided.</span>
