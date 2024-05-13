@@ -31,9 +31,13 @@ const saveStatus = async () => {
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
             router.push({ name: 'StatusList' });
-            return; // Stop further execution
+            return;
         }
+        
         const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, addStatus.value);
+        if(!newStatus.status === 201){
+            throw new Error("Failed to add status");
+        }
         statusStore.addStatus(newStatus);
         notiStore.setNotificationMessage(`The status "${addStatus.value.name}" has been added.`);
         notiStore.setShowNotification(true);
@@ -41,12 +45,12 @@ const saveStatus = async () => {
         router.push({ name: 'StatusList' });
         addStatus.value = { name: "", description: "" };
     } catch (error) {
-        console.error('Error saving task:', error);
+        console.error('Error saving status:', error);
         notiStore.setNotificationMessage(`An error occurred, the status "${addStatus.value.name}" could not be added.`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("error");
         router.push({ name: 'StatusList' });
-    }
+    } 
 };
 
 onBeforeMount(() => {

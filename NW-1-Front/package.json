@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --base=/nw1/",
     "preview": "vite preview",
     "server": "vite --host ip23nw1.sit.kmutt.ac.th",
     "test:unit": "vitest",

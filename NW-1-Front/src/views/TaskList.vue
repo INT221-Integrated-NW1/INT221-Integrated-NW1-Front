@@ -18,7 +18,7 @@ const router = useRouter()
 
 const getAllTasks = async () => {
   try {
-    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks`);
+    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/tasks`);
     tasks.value = data;
   } catch (error) {
     console.error('Failed to fetch tasks:', error);
@@ -39,7 +39,7 @@ const closeConfirmModal = () => {
 };
 const deleteTask = async (id) => {
   try {
-    const status = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v1/tasks`, id);
+    const status = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id);
     // Check if the deletion was successful (HTTP status code 200 means success)
     if (status === 200) {
       // Create a new array that doesn't include the deleted task

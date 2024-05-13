@@ -28,7 +28,7 @@ const tasksId = ref({ id: "", title: "", description: "", assignees: "", status:
 const originalTask = ref(null);
 const getTasksById = async (id) => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/tasks/${id}`);
         if (data) {
             tasksId.value = data;
             originalTask.value = { ...data };
@@ -51,7 +51,7 @@ const saveTask = async () => {
         if (!tasksId.value.status) {
             tasksId.value.status = "No Status";
         }
-        const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v1/tasks/${tasksId.value.id}`, tasksId.value);
+        const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/tasks/${tasksId.value.id}`, tasksId.value);
         // Update task in store
         taskStore.editTask(updatedTask);
 

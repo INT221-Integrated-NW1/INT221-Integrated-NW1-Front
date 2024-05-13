@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import TaskList from "../views/TaskList.vue";
 
-const history = createWebHistory("/nw1");
+const history = createWebHistory(import.meta.env.BASE_URL);
 const routes = [
 	{
 		path: "/task",
@@ -20,7 +20,7 @@ const routes = [
 				beforeEnter: async (to, from, next) => {
 					const id = parseInt(to.params.id);
 					const response = await fetch(
-						`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`
+						`${import.meta.env.VITE_BASE_URL}/v2/tasks/${id}`
 					);
 					if (response.ok) {
 						next();
@@ -39,7 +39,7 @@ const routes = [
 				beforeEnter: async (to, from, next) => {
 					const id = parseInt(to.params.id);
 					const response = await fetch(
-						`${import.meta.env.VITE_BASE_URL}/v1/tasks/${id}`
+						`${import.meta.env.VITE_BASE_URL}/v2/tasks/${id}`
 					);
 					if (response.ok) {
 						next();

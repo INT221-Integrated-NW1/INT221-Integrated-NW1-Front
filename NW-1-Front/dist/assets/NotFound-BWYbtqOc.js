@@ -1,0 +1,1 @@
+import{_ as e,d as t,e as s,f as o}from"./index-qv3pPW-M.js";const c={},n={class:"flex justify-center items-center mt-10"},a=o("h1",{class:"text-slate-300 text-9xl font-bold"},"404 Page Not Found",-1),_=[a];function r(d,f){return t(),s("div",n,_)}const i=e(c,[["render",r]]);export{i as default};
