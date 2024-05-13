@@ -26,7 +26,7 @@ const routes = [
 						next();
 					} else {
 						window.alert("The requested task does not exist");
-						next("/task");
+						next({name : "TaskList"});
 						// next(router.go(-1));
 						console.log(`The requested task Id:${id} does not exist `);
 					}
@@ -45,7 +45,7 @@ const routes = [
 						next();
 					} else {
 						window.alert("The requested task does not exist");
-						next("/task");
+						next({name : "TaskList"});
 						console.log(`The requested task Id:${id} does not exist `);
 					}
 				},
@@ -66,19 +66,19 @@ const routes = [
 				path: "/status/:id/edit",
 				name: "EditStatus",
 				component: () => import("../views/EditStatus.vue"),
-				// beforeEnter: async (to, from, next) => {
-				// 	const id = parseInt(to.params.id);
-				// 	const response = await fetch(
-				// 		`${import.meta.env.VITE_BASE_URL}/v2/status/${id}`
-				// 	);
-				// 	if (response.ok) {
-				// 		next();
-				// 	} else {
-				// 		window.alert("The requested task does not exist");
-				// 		next("/task");
-				// 		console.log(`The requested task Id:${id} does not exist `);
-				// 	}
-				// },
+				beforeEnter: async (to, from, next) => {
+					const id = parseInt(to.params.id);
+					const response = await fetch(
+						`${import.meta.env.VITE_BASE_URL}/v2/statuses/${id}`
+					);
+					if (response.ok) {
+						next();
+					} else {
+						window.alert("The requested status does not exist");
+						next({name : "StatusList"});
+						console.log(`The requested status Id:${id} does not exist `);
+					}
+				},
 			},
 		],
 	},
