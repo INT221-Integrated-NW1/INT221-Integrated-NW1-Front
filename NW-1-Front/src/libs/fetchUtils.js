@@ -23,8 +23,6 @@ async function getItemById(url, id) {
 }
 
 async function deleteItemById(url, id) {
-	console.log(`${url}/${id}`);
-
 	try {
 		const res = await fetch(`${url}/${id}`, {
 			method: "DELETE",
@@ -32,6 +30,17 @@ async function deleteItemById(url, id) {
 		return res.status;
 	} catch (error) {
 		console.log(`error: ${error}`);
+	}
+}
+
+async function deleteTransfer(url, oldStatusId, newStatusId) {
+	try {
+		const res = await fetch(`${url}/${oldStatusId}/${newStatusId}`, {
+			method: "DELETE",
+		});
+		return res.status;
+	} catch (error) {
+		console.log(`Error deleting with transfer: ${error}`);
 	}
 }
 
@@ -69,4 +78,11 @@ async function editItem(url, data) {
 	return await response.json();
 }
 
-export { getItems, getItemById, deleteItemById, addItem, editItem };
+export {
+	getItems,
+	getItemById,
+	deleteItemById,
+	addItem,
+	editItem,
+	deleteTransfer,
+};

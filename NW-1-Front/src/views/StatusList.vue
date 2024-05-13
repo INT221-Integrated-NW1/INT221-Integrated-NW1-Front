@@ -1,8 +1,7 @@
 <script setup>
 import { onBeforeMount, ref } from "vue";
 import Notification from "../components/Notification.vue";
-import { getItems, deleteItemById } from "../libs/fetchUtils.js"
-import { addItem } from '../libs/fetchUtils.js';
+import { getItems, deleteItemById, deleteTransfer } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
@@ -14,10 +13,6 @@ const tasks = taskStore.getTasks();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const notiStore = useNotiStore();
-
-const addStatus = ref({ id: "", name: "", description: "" })
-const statusToDelete = ref({ id: "", name: "", modal: false })
-
 const router = useRouter()
 
 const getAllStatus = async () => {
@@ -28,6 +23,7 @@ const getAllStatus = async () => {
         console.error('Failed to fetch status:', error);
     }
 };
+
 const getAllTasks = async () => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v1/tasks`);
@@ -36,44 +32,9 @@ const getAllTasks = async () => {
         console.error('Failed to fetch tasks:', error);
     }
 };
-const saveStatus = async () => {
-    try {
-        // if (addStatus.value.name.trim() === "") {
-        //     // ตั้งค่าเริ่มต้นหากสถานะว่าง
-        //     addStatus.value.name = "NO_STATUS";
-        // }
-        if (addStatus.value.name === "") {
-            notiStore.setNotificationMessage("Name cannot be empty");
-            notiStore.setShowNotification(true);
-            notiStore.setNotificationType("error");
-            return; // Stop further execution
-        }
-        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/status`, addStatus.value);
-        statusStore.addStatus(newStatus);
-        notiStore.setNotificationMessage(`The status "${addStatus.value.name}" is added successfully`);
-        notiStore.setShowNotification(true);
-        notiStore.setNotificationType("success");
-        closeModal();
-        addStatus.value = { name: "", description: "" };
-    } catch (error) {
-        console.error('Error saving task:', error);
-        notiStore.setNotificationMessage(`An error occurred adding the task "${addStatus.value.name}"`);
-        notiStore.setShowNotification(true);
-        notiStore.setNotificationType("error");
-    }
-};
-
-const addModal = ref(false);
-const openModal = () => {
-    addModal.value = true;
-};
-const closeModal = () => {
-    addModal.value = false;
-};
 
 const confirmDeleteModal = ref(false);
 const deleteTransferModal = ref(false);
-
 
 const closeConfirmModal = () => {
     confirmDeleteModal.value = false;
@@ -86,6 +47,8 @@ const closeDeleteTransferModal = () => {
 const closeConfirmDeleteModal = () => {
     confirmDeleteModal.value = false;
 }
+
+const statusToDelete = ref({ id: "", name: "", modal: false })
 
 const deleteStatus = async (id) => {
     try {
@@ -116,11 +79,6 @@ const deleteStatus = async (id) => {
     }
 };
 
-onBeforeMount(() => {
-    getAllStatus();
-    getAllTasks();
-});
-
 const checkStatusUsage = (statusId) => {
     const status = statuses.value.find(status => status.id === statusId);
     if (!status) {
@@ -135,7 +93,6 @@ const checkStatusUsage = (statusId) => {
     }
 };
 
-
 // Function to open the deleteTransferModal
 const openDeleteTransferModal = (status) => {
     statusToDelete.value = status;
@@ -148,6 +105,39 @@ const openConfirmModal = (status) => {
     confirmDeleteModal.value = true;
 };
 
+const newStatusId = ref({ id: "", name: "", description: "" });
+const deleteStatusWithTransfer = async () => {
+    try {
+        const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v2/status`, statusToDelete.value.id, newStatusId.value.id);
+        if (res === 200) {
+            statusStore.removeStatuses(statusToDelete.value);
+            statusStore.addStatus(newStatusId.value);
+
+            notiStore.setNotificationMessage("Transfer and delete operation successful");
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("success");
+            closeDeleteTransferModal();
+            getAllStatus();
+        } else {
+            console.error('Failed to transfer and delete status:', res.statusText);
+            notiStore.setNotificationMessage('An error occurred during the transfer and delete operation');
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            closeDeleteTransferModal();
+        }
+    } catch (error) {
+        console.error('Error transferring and deleting status:', error);
+        notiStore.setNotificationMessage('An error occurred during the transfer and delete operation');
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("error");
+        closeDeleteTransferModal();
+    }
+};
+
+onBeforeMount(() => {
+    getAllStatus();
+    getAllTasks();
+});
 </script>
 <template>
     <header class="pt-8 pb-8 flex justify-center">
@@ -221,7 +211,7 @@ const openConfirmModal = (status) => {
                 <p>Deleting this status will transfer its tasks to another status.</p>
                 <!-- You can add a select dropdown here to choose the status for transferring tasks -->
                 <label for="transferStatus" class="block text-sm font-medium text-gray-300">Transfer tasks to:</label>
-                <select id="transferStatus" name="transferStatus"
+                <select id="transferStatus" name="transferStatus" v-model="newStatusId.id"
                     class="mt-1 block w-full p-2 rounded-md bg-gray-700 text-gray-300">
                     <!-- Loop through statuses and generate options -->
                     <option v-for="status in statuses" :key="status.id" :value="status.id">{{ status.name }}</option>
