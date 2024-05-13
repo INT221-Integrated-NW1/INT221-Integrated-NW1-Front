@@ -34,6 +34,9 @@ const saveStatus = async () => {
             return; // Stop further execution
         }
         const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, addStatus.value);
+        if(!newStatus.ok){
+            throw new Error("Failed to add status");
+        }
         statusStore.addStatus(newStatus);
         notiStore.setNotificationMessage(`The status "${addStatus.value.name}" has been added.`);
         notiStore.setShowNotification(true);
