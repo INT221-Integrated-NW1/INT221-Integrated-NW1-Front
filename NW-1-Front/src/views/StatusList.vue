@@ -183,8 +183,11 @@ onBeforeMount(() => {
                                     <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> {{ status.name }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">{{
-            status.description }}</td>
+                            <td class="px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">
+                                <span v-if="!status.description" class="text-gray-400 italic">No description is
+                                    provided.</span>
+                                <span v-else>{{ status.description }}</span>
+                            </td>
                             <td class="px-6 py-4">
                                 <button @click="router.push({ name: 'EditStatus', params: { id: status.id } })"
                                     class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
