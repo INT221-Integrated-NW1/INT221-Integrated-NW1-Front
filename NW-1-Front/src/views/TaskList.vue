@@ -1,18 +1,16 @@
 <script setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, computed } from "vue";
 import Notification from "../components/Notification.vue";
 import { getItems, deleteItemById } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
 import { useTaskStore } from '../stores/taskStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
-import { useStatusStore } from '../stores/statusStore.js';
 import 'animate.css';
 
 const taskStore = useTaskStore();
 const tasks = taskStore.getTasks();
 const notiStore = useNotiStore();
-const statusStore = useStatusStore();
-const statuses = statusStore.getStatuses();
+
 
 const router = useRouter()
 
@@ -68,6 +66,27 @@ const deleteTask = async (id) => {
 onBeforeMount(() => {
   getAllTasks();
 });
+
+// Sorting functionality
+const isAscending = ref(true);
+
+const sortByStatus = () => {
+  tasks.value.sort((a, b) => {
+    const statusA = a.status.name.toLowerCase();
+    const statusB = b.status.name.toLowerCase();
+    if (isAscending.value) {
+      return statusA.localeCompare(statusB);
+    } else {
+      return statusB.localeCompare(statusA);
+    }
+  });
+  isAscending.value = !isAscending.value;
+};
+
+const resetSorting = async () => {
+  await getAllTasks();
+  isAscending.value = true;
+};
 </script>
 
 <template>
@@ -131,12 +150,20 @@ onBeforeMount(() => {
           </button>
         </div>
         <div class="w-full max-w-screen-lg pl-2">
-          <div class="flex justify-end pb-2">
+          <div class="flex justify-between pb-2 gap-4">
             <RouterLink :to="{ name: 'StatusList' }">
               <button
                 class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
                 Status</button>
             </RouterLink>
+            <div class="flex justify-between pb-2 gap-2">
+              <button @click="sortByStatus"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-lg font-bold rounded-lg transition duration-300">Sort
+                By Status</button>
+              <button @click="resetSorting"
+                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 text-lg font-bold rounded-lg transition duration-300">Reset
+                Tasks</button>
+            </div>
           </div>
           <div class="relative max-h-[26.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left rtl:text-right table-fixed">
