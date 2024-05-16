@@ -11,7 +11,6 @@ const taskStore = useTaskStore();
 const tasks = taskStore.getTasks();
 const notiStore = useNotiStore();
 
-
 const router = useRouter()
 
 const getAllTasks = async () => {
@@ -63,10 +62,6 @@ const deleteTask = async (id) => {
   }
 };
 
-onBeforeMount(() => {
-  getAllTasks();
-});
-
 // Sorting functionality
 const isAscending = ref(true);
 
@@ -87,6 +82,10 @@ const resetSorting = async () => {
   await getAllTasks();
   isAscending.value = true;
 };
+
+onBeforeMount(() => {
+  getAllTasks();
+});
 </script>
 
 <template>
