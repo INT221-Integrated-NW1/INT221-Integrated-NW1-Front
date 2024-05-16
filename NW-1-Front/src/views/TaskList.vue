@@ -1,15 +1,18 @@
 <script setup>
-import { onBeforeMount, ref, computed } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import Notification from "../components/Notification.vue";
 import { getItems, deleteItemById } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
 import { useTaskStore } from '../stores/taskStore.js';
+import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import 'animate.css';
 
 const taskStore = useTaskStore();
 const tasks = taskStore.getTasks();
 const notiStore = useNotiStore();
+const statusStore = useStatusStore();
+const statuses = statusStore.getStatuses();
 
 const router = useRouter()
 
@@ -19,6 +22,15 @@ const getAllTasks = async () => {
     tasks.value = data;
   } catch (error) {
     console.error('Failed to fetch tasks:', error);
+  }
+};
+
+const getAllStatus = async () => {
+  try {
+    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`);
+    statuses.value = data;
+  } catch (error) {
+    console.error('Failed to fetch status:', error);
   }
 };
 
@@ -62,29 +74,35 @@ const deleteTask = async (id) => {
   }
 };
 
-// Sorting functionality
-const isAscending = ref(true);
-
-const sortByStatus = () => {
-  tasks.value.sort((a, b) => {
-    const statusA = a.status.name.toLowerCase();
-    const statusB = b.status.name.toLowerCase();
-    if (isAscending.value) {
-      return statusA.localeCompare(statusB);
-    } else {
-      return statusB.localeCompare(statusA);
-    }
-  });
-  isAscending.value = !isAscending.value;
+const sortStatusByAsc = () => {
+  tasks.value.sort((a, b) => a.status.name.localeCompare(b.status.name));
 };
 
-const resetSorting = async () => {
-  await getAllTasks();
-  isAscending.value = true;
+const sortStatusByDesc = () => {
+  tasks.value.sort((a, b) => b.status.name.localeCompare(a.status.name));
+};
+
+const resetSortOrder = () => {
+  getAllTasks();
+};
+
+const sortOrder = ref('none');
+const cycleSortOrder = () => {
+  if (sortOrder.value === 'none') {
+    sortStatusByAsc();
+    sortOrder.value = 'asc';
+  } else if (sortOrder.value === 'asc') {
+    sortStatusByDesc();
+    sortOrder.value = 'desc';
+  } else {
+    resetSortOrder();
+    sortOrder.value = 'none';
+  }
 };
 
 onBeforeMount(() => {
   getAllTasks();
+  getAllStatus();
 });
 </script>
 
@@ -155,14 +173,6 @@ onBeforeMount(() => {
                 class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
                 Status</button>
             </RouterLink>
-            <div class="flex justify-between pb-2 gap-2">
-              <button @click="sortByStatus"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-lg font-bold rounded-lg transition duration-300">Sort
-                By Status</button>
-              <button @click="resetSorting"
-                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 text-lg font-bold rounded-lg transition duration-300">Reset
-                Tasks</button>
-            </div>
           </div>
           <div class="relative max-h-[26.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left rtl:text-right table-fixed">
@@ -172,7 +182,28 @@ onBeforeMount(() => {
                   <th class="px-6 py-3 w-[3%]"></th>
                   <th class="px-6 py-3 w-1/4 text-center">Title</th>
                   <th class="px-6 py-3 w-1/4 text-center">Assignees</th>
-                  <th class="px-6 py-3 w-1/6 text-center">Status</th>
+                  <th class="px-6 py-3 w-1/6 text-center">
+                    <div class="flex items-center justify-center">
+                      Status
+                      <button @click="cycleSortOrder">
+                        <svg v-if="sortOrder === 'asc'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em"
+                          viewBox="0 0 24 24">
+                          <path fill="currentColor"
+                            d="M10.22 15.97L9 17.19V5c0-.41-.34-.75-.75-.75s-.75.34-.75.75v12.19l-1.22-1.22c-.29-.29-.77-.29-1.06 0s-.29.77 0 1.06l2.5 2.5a.78.78 0 0 0 .53.22a.78.78 0 0 0 .53-.22l2.5-2.5c.29-.29.29-.77 0-1.06s-.77-.29-1.06 0M14 11.21c.39.14.82-.06.96-.45l.28-.78h2.03l.28.78c.11.31.4.5.71.5c.08 0 .17-.01.25-.04a.75.75 0 0 0 .45-.96l-1.71-4.79c-.17-.43-.56-.71-1-.71s-.83.28-1 .73l-1.7 4.77c-.14.39.06.82.45.96Zm2.73-2.73h-.96l.48-1.34zm1.94 4.98c-.19-.44-.59-.71-1.05-.71h-3.11c-.41 0-.75.34-.75.75s.34.75.75.75h2.39l-2.83 2.95c-.34.36-.43.88-.24 1.34c.19.44.59.71 1.05.71h3.13c.41 0 .75-.34.75-.75s-.34-.75-.75-.75h-2.39l2.82-2.93c.34-.36.44-.89.24-1.35Z" />
+                        </svg>
+                        <svg v-if="sortOrder === 'desc'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em"
+                          viewBox="0 0 24 24">
+                          <path fill="currentColor"
+                            d="M8.78 4.47a.8.8 0 0 0-.24-.16a.7.7 0 0 0-.57 0c-.09.04-.17.09-.24.16l-2.5 2.5c-.29.29-.29.77 0 1.06s.77.29 1.06 0l1.22-1.22V19c0 .41.34.75.75.75s.75-.34.75-.75V6.81l1.22 1.22c.15.15.34.22.53.22s.38-.07.53-.22c.29-.29.29-.77 0-1.06l-2.5-2.5ZM14 11.21c.39.14.82-.06.96-.45l.28-.78h2.03l.28.78c.11.31.4.5.71.5c.08 0 .17-.01.25-.04a.75.75 0 0 0 .45-.96l-1.71-4.79c-.17-.43-.56-.71-1-.71s-.83.28-1 .73l-1.7 4.77c-.14.39.06.82.45.96Zm2.73-2.73h-.96l.48-1.34zm1.94 4.98c-.19-.44-.59-.71-1.05-.71h-3.11c-.41 0-.75.34-.75.75s.34.75.75.75h2.39l-2.83 2.95c-.34.36-.43.88-.24 1.34c.19.44.59.71 1.05.71h3.13c.41 0 .75-.34.75-.75s-.34-.75-.75-.75h-2.39l2.82-2.93c.34-.36.44-.89.24-1.35Z" />
+                        </svg>
+                        <svg v-if="sortOrder === 'none'" xmlns="http://www.w3.org/2000/svg" opacity="60%" width="2em" height="1.5em"
+                          viewBox="0 0 320 512">
+                          <path fill="currentColor"
+                            d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41m255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41" />
+                        </svg>
+                      </button>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody class="font-semibold">
