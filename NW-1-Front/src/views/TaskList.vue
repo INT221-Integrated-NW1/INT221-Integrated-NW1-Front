@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref, watch } from "vue";
+import { onBeforeMount, ref, watch, watchEffect } from "vue";
 import Notification from "../components/Notification.vue";
 import { getItems, deleteItemById } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
@@ -18,7 +18,12 @@ const router = useRouter()
 
 const getAllTasks = async () => {
   try {
-    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/tasks`);
+    const queryParams = new URLSearchParams();
+    if (selectedStatuses.value.length > 0) {
+      queryParams.append('filterStatuses', selectedStatuses.value.join(','));
+    }
+    const url = `${import.meta.env.VITE_BASE_URL}/v2/tasks?${queryParams.toString()}`;
+    const data = await getItems(url);
     tasks.value = data;
   } catch (error) {
     console.error('Failed to fetch tasks:', error);
@@ -29,9 +34,18 @@ const getAllStatus = async () => {
   try {
     const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`);
     statuses.value = data;
+    // Set selected statuses to all status names
+    selectedStatuses.value = data.map(status => status.name);
   } catch (error) {
     console.error('Failed to fetch status:', error);
   }
+};
+
+const selectedStatuses = ref([]);
+
+const checkBox = ref(false);
+const openCheckbox = () => {
+  checkBox.value = !checkBox.value;
 };
 
 const deleteConfirmModal = ref(false);
@@ -75,11 +89,31 @@ const deleteTask = async (id) => {
 };
 
 const sortStatusByAsc = () => {
-  tasks.value.sort((a, b) => a.status.name.localeCompare(b.status.name));
+  tasks.value.sort((a, b) => {
+    const nameA = (a.status.name !== undefined) ? a.status.name.toUpperCase() : a.status.toUpperCase();
+    const nameB = (b.status.name !== undefined) ? b.status.name.toUpperCase() : b.status.toUpperCase();
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0;
+  });
 };
 
 const sortStatusByDesc = () => {
-  tasks.value.sort((a, b) => b.status.name.localeCompare(a.status.name));
+  tasks.value.sort((a, b) => {
+    const nameA = (a.status.name !== undefined) ? a.status.name.toUpperCase() : a.status.toUpperCase();
+    const nameB = (b.status.name !== undefined) ? b.status.name.toUpperCase() : b.status.toUpperCase();
+    if (nameA < nameB) {
+      return 1;
+    }
+    if (nameA > nameB) {
+      return -1;
+    }
+    return 0;
+  });
 };
 
 const resetSortOrder = () => {
@@ -104,6 +138,14 @@ onBeforeMount(() => {
   getAllTasks();
   getAllStatus();
 });
+
+watchEffect(() => {
+  getAllTasks();
+});
+
+watch(statuses.value, () => {
+  getAllStatus();
+})
 </script>
 
 <template>
@@ -114,12 +156,43 @@ onBeforeMount(() => {
   </header>
   <!-- Empty Table -->
   <div v-if="tasks.length === 0">
-    <div class="flex justify-center pb-2 mt-6">
+    <div class="flex justify-center items-center gap-10 pb-2 mt-6">
       <RouterLink :to="{ name: 'StatusList' }">
         <button
           class="bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
           Status</button>
       </RouterLink>
+      <div class="dropdown">
+        <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
+        class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
+          type="button">
+          Filter
+          <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="m1 1 4 4 4-4" />
+          </svg>
+        </button>
+        <!-- Dropdown menu -->
+        <div v-if="checkBox" id="dropdownBgHover"
+          class="absolute z-30 w-48 bg-white rounded-lg shadow dark:bg-gray-700 mt-2">
+          <!-- Adjust the position here to make it relative to the button -->
+          <ul class="dropdown-bottom p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200"
+            aria-labelledby="dropdownBgHoverButton">
+            <li v-for="status in statuses" :key="status.id">
+              <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                <input :id="`checkbox-item-${status.id}`" type="checkbox" :value="status.name"
+                  v-model="selectedStatuses"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                <label :for="`checkbox-item-${status.id}`"
+                  class="truncate w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">
+                  {{ status.name }}
+                </label>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
     <div class="flex justify-center">
       <div class="flex items-center">
@@ -173,6 +246,37 @@ onBeforeMount(() => {
                 class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
                 Status</button>
             </RouterLink>
+            <div class="dropdown">
+              <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
+                class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
+                type="button">
+                Filter
+                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 10 6">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m1 1 4 4 4-4" />
+                </svg>
+              </button>
+              <!-- Dropdown menu -->
+              <div v-if="checkBox" id="dropdownBgHover"
+                class="absolute z-30 w-48 bg-white rounded-lg shadow dark:bg-gray-700 mt-2">
+                <!-- Adjust the position here to make it relative to the button -->
+                <ul class="dropdown-bottom p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200"
+                  aria-labelledby="dropdownBgHoverButton">
+                  <li v-for="status in statuses" :key="status.id">
+                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <input :id="`checkbox-item-${status.id}`" type="checkbox" :value="status.name"
+                        v-model="selectedStatuses"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                      <label :for="`checkbox-item-${status.id}`"
+                        class="truncate w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">
+                        {{ status.name }}
+                      </label>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
           <div class="relative max-h-[26.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left rtl:text-right table-fixed">
@@ -196,8 +300,8 @@ onBeforeMount(() => {
                           <path fill="currentColor"
                             d="M8.78 4.47a.8.8 0 0 0-.24-.16a.7.7 0 0 0-.57 0c-.09.04-.17.09-.24.16l-2.5 2.5c-.29.29-.29.77 0 1.06s.77.29 1.06 0l1.22-1.22V19c0 .41.34.75.75.75s.75-.34.75-.75V6.81l1.22 1.22c.15.15.34.22.53.22s.38-.07.53-.22c.29-.29.29-.77 0-1.06l-2.5-2.5ZM14 11.21c.39.14.82-.06.96-.45l.28-.78h2.03l.28.78c.11.31.4.5.71.5c.08 0 .17-.01.25-.04a.75.75 0 0 0 .45-.96l-1.71-4.79c-.17-.43-.56-.71-1-.71s-.83.28-1 .73l-1.7 4.77c-.14.39.06.82.45.96Zm2.73-2.73h-.96l.48-1.34zm1.94 4.98c-.19-.44-.59-.71-1.05-.71h-3.11c-.41 0-.75.34-.75.75s.34.75.75.75h2.39l-2.83 2.95c-.34.36-.43.88-.24 1.34c.19.44.59.71 1.05.71h3.13c.41 0 .75-.34.75-.75s-.34-.75-.75-.75h-2.39l2.82-2.93c.34-.36.44-.89.24-1.35Z" />
                         </svg>
-                        <svg v-if="sortOrder === 'none'" xmlns="http://www.w3.org/2000/svg" opacity="60%" width="2em" height="1.5em"
-                          viewBox="0 0 320 512">
+                        <svg v-if="sortOrder === 'none'" xmlns="http://www.w3.org/2000/svg" opacity="60%" width="2em"
+                          height="1.5em" viewBox="0 0 320 512">
                           <path fill="currentColor"
                             d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41m255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41" />
                         </svg>
@@ -229,7 +333,7 @@ onBeforeMount(() => {
                   </td>
                   <td class="itbkk-assignees italic text-gray-500 text-center" v-if="!task.assignees">Unassigned</td>
                   <td class="itbkk-assignees italic text-center" v-else.trim>{{ task.assignees }}</td>
-                  <td class="itbkk-status text-center">{{ task.status.name }}</td>
+                  <td class="itbkk-status text-center">{{ task.status.name ? task.status.name : task.status }}</td>
                 </tr>
               </tbody>
             </table>
