@@ -192,7 +192,7 @@ onBeforeMount(() => {
                     </thead>
                     <tbody class="font-semibold">
                         <tr v-for="(status, index) in statuses" :key="index"
-                            class="itbkk-item odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out text-[1.2em]">
+                            class="itbkk-item bg-white transition hover:translate-x-4 duration-300 ease-in-out text-[1.2em]">
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1 }}</td>
                             <td
                                 class="itbkk-status-name px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white truncate">
@@ -203,13 +203,16 @@ onBeforeMount(() => {
                                     provided.</span>
                                 <span v-else>{{ status.description }}</span>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4" v-if="status.name !== 'Done'" >
                                 <button @click="editStatus(status)"
                                     class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                     Edit</button>
                                 <button @click="checkStatusUsage(status.id)"
                                     class="itbkk-button-delete px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                                     Delete</button>
+                            </td>
+                            <td class="px-6 py-4" v-else>
+                                
                             </td>
                         </tr>
                     </tbody>

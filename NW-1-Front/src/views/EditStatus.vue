@@ -8,7 +8,7 @@ import { useStatusStore } from '../stores/statusStore.js';
 
 const notiStore = useNotiStore();
 const statusStore = useStatusStore();
-
+const statuses = statusStore.getStatuses();
 const route = useRoute();
 const router = useRouter();
 
@@ -32,9 +32,15 @@ onBeforeMount(() => {
 
 const saveStatus = async () => {
     try {
-        if (!statusId.value.status) {
-            statusId.value.status = "No Status";
+        // Check if the edited status name is unique
+        const isUnique = !statuses.value.some(status => status.name === statusId.value.name && status.id !== statusId.value.id);
+        if (!isUnique) {
+            notiStore.setNotificationMessage("Status name must be unique, please choose another name.");
+            notiStore.setNotificationType("error");
+            notiStore.setShowNotification(true);
+            return; // Stop further execution
         }
+
         const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses/${statusId.value.id}`, statusId.value);
         statusStore.editStatus(updatedStatus); // Update status in store
 
@@ -45,14 +51,13 @@ const saveStatus = async () => {
         statusId.value = { id: "", name: "", description: "" };
         router.push({ name: 'StatusList' });
     } catch (error) {
-        notiStore.setNotificationMessage(`An error occurred, the status "${statusId.value.name}" does not exist. `);
+        notiStore.setNotificationMessage(`An error occurred, the status "${statusId.value.name}" could not be updated.`);
         notiStore.setNotificationType("error");
         notiStore.setShowNotification(true);
-        console.error('Error saving status:', error);
+        console.error('Error saving status:', error); // Log the specific error for debugging
         router.push({ name: 'StatusList' });
     }
 };
-
 const isFormValid = () => {
     return (
         statusId.value.name.trim() !== statusIdOriginal.value.name.trim() ||
@@ -100,6 +105,7 @@ const isFormValid = () => {
                         </div>
                     </div>
                 </form>
+
                 <div class="flex justify-end gap-2 pb-2 mr-[20px]">
                     <button @click="saveStatus" :disabled="!isFormValid()"
                         :class="{ 'cursor-not-allowed opacity-50': !isFormValid() }"

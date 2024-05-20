@@ -26,12 +26,19 @@ const getAllStatus = async () => {
 
 const saveStatus = async () => {
     try {
+        const isUnique = !statuses.value.some(status => status.name === addStatus.value.name);
+        if (!isUnique) {
+            notiStore.setNotificationMessage("Status name must be unique, please choose another name.");
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            return;
+        }
         if (addStatus.value.name === "") {
             notiStore.setNotificationMessage("Name cannot be empty");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
             router.push({ name: 'StatusList' });
-            return; // Stop further execution
+            return;
         }
         const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, addStatus.value);
         if(!newStatus.status === 201){
