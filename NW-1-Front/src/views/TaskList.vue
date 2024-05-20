@@ -140,7 +140,9 @@ onBeforeMount(() => {
 });
 
 watchEffect(() => {
-  getAllTasks();
+  getAllTasks();  
+  sortStatusByAsc();
+  sortStatusByDesc();
 });
 
 watch(statuses.value, () => {
@@ -164,7 +166,7 @@ watch(statuses.value, () => {
       </RouterLink>
       <div class="dropdown">
         <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
-        class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
+          class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
           type="button">
           Filter
           <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -314,7 +316,7 @@ watch(statuses.value, () => {
                 <tr v-for="(task, index) in tasks" :key="index"
                   class="itbkk-item text-[1.2em] odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
                   <td class="itbkk-id px-6 py-6 text-gray-900 whitespace-nowrap dark:text-white text-center">{{ index +
-    1 }}</td>
+                    1 }}</td>
                   <td class="p-0">
                     <button class="text-[1.8em] dropdown dropdown-right">
                       <div tabindex="0" class="itbkk-button-action">⋮</div>

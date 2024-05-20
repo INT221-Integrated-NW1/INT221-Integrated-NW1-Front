@@ -28,22 +28,26 @@ const saveTask = async () => {
             notiStore.setNotificationMessage("Title cannot be empty");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
-            return; // Stop further execution
+            return; 
+        }
+
+        if (!addTask.value.status) {
+            addTask.value.status = 1; 
         }
         const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, addTask.value);
-        // Add the new task to the task store
+
         taskStore.addTask(newTask);
-        // Show success notification
+
         notiStore.setNotificationMessage(`The task "${addTask.value.title}" is added successfully`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("success");
-        // Reset the form
+ 
         addTask.value = { title: "", description: "", assignees: "", status: "" };
-        // Redirect to the task list page
+  
         router.push({ name: 'TaskList' });
     } catch (error) {
         console.error('Error saving task:', error);
-        // Show error notification
+ 
         notiStore.setNotificationMessage(`An error occurred adding the task "${addTask.value.title}`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("error");
@@ -80,7 +84,7 @@ onBeforeMount(() => {
                         class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm">
                         <option value="">Select Status</option>
                         <!-- Loop through status options -->
-                        <option v-for="status in statuses" :value="status" :key="status.id">{{ status.name }}
+                        <option v-for="status in statuses" :value="status.id" :key="status.id">{{ status.name }}
                         </option>
                     </select>
                     <div class="col-span-2">

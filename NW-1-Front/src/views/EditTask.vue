@@ -121,7 +121,7 @@ const isFormValid = () => {
                         <select id="status" v-model="tasksId.status" required
                             class="itbkk-status text-xl bg-[#151515] font-semi bold h-[60.8px] p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-[3px] border-gray-300 rounded-md">
                             <option value="" disabled selected>Select Status</option>
-                            <option v-for="status in statuses" :value="status" :key="status.id">{{ status.name }}
+                            <option v-for="status in statuses" :value="status.id" :key="status.id">{{ status.name }}
                             </option>
                         </select>
                     </div>
