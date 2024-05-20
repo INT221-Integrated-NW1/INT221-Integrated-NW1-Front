@@ -15,7 +15,7 @@ const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 
 const router = useRouter()
-
+const selectedStatuses = ref([]);
 const getAllTasks = async () => {
   try {
     const queryParams = new URLSearchParams();
@@ -41,7 +41,7 @@ const getAllStatus = async () => {
   }
 };
 
-const selectedStatuses = ref([]);
+
 
 const checkBox = ref(false);
 const openCheckbox = () => {
@@ -67,15 +67,12 @@ const deleteTask = async (id) => {
     if (status === 200) {
       // Create a new array that doesn't include the deleted task
       tasks.value = tasks.value.filter(task => task.id !== id);
-      // Show success notification
       notiStore.setNotificationMessage(`The task "${taskToDelete.value.title}" is deleted successfully`);
       notiStore.setShowNotification(true);
       notiStore.setNotificationType("success");
-      // Close confirm modal
       closeConfirmModal();
     } else if (status === 404) {
       console.error(`Failed to delete task with ID ${id}. Task does not exist.`);
-      // Show error message
       notiStore.setNotificationMessage(`An error occurred deleting the task "${taskToDelete.value.title}"`);
       notiStore.setShowNotification(true);
       notiStore.setNotificationType("error");
@@ -116,9 +113,11 @@ const sortStatusByDesc = () => {
   });
 };
 
+
 const resetSortOrder = () => {
   getAllTasks();
 };
+
 
 const sortOrder = ref('none');
 const cycleSortOrder = () => {
@@ -139,15 +138,23 @@ onBeforeMount(() => {
   getAllStatus();
 });
 
-watchEffect(() => {
-  getAllTasks();  
-  sortStatusByAsc();
-  sortStatusByDesc();
-});
+// watchEffect(() => {
+//   getAllTasks();
+// });
 
 watch(statuses.value, () => {
   getAllStatus();
 })
+
+watch(selectedStatuses, async () => {
+  await getAllTasks(); 
+  if (sortOrder.value === 'asc') {
+    sortStatusByAsc();
+  } else if (sortOrder.value === 'desc') {
+    sortStatusByDesc();
+  }
+});
+
 </script>
 
 <template>

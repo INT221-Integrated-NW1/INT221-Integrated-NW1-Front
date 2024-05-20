@@ -38,7 +38,6 @@ const saveStatus = async () => {
         const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses/${statusId.value.id}`, statusId.value);
         statusStore.editStatus(updatedStatus); // Update status in store
 
-        // Set notification
         notiStore.setNotificationMessage(`The status "${statusId.value.name}" has been updated`);
         notiStore.setNotificationType("success");
         notiStore.setShowNotification(true);
@@ -46,7 +45,6 @@ const saveStatus = async () => {
         statusId.value = { id: "", name: "", description: "" };
         router.push({ name: 'StatusList' });
     } catch (error) {
-        // Set error notification, corrected to use status name instead of task title
         notiStore.setNotificationMessage(`An error occurred, the status "${statusId.value.name}" does not exist. `);
         notiStore.setNotificationType("error");
         notiStore.setShowNotification(true);

@@ -68,15 +68,13 @@ const deleteStatus = async (id) => {
         if (res === 200) {
             // Create a new array that doesn't include the deleted task
             statuses.value = statuses.value.filter(status => status.id !== id);
-            // Show success notification
             notiStore.setNotificationMessage(`The status "${statusToDelete.value.name}" is deleted successfully`);
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
-            // Close confirm modal
+
             closeConfirmModal();
         } else if (res === 404) {
             console.error(`Failed to delete status with ID ${id}. Status does not exist.`);
-            // Show error message
             notiStore.setNotificationMessage(`An error occurred deleting the status "${statusToDelete.value.name}"`);
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
@@ -109,13 +107,11 @@ const checkStatusUsage = (statusId) => {
     }
 };
 
-// Function to open the deleteTransferModal
 const openDeleteTransferModal = (status) => {
     statusToDelete.value = status;
     deleteTransferModal.value = true;
 };
 
-// Function to open the confirmDeleteModal
 const openConfirmModal = (status) => {
     statusToDelete.value = status;
     confirmDeleteModal.value = true;
@@ -151,7 +147,6 @@ const deleteStatusWithTransfer = async () => {
 };
 
 const filteredStatuses = computed(() => {
-    // Filter out the selected status
     return statuses.value.filter(status => status.id !== statusToDelete.value.id);
 });
 
@@ -199,8 +194,11 @@ onBeforeMount(() => {
                         <tr v-for="(status, index) in statuses" :key="index"
                             class="itbkk-item odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out text-[1.2em]">
                             <td class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1 }}</td>
-                            <td class="itbkk-status-name px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white truncate">{{ status.name }}</td>
-                            <td class="itbkk-status-description px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">
+                            <td
+                                class="itbkk-status-name px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white truncate">
+                                {{ status.name }}</td>
+                            <td
+                                class="itbkk-status-description px-6 py-4 max-w-xs truncate text-gray-900 whitespace-nowrap dark:text-white">
                                 <span v-if="!status.description" class="text-gray-400 italic">No description is
                                     provided.</span>
                                 <span v-else>{{ status.description }}</span>
@@ -234,7 +232,8 @@ onBeforeMount(() => {
                 <select id="transferStatus" name="transferStatus" v-model="newStatusId.id"
                     class="mt-1 block w-full p-2 rounded-md bg-gray-700 text-gray-300">
                     <!-- Loop through statuses and generate options -->
-                    <option v-for="status in statuses" :key="status.id" :value="status.id">{{ status.name }}</option>
+                    <option v-for="status in filteredStatuses" :key="status.id" :value="status.id">{{ status.name }}
+                    </option>
                 </select>
             </div>
             <div class="flex justify-center mt-4">
