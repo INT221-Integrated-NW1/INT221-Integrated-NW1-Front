@@ -1,8 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
 
 const username = ref('');
 const password = ref('');
@@ -24,14 +21,11 @@ const login = async () => {
                 password: password.value,
             }),
         });
-
-        if (!response.ok) {
-            throw new Error('Login failed');
-        }
-        const data = await response.json();
-        console.log('Login successful:', data);
-        // Handle successful login, e.g., save token, redirect to dashboard
-        router.push({ name: 'Dashboard' });
+        // Assuming the response is a JWT token string
+        const token = await response.text(); // Use response.text() instead of response.json()
+        console.log('Login successful, received token:', token);
+        // Save the token to localStorage or Vuex for later use
+        localStorage.setItem('authToken', token);
     } catch (error) {
         errorMessage.value = 'Invalid username or password';
         console.error('Error during login:', error);
