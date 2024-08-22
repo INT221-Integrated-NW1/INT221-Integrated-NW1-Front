@@ -14,7 +14,7 @@ const isFormValid = () => {
 
 const login = async () => {
     try {
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/login`, {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -43,12 +43,12 @@ const login = async () => {
     <div class="min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
             <form @submit.prevent="login">
-                <div class="form-group">
-                    <label class="" for="username">Username:</label>
-                    <input type="text" id="text" v-model="text" placeholder="Enter your username" maxlength="50"
+                <div class="form-group itbkk-username">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" v-model="username" placeholder="Enter your username" maxlength="50"
                         required />
                 </div>
-                <div class="form-group">
+                <div class="form-group itbkk-password">
                     <label for="password">Password:</label>
                     <input type="password" id="password" v-model="password" placeholder="Enter your password"
                         maxlength="14" required />
