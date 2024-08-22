@@ -88,6 +88,11 @@ const routes = [
 		component: () => import("../views/NotFound.vue"),
 		redirect: "/task",
 	},
+	{
+		path: "/login",
+		name: "Login",
+		component: () => import("../views/Login.vue"),
+	}
 ];
 
 const router = createRouter({
