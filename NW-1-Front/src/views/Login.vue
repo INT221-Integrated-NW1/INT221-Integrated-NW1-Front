@@ -1,5 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useLoginStore } from '../stores/loginStore.js';
+
+const router = useRouter();
+const loginStore = useLoginStore();
 
 const username = ref('');
 const password = ref('');
@@ -21,11 +26,15 @@ const login = async () => {
                 password: password.value,
             }),
         });
-        // Assuming the response is a JWT token string
-        const token = await response.text(); // Use response.text() instead of response.json()
-        console.log('Login successful, received token:', token);
-        // Save the token to localStorage or Vuex for later use
-        localStorage.setItem('authToken', token);
+        if (response.status === 200) {
+            const token = await response.text();
+            console.log('Login successful, received token:', token);
+            // Save the token to localStorage or Vuex for later use
+            loginStore.login(token, username.value);
+            router.push({ name: 'TaskList' });
+        } else {
+            errorMessage.value = 'Invalid username or password';
+        }
     } catch (error) {
         errorMessage.value = 'Invalid username or password';
         console.error('Error during login:', error);
@@ -49,7 +58,6 @@ const login = async () => {
                 </div>
                 <button class="itbkk-button-signin" type="submit">Sign in</button>
             </form>
-            <p v-if="error" class="error-message">{{ error }}</p>
         </div>
     </div>
 </template>
