@@ -1,18 +1,16 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLoginStore } from '../stores/loginStore.js';
+import { useNotiStore } from '../stores/notificationStore.js';
+import Notification from "../components/Notification.vue";
 
 const router = useRouter();
 const loginStore = useLoginStore();
+const notiStore = useNotiStore();
 
 const username = ref('');
 const password = ref('');
-const errorMessage = ref('');
-
-const isFormValid = () => {
-    return username.value && password.value;
-};
 
 const login = async () => {
     try {
@@ -33,30 +31,47 @@ const login = async () => {
             loginStore.login(token, username.value);
             router.push({ name: 'TaskList' });
         } else {
-            errorMessage.value = 'Invalid username or password';
+            console.error = 'Invalid username or password';
+            notiStore.setNotificationMessage("Username or Password is incorrect");
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
         }
     } catch (error) {
-        errorMessage.value = 'Invalid username or password';
-        console.error('Error during login:', error);
+        console.error('Invalid username or password');
     }
 };
+
+const isFormValid = computed(() => {
+    return username.value !== '' && password.value !== '';
+});
 </script>
 
 <template>
     <div class="min-h-screen flex items-center justify-center">
+        <div class="absolute top-0 left-0 w-full">
+            <Notification class="itbkk-message" :message="notiStore.notificationMessage"
+                v-if="notiStore.showNotification" />
+        </div>
         <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
             <form @submit.prevent="login">
-                <div class="form-group itbkk-username">
+                <div class="form-group">
                     <label for="username">Username:</label>
-                    <input type="text" id="username" v-model="username" placeholder="Enter your username" maxlength="50"
-                        required />
+                    <input type="text" id="username" class="itbkk-username" v-model="username"
+                        placeholder="Enter your username" maxlength="50" required />
                 </div>
-                <div class="form-group itbkk-password">
+                <div class="form-group">
                     <label for="password">Password:</label>
-                    <input type="password" id="password" v-model="password" placeholder="Enter your password"
-                        maxlength="14" required />
+                    <input type="password" id="password" class="itbkk-password" v-model="password"
+                        placeholder="Enter your password" maxlength="14" required />
                 </div>
-                <button class="itbkk-button-signin" type="submit">Sign in</button>
+                <button :class="{
+                    'itbkk-button-signin': true,
+                    'disabled:bg-gray-400 disabled:cursor-not-allowed disabled': !isFormValid,
+                    'bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none': isFormValid
+                }" type="submit" :disabled="!isFormValid">
+                    Sign in
+                </button>
+                <!-- <button class="itbkk-button-signin disabled:bg-gray-400 disabled:cursor-not-allowed" type="submit" :disabled="!isFormValid">Sign in</button> -->
             </form>
         </div>
     </div>
@@ -104,11 +119,5 @@ button {
 
 button:hover {
     background-color: #0056b3;
-}
-
-.error-message {
-    color: red;
-    margin-top: 15px;
-    text-align: center;
 }
 </style>
