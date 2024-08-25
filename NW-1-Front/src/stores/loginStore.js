@@ -31,15 +31,15 @@ export const useLoginStore = defineStore("loginStore", () => {
 		return name.value;
 	};
 	const isAuthenticated = () => {
-		return token.value !== null;
-	  };
+		return getCookie("name") !== null;
+	};
 	return {
 		token,
 		username,
 		name,
 		login,
 		getName,
-		isAuthenticated
+		isAuthenticated,
 	};
 });
 if (import.meta.hot) {

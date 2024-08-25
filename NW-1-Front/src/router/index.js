@@ -102,14 +102,14 @@ const router = createRouter({
 });
 
 // Global navigation guard
-// router.beforeEach((to, from, next) => {
-// 	const loginStore = useLoginStore();
-// 	const isAuthenticated = loginStore.isAuthenticated();
-// 	if (to.name !== "Login" && !isAuthenticated) {
-// 		next({ name: "Login" });
-// 	} else {
-// 		next();
-// 	}
-// });
+router.beforeEach((to, from, next) => {
+	const loginStore = useLoginStore();
+	const isAuthenticated = loginStore.isAuthenticated();
+	if (to.name !== "Login" && !isAuthenticated) {
+		next({ name: "Login" });
+	} else {
+		next();
+	}
+});
 
 export default router;
