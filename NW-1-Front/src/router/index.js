@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import TaskList from "../views/TaskList.vue";
+import { useLoginStore } from "../stores/loginStore";
 
 const history = createWebHistory(import.meta.env.BASE_URL);
 const routes = [
@@ -26,7 +27,7 @@ const routes = [
 						next();
 					} else {
 						window.alert("The requested task does not exist");
-						next({name : "TaskList"});
+						next({ name: "TaskList" });
 						// next(router.go(-1));
 						console.log(`The requested task Id:${id} does not exist `);
 					}
@@ -45,7 +46,7 @@ const routes = [
 						next();
 					} else {
 						window.alert("The requested task does not exist");
-						next({name : "TaskList"});
+						next({ name: "TaskList" });
 						console.log(`The requested task Id:${id} does not exist `);
 					}
 				},
@@ -75,7 +76,7 @@ const routes = [
 						next();
 					} else {
 						window.alert("The requested status does not exist");
-						next({name : "StatusList"});
+						next({ name: "StatusList" });
 						console.log(`The requested status Id:${id} does not exist `);
 					}
 				},
@@ -92,12 +93,23 @@ const routes = [
 		path: "/login",
 		name: "Login",
 		component: () => import("../views/Login.vue"),
-	}
+	},
 ];
 
 const router = createRouter({
 	history,
 	routes,
 });
+
+// Global navigation guard
+// router.beforeEach((to, from, next) => {
+// 	const loginStore = useLoginStore();
+// 	const isAuthenticated = loginStore.isAuthenticated();
+// 	if (to.name !== "Login" && !isAuthenticated) {
+// 		next({ name: "Login" });
+// 	} else {
+// 		next();
+// 	}
+// });
 
 export default router;

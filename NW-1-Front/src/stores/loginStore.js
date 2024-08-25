@@ -30,12 +30,16 @@ export const useLoginStore = defineStore("loginStore", () => {
 		}
 		return name.value;
 	};
+	const isAuthenticated = () => {
+		return token.value !== null;
+	  };
 	return {
 		token,
 		username,
 		name,
 		login,
 		getName,
+		isAuthenticated
 	};
 });
 if (import.meta.hot) {

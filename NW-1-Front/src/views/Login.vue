@@ -61,7 +61,7 @@ const isFormValid = computed(() => {
 
 <template>
     <div class="min-h-screen flex items-center justify-center">
-        <div class="absolute top-0 left-0 w-full">
+        <div class="min-w-[300px] absolute top-0 right-0 p-4 mt-5">
             <Notification class="itbkk-message" :message="notiStore.notificationMessage"
                 v-if="notiStore.showNotification" />
         </div>
@@ -84,7 +84,6 @@ const isFormValid = computed(() => {
                 }" type="submit" :disabled="!isFormValid">
                     Sign in
                 </button>
-                <!-- <button class="itbkk-button-signin disabled:bg-gray-400 disabled:cursor-not-allowed" type="submit" :disabled="!isFormValid">Sign in</button> -->
             </form>
         </div>
     </div>

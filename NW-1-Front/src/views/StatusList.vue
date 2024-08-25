@@ -1,6 +1,7 @@
 <script setup>
 import { onBeforeMount, computed, ref } from "vue";
 import Notification from "../components/Notification.vue";
+import Profile from "../components/Profile.vue";
 import { getItems, deleteItemById, deleteTransfer } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
 import { useStatusStore } from '../stores/statusStore.js';
@@ -161,6 +162,7 @@ onBeforeMount(() => {
             class="mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(63,77,204)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
             IT-Bangmod<span class="text-gray-900 dark:text-white"> Kradan Kanban</span></h1>
     </header>
+    <Profile />
     <div class="flex justify-center w-auto">
         <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
     </div>
