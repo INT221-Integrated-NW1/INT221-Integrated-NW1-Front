@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref, watch, computed, onMounted } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import Notification from "../components/Notification.vue";
 import { getItems, deleteItemById } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
@@ -15,12 +15,6 @@ const notiStore = useNotiStore();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const loginStore = useLoginStore();
-
-const name = computed(() => loginStore.name);
-const username = computed(() => loginStore.username);
-onMounted(() => {
-    loginStore.loadAuthFromLocalStorage();
-});
 
 const router = useRouter()
 const selectedStatuses = ref([]);
@@ -163,8 +157,7 @@ watch(selectedStatuses, async () => {
       IT-Bangmod<span class="text-gray-900 dark:text-white"> Kradan Kanban</span></h1>
   </header>
   <div>
-    <h1>Welcome, {{ username }}!</h1>
-    <h1>Welcome, {{ name }}!</h1>
+    <h1 class="itbkk-fullname">Welcome, {{ loginStore.getName() }}!</h1>
   </div>
   <!-- Empty Table -->
   <div v-if="tasks.length === 0">
