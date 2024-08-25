@@ -1,12 +1,12 @@
 <script setup>
 import { onBeforeMount, ref, watch } from "vue";
 import Notification from "../components/Notification.vue";
+import Profile from "../components/Profile.vue";
 import { getItems, deleteItemById } from "../libs/fetchUtils.js"
 import { useRouter, RouterView } from "vue-router";
 import { useTaskStore } from '../stores/taskStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
-import { useLoginStore } from '../stores/loginStore.js';
 import 'animate.css';
 
 const taskStore = useTaskStore();
@@ -14,7 +14,6 @@ const tasks = taskStore.getTasks();
 const notiStore = useNotiStore();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
-const loginStore = useLoginStore();
 
 const router = useRouter()
 const selectedStatuses = ref([]);
@@ -156,9 +155,7 @@ watch(selectedStatuses, async () => {
       class="mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(63,77,204)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
       IT-Bangmod<span class="text-gray-900 dark:text-white"> Kradan Kanban</span></h1>
   </header>
-  <div>
-    <h1 class="itbkk-fullname">Welcome, {{ loginStore.getName() }}!</h1>
-  </div>
+  <Profile />
   <!-- Empty Table -->
   <div v-if="tasks.length === 0">
     <div class="flex justify-center items-center gap-10 pb-2 mt-6">
@@ -318,8 +315,7 @@ watch(selectedStatuses, async () => {
               <tbody class="font-semibold">
                 <tr v-for="(task, index) in tasks" :key="index"
                   class="itbkk-item text-[1.2em] odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
-                  <td class="itbkk-id px-6 py-6 text-gray-900 whitespace-nowrap dark:text-white text-center">{{ index +
-      1 }}</td>
+                  <td class="itbkk-id px-6 py-6 text-gray-900 whitespace-nowrap dark:text-white text-center">{{ index + 1 }}</td>
                   <td class="p-0">
                     <button class="text-[1.8em] dropdown dropdown-right">
                       <div tabindex="0" class="itbkk-button-action">⋮</div>
