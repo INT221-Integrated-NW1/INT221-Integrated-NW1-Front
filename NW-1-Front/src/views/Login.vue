@@ -20,7 +20,7 @@ const login = async () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: username.value,
+                userName: username.value,
                 password: password.value,
             }),
         });
