@@ -14,7 +14,7 @@ const password = ref('');
 
 const login = async () => {
     try {
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/login`, {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
