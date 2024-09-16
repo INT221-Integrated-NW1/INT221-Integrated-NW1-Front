@@ -37,9 +37,11 @@ const login = async () => {
                 // Parse JSON string to an object
                 return JSON.parse(jsonPayload);
             }
-            const token = await response.text();
-            const decodedToken = decodeJWT(token);
-            console.log('Login successful, received token:', decodedToken);
+            // const token = await response.text();
+            const token = await response.json()
+            loginStore.setToken(token.access_token)
+            const decodedToken = decodeJWT(token.access_token);
+            // console.log('Login successful, received token:', decodedToken);
             // Save the token to localStorage or Vuex for later use
             loginStore.login(decodedToken);
             router.push({ name: 'TaskList' });

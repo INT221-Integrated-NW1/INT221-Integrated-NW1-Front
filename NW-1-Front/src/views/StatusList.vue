@@ -7,6 +7,7 @@ import { useRouter, RouterView } from "vue-router";
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useTaskStore } from '../stores/taskStore.js';
+import { useLoginStore } from '../stores/loginStore.js';
 import 'animate.css';
 
 const taskStore = useTaskStore();
@@ -14,11 +15,12 @@ const tasks = taskStore.getTasks();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const notiStore = useNotiStore();
+const loginStore = useLoginStore();
 const router = useRouter()
 
 const getAllStatus = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, loginStore.getToken());
         statuses.value = data;
     } catch (error) {
         console.error('Failed to fetch status:', error);
@@ -27,7 +29,7 @@ const getAllStatus = async () => {
 
 const getAllTasks = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/tasks`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, loginStore.getToken());
         tasks.value = data;
     } catch (error) {
         console.error('Failed to fetch tasks:', error);
@@ -64,7 +66,7 @@ const statusToDelete = ref({ id: "", name: "", modal: false })
 
 const deleteStatus = async (id) => {
     try {
-        const res = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, id);
+        const res = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, id, loginStore.getToken());
         // Check if the deletion was successful (HTTP status code 200 means success)
         if (res === 200) {
             // Create a new array that doesn't include the deleted task
