@@ -1,6 +1,10 @@
-async function getItems(url) {
+async function getItems(url, header) {
 	try {
-		const data = await fetch(url); //GET Method
+		const data = await fetch(url, {
+			headers: {
+				"Authorization": `Bearer ${header}`
+			},
+		});
 		const items = await data.json();
 		return items;
 	} catch (error) {
@@ -8,10 +12,14 @@ async function getItems(url) {
 	}
 }
 
-async function getItemById(url, id) {
+async function getItemById(url, id, header) {
 	let data;
 	try {
-		data = await fetch(`${url}/${id}`);
+		data = await fetch(`${url}/${id}`, {
+			headers: {
+				"Authorization": `Bearer ${header}`
+			},
+		});
 		const item = await data.json();
 		return item;
 	} catch (error) {
@@ -22,10 +30,13 @@ async function getItemById(url, id) {
 	}
 }
 
-async function deleteItemById(url, id) {
+async function deleteItemById(url, id, header) {
 	try {
 		const res = await fetch(`${url}/${id}`, {
 			method: "DELETE",
+			headers: {
+				"Authorization": `Bearer ${header}`
+			},
 		});
 		return res.status;
 	} catch (error) {
@@ -33,10 +44,13 @@ async function deleteItemById(url, id) {
 	}
 }
 
-async function deleteTransfer(url, oldStatusId, newStatusId) {
+async function deleteTransfer(url, oldStatusId, newStatusId, header) {
 	try {
 		const res = await fetch(`${url}/${oldStatusId}/${newStatusId}`, {
 			method: "DELETE",
+			headers: {
+				"Authorization": `Bearer ${header}`
+			},
 		});
 		return res.status;
 	} catch (error) {
@@ -44,12 +58,13 @@ async function deleteTransfer(url, oldStatusId, newStatusId) {
 	}
 }
 
-async function addItem(url, newItem) {
+async function addItem(url, newItem, header) {
 	try {
 		const res = await fetch(url, {
 			method: "POST",
 			headers: {
 				"content-type": "application/json",
+				"Authorization": `Bearer ${header}`
 			},
 			body: JSON.stringify({
 				...newItem,
@@ -62,19 +77,18 @@ async function addItem(url, newItem) {
 	}
 }
 
-async function editItem(url, data) {
+async function editItem(url, data, header) {
 	const response = await fetch(url, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json",
+			"Authorization": `Bearer ${header}`
 		},
 		body: JSON.stringify(data),
 	});
-
 	if (!response.ok) {
 		throw new Error(`error: ${response.status}`);
 	}
-
 	return await response.json();
 }
 

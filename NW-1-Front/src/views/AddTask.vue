@@ -5,17 +5,20 @@ import { addItem, getItems } from '../libs/fetchUtils.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useTaskStore } from '../stores/taskStore.js';
+import { useLoginStore } from '../stores/loginStore.js';
+
 const taskStore = useTaskStore();
 const notiStore = useNotiStore();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
+const loginStore = useLoginStore();
 
 const router = useRouter();
 
 const addTask = ref({ id: "", title: "", description: "", assignees: "", status: "" })
 const getAllStatus = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, loginStore.getToken());
         statuses.value = data;
     } catch (error) {
         console.error('Failed to fetch status:', error);

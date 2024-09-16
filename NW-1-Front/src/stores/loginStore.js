@@ -7,12 +7,11 @@ export const useLoginStore = defineStore("loginStore", () => {
 	const name = ref("");
 
 	const login = (newToken) => {
-		token.value = newToken;
-		localStorage.setItem("name", newToken.name);
 		name.value = newToken.name;
 		const d = new Date(newToken.exp * 1000);
 		const expires = "expires=" + d.toUTCString();
 		document.cookie = "name =" + newToken.name + ";" + expires + ";path=/";
+		document.cookie = "token=" + token.value + ";" + expires + ";path=/";
 	};
 	const getCookie = (cookieName) => {
 		const nameEQ = cookieName + "=";
@@ -30,6 +29,15 @@ export const useLoginStore = defineStore("loginStore", () => {
 		}
 		return name.value;
 	};
+	const getToken = () => {
+		if (!token.value) {
+            token.value = getCookie("token")
+        }
+		return token.value
+	}
+	const setToken = (newToken) => {
+		token.value = newToken;
+	};
 	const isAuthenticated = () => {
 		return getCookie("name") !== null;
 	};
@@ -39,7 +47,9 @@ export const useLoginStore = defineStore("loginStore", () => {
 		name,
 		login,
 		getName,
+		setToken,
 		isAuthenticated,
+		getToken
 	};
 });
 if (import.meta.hot) {

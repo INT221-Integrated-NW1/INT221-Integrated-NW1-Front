@@ -5,11 +5,13 @@ import { addItem } from '../libs/fetchUtils.js';
 import { useRouter } from "vue-router";
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
+import { useLoginStore } from '../stores/loginStore.js';
 import 'animate.css';
 
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const notiStore = useNotiStore();
+const loginStore = useLoginStore();
 
 const addStatus = ref({ id: "", name: "", description: "" })
 
@@ -17,7 +19,7 @@ const router = useRouter();
 
 const getAllStatus = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, loginStore.getToken());
         statuses.value = data;
     } catch (error) {
         console.error('Failed to fetch status:', error);
