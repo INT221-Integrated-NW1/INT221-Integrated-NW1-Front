@@ -10,9 +10,9 @@ const loginStore = useLoginStore();
 const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
 const getTasksById = async (id) => {
     try {
-        const data = await getItemById(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken());
+        const { data } = await getItemById(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken());
         if (data) {
-        tasksId.value = data;
+            tasksId.value = data;
         } else {
             console.warn(`Task with ID ${id} not found.`);
         }

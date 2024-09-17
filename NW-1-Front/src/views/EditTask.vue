@@ -30,7 +30,7 @@ const tasksId = ref({ id: "", title: "", description: "", assignees: "", status:
 const originalTask = ref(null);
 const getTasksById = async (id) => {
     try {
-        const data = await getItemById(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken());
+        const { data } = await getItemById(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken());
         if (data) {
         tasksId.value = data;
         } else {

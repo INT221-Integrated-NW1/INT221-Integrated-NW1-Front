@@ -19,39 +19,40 @@ const routes = [
 				path: ":id",
 				name: "TaskModal",
 				component: () => import("../views/TaskModal.vue"),
-				// beforeEnter: async (to, from, next) => {
-				// 	const loginStore = useLoginStore();
-				// 	const id = parseInt(to.params.id);
-				// 	const response = await getItemById(
-				// 		`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken()
-				// 	);
-				// 	if (response.status === 200) {
-				// 		next();
-				// 	} else {
-				// 		window.alert("The requested task does not exist");
-				// 		next({ name: "TaskList" });
-				// 		// next(router.go(-1));
-				// 		console.log(`The requested task Id:${id} does not exist`);
-				// 	}
-				// },
+				beforeEnter: async (to, from, next) => {
+					const loginStore = useLoginStore();
+					const id = parseInt(to.params.id);
+					const { res } = await getItemById(
+						`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken()
+					);
+					if (res === 200) {
+						next();
+					} else {
+						window.alert("The requested task does not exist");
+						next({ name: "TaskList" });
+						// next(router.go(-1));
+						console.log(`The requested task Id: ${id} does not exist`);
+					}
+				},
 			},
 			{
 				path: ":id/edit",
 				name: "EditTask",
 				component: () => import("../views/EditTask.vue"),
-				// beforeEnter: async (to, from, next) => {
-				// 	const id = parseInt(to.params.id);
-				// 	const response = await fetch(
-				// 		`${import.meta.env.VITE_BASE_URL}/v2/tasks/${id}`
-				// 	);
-				// 	if (response.ok) {
-				// 		next();
-				// 	} else {
-				// 		window.alert("The requested task does not exist");
-				// 		next({ name: "TaskList" });
-				// 		console.log(`The requested task Id:${id} does not exist `);
-				// 	}
-				// },
+				beforeEnter: async (to, from, next) => {
+					const loginStore = useLoginStore();
+					const id = parseInt(to.params.id);
+					const { res } = await getItemById(
+						`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken()
+					);
+					if (res === 200) {
+						next();
+					} else {
+						window.alert("The requested task does not exist");
+						next({ name: "TaskList" });
+						console.log(`The requested task Id:${id} does not exist `);
+					}
+				},
 			},
 		],
 	},
@@ -69,19 +70,20 @@ const routes = [
 				path: "/status/:id/edit",
 				name: "EditStatus",
 				component: () => import("../views/EditStatus.vue"),
-				// beforeEnter: async (to, from, next) => {
-				// 	const id = parseInt(to.params.id);
-				// 	const response = await fetch(
-				// 		`${import.meta.env.VITE_BASE_URL}/v2/statuses/${id}`
-				// 	);
-				// 	if (response.ok) {
-				// 		next();
-				// 	} else {
-				// 		window.alert("The requested status does not exist");
-				// 		next({ name: "StatusList" });
-				// 		console.log(`The requested status Id:${id} does not exist `);
-				// 	}
-				// },
+				beforeEnter: async (to, from, next) => {
+					const loginStore = useLoginStore();
+					const id = parseInt(to.params.id);
+					const { res } = await getItemById(
+						`${import.meta.env.VITE_BASE_URL}/v2/statuses`, id, loginStore.getToken()
+					);
+					if (res === 200) {
+						next();
+					} else {
+						window.alert("The requested status does not exist");
+						next({ name: "StatusList" });
+						console.log(`The requested status Id: 	${id} does not exist `);
+					}
+				},
 			},
 		],
 	},
