@@ -1,16 +1,18 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue';
-import { getItems } from "../libs/fetchUtils.js"
+import { getItemById } from "../libs/fetchUtils.js"
 import { useRoute } from 'vue-router';
+import { useLoginStore } from '../stores/loginStore.js';
 
 const route = useRoute();
+const loginStore = useLoginStore();
 
 const tasksId = ref({ id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" })
 const getTasksById = async (id) => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/tasks/${id}`);
+        const data = await getItemById(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken());
         if (data) {
-            tasksId.value = data;
+        tasksId.value = data;
         } else {
             console.warn(`Task with ID ${id} not found.`);
         }

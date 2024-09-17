@@ -63,7 +63,7 @@ async function addItem(url, newItem, header) {
 		const res = await fetch(url, {
 			method: "POST",
 			headers: {
-				"content-type": "application/json",
+				"Content-Type": "application/json",
 				"Authorization": `Bearer ${header}`
 			},
 			body: JSON.stringify({

@@ -5,25 +5,39 @@ import { useRoute, useRouter } from 'vue-router';
 import { editItem } from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
+import { useLoginStore } from '../stores/loginStore.js';
 
 const notiStore = useNotiStore();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const route = useRoute();
 const router = useRouter();
+const loginStore = useLoginStore();
 
 const statusId = ref({ id: "", name: "", description: "" })
 const statusIdOriginal = ref({ id: "", name: "", description: "" })
 
 const getStatusById = async (id) => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses/${id}`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses/${id}`, loginStore.getToken());
         statusId.value = data;
         statusIdOriginal.value = { ...data };
     } catch (error) {
         console.error(`Failed to fetch status with ID ${id}:`, error);
     }
 }
+// const getTasksById = async (id) => {
+//     try {
+//         const data = await getItemById(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken());
+//         if (data) {
+//         tasksId.value = data;
+//         } else {
+//             console.warn(`Task with ID ${id} not found.`);
+//         }
+//     } catch (error) {
+//         console.error(`Failed to fetch task with ID ${id}:`, error);
+//     }
+// }
 
 onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the router parameters
@@ -41,7 +55,7 @@ const saveStatus = async () => {
             return; // Stop further execution
         }
 
-        const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses/${statusId.value.id}`, statusId.value);
+        const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses/${statusId.value.id}`, statusId.value , loginStore.getToken());
         statusStore.editStatus(updatedStatus); // Update status in store
 
         notiStore.setNotificationMessage(`The status "${statusId.value.name}" has been updated`);

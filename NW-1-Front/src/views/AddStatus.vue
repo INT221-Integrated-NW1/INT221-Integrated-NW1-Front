@@ -42,7 +42,7 @@ const saveStatus = async () => {
             router.push({ name: 'StatusList' });
             return;
         }
-        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, addStatus.value);
+        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, addStatus.value , loginStore.getToken());
         if(!newStatus.status === 201){
             throw new Error("Failed to add status");
         }

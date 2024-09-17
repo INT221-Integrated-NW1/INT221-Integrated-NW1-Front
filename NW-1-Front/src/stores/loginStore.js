@@ -40,6 +40,7 @@ export const useLoginStore = defineStore("loginStore", () => {
 	};
 	const isAuthenticated = () => {
 		return getCookie("name") !== null;
+		// return getCookie("name") !== null && token !== null || undefined;
 	};
 	return {
 		token,
