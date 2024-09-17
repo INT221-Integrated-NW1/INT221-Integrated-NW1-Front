@@ -42,8 +42,8 @@ const saveStatus = async () => {
             router.push({ name: 'StatusList' });
             return;
         }
-        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, addStatus.value , loginStore.getToken());
-        if(!newStatus.status === 201){
+        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, addStatus.value, loginStore.getToken());    
+        if (!newStatus.status === 201) {
             throw new Error("Failed to add status");
         }
         statusStore.addStatus(newStatus);
@@ -107,8 +107,7 @@ onBeforeMount(() => {
                                 placeholder="Write status description here"></textarea>
                         </div>
                     </div>
-                    <div @click="saveStatus"
-                        :class="{ 'cursor-not-allowed opacity-50': addStatus.name.trim() === ''}"
+                    <div @click="saveStatus" :class="{ 'cursor-not-allowed opacity-50': addStatus.name.trim() === '' }"
                         :disabled="addStatus.name.trim() === ''"
                         class="itbkk-button-confirm text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"

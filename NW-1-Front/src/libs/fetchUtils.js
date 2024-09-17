@@ -1,3 +1,5 @@
+import router from "@/router";
+
 async function getItems(url, header) {
 	try {
 		const data = await fetch(url, {
@@ -5,6 +7,9 @@ async function getItems(url, header) {
 				"Authorization": `Bearer ${header}`
 			},
 		});
+		if (data.status === 401) {
+			router.push({ name: "Login"})
+		}
 		const items = await data.json();
 		return items;
 	} catch (error) {
@@ -21,7 +26,7 @@ async function getItemById(url, id, header) {
 			},
 		});
 		const item = await data.json();
-		return item;
+		return {res: data.status, data: item};
 	} catch (error) {
 		console.log("Tasks Not Found!");
 		console.log(`error: ${error}`);

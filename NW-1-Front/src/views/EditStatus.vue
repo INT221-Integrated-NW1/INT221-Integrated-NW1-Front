@@ -26,18 +26,6 @@ const getStatusById = async (id) => {
         console.error(`Failed to fetch status with ID ${id}:`, error);
     }
 }
-// const getTasksById = async (id) => {
-//     try {
-//         const data = await getItemById(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken());
-//         if (data) {
-//         tasksId.value = data;
-//         } else {
-//             console.warn(`Task with ID ${id} not found.`);
-//         }
-//     } catch (error) {
-//         console.error(`Failed to fetch task with ID ${id}:`, error);
-//     }
-// }
 
 onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the router parameters
