@@ -3,21 +3,23 @@ import { ref, onBeforeMount, computed } from 'vue';
 import { getItems } from "../libs/fetchUtils.js"
 import { useRoute, useRouter } from 'vue-router';
 import { useTaskStore } from '../stores/taskStore.js';
-import { editItem } from '../libs/fetchUtils.js';
+import { editItem , getItemById} from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
+import { useLoginStore } from '../stores/loginStore.js';
 
 const notiStore = useNotiStore();
 const taskStore = useTaskStore();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
+const loginStore = useLoginStore();
 
 const route = useRoute();
 const router = useRouter();
 
 const getAllStatus = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`);
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, loginStore.getToken());
         statuses.value = data;
     } catch (error) {
         console.error('Failed to fetch status:', error);
@@ -28,10 +30,9 @@ const tasksId = ref({ id: "", title: "", description: "", assignees: "", status:
 const originalTask = ref(null);
 const getTasksById = async (id) => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v2/tasks/${id}`);
+        const data = await getItemById(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken());
         if (data) {
-            tasksId.value = data;
-            originalTask.value = { ...data };
+        tasksId.value = data;
         } else {
             console.warn(`Task with ID ${id} not found.`);
         }
@@ -51,7 +52,7 @@ const saveTask = async () => {
         if (!tasksId.value.status) {
             tasksId.value.status = "No Status";
         }
-        const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/tasks/${tasksId.value.id}`, tasksId.value);
+        const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v2/tasks/${tasksId.value.id}`, tasksId.value , loginStore.getToken());
         // Update task in store
         taskStore.editTask(updatedTask);
 

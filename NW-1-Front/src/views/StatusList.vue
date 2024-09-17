@@ -123,11 +123,10 @@ const openConfirmModal = (status) => {
 const newStatusId = ref({ id: "", name: "", description: "" });
 const deleteStatusWithTransfer = async () => {
     try {
-        const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, statusToDelete.value.id, newStatusId.value.id);
+        const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, statusToDelete.value.id, newStatusId.value.id, loginStore.getToken());
         if (res === 200) {
             statusStore.removeStatuses(statusToDelete.value);
             statusStore.addStatus(newStatusId.value);
-            //Notify user
             notiStore.setNotificationMessage("Transfer and delete operation successful");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
@@ -207,7 +206,7 @@ onBeforeMount(() => {
                                     provided.</span>
                                 <span v-else>{{ status.description }}</span>
                             </td>
-                            <td class="px-6 py-4" v-if="status.name !== 'Done'" >
+                            <td class="px-6 py-4" v-if="status.name !== 'Done'">
                                 <button @click="editStatus(status)"
                                     class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                     Edit</button>

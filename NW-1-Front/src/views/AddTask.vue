@@ -37,7 +37,7 @@ const saveTask = async () => {
         if (!addTask.value.status) {
             addTask.value.status = 1; 
         }
-        const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, addTask.value);
+        const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, addTask.value , loginStore.getToken());
 
         taskStore.addTask(newTask);
 
