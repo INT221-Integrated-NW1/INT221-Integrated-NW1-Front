@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import TaskList from "../views/TaskList.vue";
-import { getItems, getItemById } from "@/libs/fetchUtils";
+import { getItemById } from "@/libs/fetchUtils";
 import { useLoginStore } from "../stores/loginStore";
 
 const history = createWebHistory(import.meta.env.BASE_URL);
@@ -88,16 +88,34 @@ const routes = [
 		],
 	},
 	{
-		path: "/:pathMatch(.*)",
-		name: "NotFound",
-		component: () => import("../views/NotFound.vue"),
-		redirect: "/task",
+		path: "/board",
+		name: "Board",
+		component: () => import("../views/Board.vue"),
+		children: [
+			{
+				path: '/board/add',
+				name: 'AddBoard',
+				component: () => import("../components/AddBoard.vue")
+			},
+		]
 	},
+	// {
+	// 	path: '/board/add',
+	// 	name: 'AddBoard',
+	// 	component: () => import("../components/AddBoard.vue")
+	// },
 	{
 		path: "/login",
 		name: "Login",
 		component: () => import("../views/Login.vue"),
 	},
+	{
+		path: "/:pathMatch(.*)",
+		name: "NotFound",
+		component: () => import("../views/NotFound.vue"),
+		redirect: "/task",
+	},
+
 ];
 
 const router = createRouter({

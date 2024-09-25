@@ -228,7 +228,7 @@ watch(selectedStatuses, async () => {
     </div>
   </div>
   <!-- Table with Tasks -->
-  <div v-else class="mt-8">
+  <div v-else class="pt-8">
     <div class="flex justify-center w-auto">
       <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
     </div>
