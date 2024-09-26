@@ -31,26 +31,20 @@ const saveTask = async () => {
             notiStore.setNotificationMessage("Title cannot be empty");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
-            return; 
+            return;
         }
-
         if (!addTask.value.status) {
-            addTask.value.status = 1; 
+            addTask.value.status = 1;
         }
-        const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, addTask.value , loginStore.getToken());
-
+        const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v2/tasks`, addTask.value, loginStore.getToken());
         taskStore.addTask(newTask);
-
         notiStore.setNotificationMessage(`The task "${addTask.value.title}" is added successfully`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("success");
- 
         addTask.value = { title: "", description: "", assignees: "", status: "" };
-  
         router.push({ name: 'TaskList' });
     } catch (error) {
         console.error('Error saving task:', error);
- 
         notiStore.setNotificationMessage(`An error occurred adding the task "${addTask.value.title}`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("error");

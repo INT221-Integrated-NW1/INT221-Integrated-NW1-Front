@@ -1,10 +1,10 @@
 <script setup>
-import { onMounted, ref, watchEffect, watch } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 import Notification from "../components/Notification.vue";
 import AddBoard from "../components/AddBoard.vue"
 import Profile from "../components/Profile.vue";
-import { getItems, deleteItemById } from "../libs/fetchUtils.js"
-import { useRouter, useRoute, RouterView } from "vue-router";
+import { getItems } from "../libs/fetchUtils.js"
+import { useRouter, useRoute } from "vue-router";
 // import { useTaskStore } from '../stores/taskStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
@@ -74,11 +74,10 @@ watchEffect(() => {
                 <div class="max-h-screen flex justify-center">
                     <div class="w-full max-w-screen-lg pl-2">
                         <div class="flex justify-between pb-2 gap-4">
-                            <RouterLink :to="{ name: 'StatusList' }">
-                                <button
-                                    class="bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Create
-                                    personal board </button>
-                            </RouterLink>
+                            <button @click="openModal"
+                                class="itbkk-button-create bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">
+                                Create Board</button>
+                            <AddBoard v-if="showModal" @close="closeModal" />
                         </div>
                         <div
                             class="relative max-h-[26.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
@@ -114,13 +113,10 @@ watchEffect(() => {
                 <div class="max-h-screen flex justify-center">
                     <div class="w-full max-w-screen-lg pl-2">
                         <div class="flex justify-between pb-2 gap-4">
-                            <!-- <RouterLink :to="{ name: 'AddBoard' }"> -->
-                                <button @click="openModal"
-                                    class="bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">
-                                    Create Board</button>
-                            <!-- </RouterLink> -->
-                            <RouterView />
-                            <AddBoard v-if="showModal" @click="closeModal" />
+                            <button @click="openModal"
+                                class="itbkk-button-create bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">
+                                Create Board</button>
+                            <AddBoard v-if="showModal" @close="closeModal" />
                         </div>
                         <div
                             class="relative max-h-[26.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
@@ -136,11 +132,12 @@ watchEffect(() => {
                                     <tr v-for="(board, index) in boards" :key="index"
                                         class="itbkk-item text-[1.2em] odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
                                         <td class="itbkk-assignees text-center">{{ index + 1 }}</td>
-                                        <td class="itbkk-assignees text-center">{{ board.board_name }}</td>
+                                        <td @click="router.push({ name: 'TaskBoardList', params: { boardId: board.board_id } })"
+                                            class="itbkk-assignees text-center">{{ board.board_name }}</td>
                                         <td class="text-center px-6 py-4">
-                                            <button @click=""
+                                            <!-- <button @click=""
                                                 class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                                Edit</button>
+                                                Edit</button> -->
                                             <button @click=""
                                                 class="itbkk-button-delete px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                                                 Delete</button>
