@@ -99,11 +99,6 @@ const routes = [
 			},
 		]
 	},
-	// {
-	// 	path: '/board/add',
-	// 	name: 'AddBoard',
-	// 	component: () => import("../components/AddBoard.vue")
-	// },
 	{
 		path: "/login",
 		name: "Login",
