@@ -132,8 +132,8 @@ watchEffect(() => {
                                     <tr v-for="(board, index) in boards" :key="index"
                                         class="itbkk-item text-[1.2em] odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
                                         <td class="itbkk-assignees text-center">{{ index + 1 }}</td>
-                                        <td @click="router.push({ name: 'TaskBoardList', params: { boardId: board.board_id } })"
-                                            class="itbkk-assignees text-center">{{ board.board_name }}</td>
+                                        <td @click="router.push({ name: 'TaskBoard', params: { id: board.boardId } })"
+                                            class="itbkk-assignees text-center cursor-pointer">{{ board.board_name }}</td>
                                         <td class="text-center px-6 py-4">
                                             <!-- <button @click=""
                                                 class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">

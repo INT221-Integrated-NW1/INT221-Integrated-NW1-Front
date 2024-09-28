@@ -100,6 +100,16 @@ const routes = [
 		]
 	},
 	{
+		path: "/board/:id",
+		name: "TaskBoard",
+		component: () => import("../views/TaskBoard.vue"),
+	},
+	{
+		path: "/board/:id/status",
+		name: "StatusBoard",
+		component: () => import("../views/StatusBoard.vue"),
+	},
+	{
 		path: "/login",
 		name: "Login",
 		component: () => import("../views/Login.vue"),
