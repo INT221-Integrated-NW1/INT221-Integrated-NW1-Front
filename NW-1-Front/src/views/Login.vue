@@ -44,7 +44,7 @@ const login = async () => {
             // console.log('Login successful, received token:', decodedToken);
             // Save the token to localStorage or Vuex for later use
             loginStore.login(decodedToken);
-            router.push({ name: 'TaskList' });
+            router.push({ name: 'Board' });
         } else {
             console.error = 'Invalid username or password';
             notiStore.setNotificationMessage("Username or Password is incorrect");
