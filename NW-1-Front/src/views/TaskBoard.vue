@@ -2,7 +2,7 @@
 import { onBeforeMount, ref, watch } from "vue";
 import Notification from "../components/Notification.vue";
 import Profile from "../components/Profile.vue";
-import { getItems, deleteItemById } from "../libs/fetchUtils.js"
+import { getItems, deleteItem } from "../libs/fetchUtils.js"
 import { useRouter, RouterView, useRoute } from "vue-router";
 import { useTaskStore } from '../stores/taskStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
@@ -19,6 +19,7 @@ const loginStore = useLoginStore();
 
 const router = useRouter()
 const route = useRoute();
+const id = route.params.id;
 const selectedStatuses = ref([]);
 
 const getAllTasks = async (id) => {
@@ -62,13 +63,11 @@ const closeConfirmModal = () => {
   taskToDelete.value = null;
   deleteConfirmModal.value = false;
 };
-const deleteTask = async (id) => {
+const deleteTask = async (task) => {
   try {
-    const status = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks`, loginStore.getToken());
-    // Check if the deletion was successful (HTTP status code 200 means success)
+    const status = await deleteItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks/${task}`, loginStore.getToken());
     if (status === 200) {
-      // Create a new array that doesn't include the deleted task
-      tasks.value = tasks.value.filter(task => task.id !== id);
+      taskStore.removeTasks(status)
       notiStore.setNotificationMessage(`The task "${taskToDelete.value.title}" is deleted successfully`);
       notiStore.setShowNotification(true);
       notiStore.setNotificationType("success");
@@ -116,7 +115,6 @@ const sortStatusByDesc = () => {
 };
 
 const resetSortOrder = () => {
-  const id = route.params.id;
   getAllTasks(id);
 };
 
@@ -135,17 +133,15 @@ const cycleSortOrder = () => {
 };
 
 onBeforeMount(() => {
-    const id = route.params.id;
-    getAllTasks(id);
-    getAllStatus(id);
+  getAllTasks(id);
+  getAllStatus(id);
 });
 
 watch(statuses.value, () => {
-    getAllStatus();
+  getAllStatus();
 })
 
 watch(selectedStatuses, async () => {
-  const id = route.params.id;
   await getAllTasks(id);
   if (sortOrder.value === 'asc') {
     sortStatusByAsc();
@@ -165,7 +161,13 @@ watch(selectedStatuses, async () => {
   <!-- Empty Table -->
   <div v-if="tasks.length === 0">
     <div class="flex justify-center items-center gap-10 pb-2 mt-6">
-      <RouterLink :to="{ name: 'StatusList' }">
+      <div>
+        <RouterLink :to="{ name: 'Board' }">
+          <button
+            class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
+        </RouterLink>
+      </div>
+      <RouterLink :to="{ name: 'StatusBoard' }">
         <button
           class="bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
           Status</button>
@@ -204,7 +206,7 @@ watch(selectedStatuses, async () => {
     </div>
     <div class="flex justify-center">
       <div class="flex items-center">
-        <button class="itbkk-button-add" @click="router.push({ name: 'AddTask' })">
+        <button class="itbkk-button-add" @click="router.push({ name: 'AddBoardTask' })">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-8 h-8 rounded-md fill-[#00215E]">
             <path
               d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
@@ -239,7 +241,7 @@ watch(selectedStatuses, async () => {
     <div class="flex justify-center">
       <div class="max-h-screen flex justify-center">
         <div class="flex items-start pt-8">
-          <button @click="router.push({ name: 'AddTask' })" class="itbkk-button-add">
+          <button @click="router.push({ name: 'AddBoardTask' })" class="itbkk-button-add">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
               class="w-[3rem] h-[3rem] rounded-md bg-[#c5daff] fill-[#00215E] hover:scale-125 duration-150">
               <path
@@ -249,11 +251,17 @@ watch(selectedStatuses, async () => {
         </div>
         <div class="w-full max-w-screen-lg pl-2">
           <div class="flex justify-between pb-2 gap-4">
-            <RouterLink :to="{ name: 'StatusList' }">
-              <button
-                class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
-                Status</button>
-            </RouterLink>
+            <div class="flex gap-4">
+              <RouterLink :to="{ name: 'Board' }">
+                <button
+                  class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
+              </RouterLink>
+              <RouterLink :to="{ name: 'StatusBoard' }">
+                <button
+                  class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
+                  Status</button>
+              </RouterLink>
+            </div>
             <div class="dropdown">
               <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
                 class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
@@ -321,12 +329,13 @@ watch(selectedStatuses, async () => {
               <tbody class="font-semibold">
                 <tr v-for="(task, index) in tasks" :key="index"
                   class="itbkk-item text-[1.2em] odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
-                  <td class="itbkk-id px-6 py-6 text-gray-900 whitespace-nowrap dark:text-white text-center">{{ index + 1 }}</td>
+                  <td class="itbkk-id px-6 py-6 text-gray-900 whitespace-nowrap dark:text-white text-center">{{ index +
+                    1 }}</td>
                   <td class="p-0">
                     <button class="text-[1.8em] dropdown dropdown-right">
                       <div tabindex="0" class="itbkk-button-action">⋮</div>
                       <ul tabindex="0" class="dropdown-content menu mt-2 p-2 shadow bg-red-100 rounded-box w-52 z-[1]">
-                        <li><a @click="router.push({ name: 'EditTask', params: { id: task.id } })"
+                        <li><a @click="router.push({ name: 'EditBoardTask', params: { task: task.id } })"
                             class="itbkk-button-edit hover:bg-red-200">Edit</a></li>
                         <li><a @click="openConfirmModal(task)" class="itbkk-button-delete hover:bg-red-200">Delete</a>
                         </li>
@@ -336,7 +345,7 @@ watch(selectedStatuses, async () => {
                   <td class="text-center">
                     <button
                       class="itbkk-title max-w-[12rem] truncate cursor-pointer hover:no-underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
-                      @click="router.push({ name: 'TaskModal', params: { id: task.id } })">{{ task.title }}</button>
+                      @click="router.push({ name: 'TaskModal', params: { taskId: task.id } })">{{ task.title }}</button>
                   </td>
                   <td class="itbkk-assignees italic text-gray-500 text-center" v-if="!task.assignees">Unassigned</td>
                   <td class="itbkk-assignees italic text-center" v-else.trim>{{ task.assignees }}</td>

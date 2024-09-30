@@ -35,6 +35,20 @@ async function getItemById(url, id, header) {
 	}
 }
 
+async function deleteItem(url, header) {
+	try {
+		const res = await fetch(url, {
+			method: "DELETE",
+			headers: {
+				"Authorization": `Bearer ${header}`
+			},
+		});
+		return res.status;
+	} catch (error) {
+		console.log(`error: ${error}`);
+	}
+}
+
 async function deleteItemById(url, id, header) {
 	try {
 		const res = await fetch(`${url}/${id}`, {
@@ -104,4 +118,5 @@ export {
 	addItem,
 	editItem,
 	deleteTransfer,
+	deleteItem,
 };

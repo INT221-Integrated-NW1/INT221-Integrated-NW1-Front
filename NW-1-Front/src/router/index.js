@@ -15,26 +15,26 @@ const routes = [
 				name: "AddTask",
 				component: () => import("../views/AddTask.vue"),
 			},
-			{
-				path: ":id",
-				name: "TaskModal",
-				component: () => import("../views/TaskModal.vue"),
-				beforeEnter: async (to, from, next) => {
-					const loginStore = useLoginStore();
-					const id = parseInt(to.params.id);
-					const { res } = await getItemById(
-						`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken()
-					);
-					if (res === 200) {
-						next();
-					} else {
-						window.alert("The requested task does not exist");
-						next({ name: "TaskList" });
-						// next(router.go(-1));
-						console.log(`The requested task Id: ${id} does not exist`);
-					}
-				},
-			},
+			// {
+			// 	path: ":id",
+			// 	name: "TaskModal",
+			// 	component: () => import("../views/TaskModal.vue"),
+			// 	beforeEnter: async (to, from, next) => {
+			// 		const loginStore = useLoginStore();
+			// 		const id = parseInt(to.params.id);
+			// 		const { res } = await getItemById(
+			// 			`${import.meta.env.VITE_BASE_URL}/v2/tasks`, id, loginStore.getToken()
+			// 		);
+			// 		if (res === 200) {
+			// 			next();
+			// 		} else {
+			// 			window.alert("The requested task does not exist");
+			// 			next({ name: "TaskList" });
+			// 			// next(router.go(-1));
+			// 			console.log(`The requested task Id: ${id} does not exist`);
+			// 		}
+			// 	},
+			// },
 			{
 				path: ":id/edit",
 				name: "EditTask",
@@ -103,6 +103,23 @@ const routes = [
 		path: "/board/:id",
 		name: "TaskBoard",
 		component: () => import("../views/TaskBoard.vue"),
+		children: [
+			{
+				path: '/board/:id/task/add',
+				name: 'AddBoardTask',
+				component: () => import("../components/AddBoardTask.vue")
+			},
+			{
+				path: "/board/:id/tasks/:taskId",
+				name: "TaskModal",
+				component: () => import("../views/TaskModal.vue"),
+			},
+			{
+				path: "/board/:id/tasks/:task-id/edit",
+				name: "EditBoardTask",
+				component: () => import("../components/EditBoardTask.vue"),
+			},
+		]
 	},
 	{
 		path: "/board/:id/status",

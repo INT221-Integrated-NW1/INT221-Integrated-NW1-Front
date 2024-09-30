@@ -71,9 +71,9 @@ onBeforeMount(() => {
         <div class="w-full max-w-screen-lg px-8">
             <div class="flex pb-2 gap-2 justify-between">
                 <div>
-                    <RouterLink :to="{ name: 'TaskList' }">
+                    <RouterLink :to="{ name: 'TaskBoard' }">
                         <button
-                            class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-[#0062ff] hover:text-[#f0f0f0]">Home</button>
+                            class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-[#0062ff] hover:text-[#f0f0f0]">Task</button>
                     </RouterLink>
                 </div>
                 <div>

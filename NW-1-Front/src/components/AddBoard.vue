@@ -9,24 +9,30 @@ const router = useRouter();
 const boardStore = useBoardStore();
 const loginStore = useLoginStore();
 const showModal = ref(true);
-const boardName = ref('');
+const board = ref({ name: "" });
+const boardExists = ref(boardStore.getBoards().value.length > 0);
 
 const createBoard = async () => {
-    if (!boardName.value) {
+    if (!board.value) {
         alert('Please enter a board name');
         return;
     }
-    const newBoard = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards`, { board_name: boardName.value }, loginStore.getToken());
+    if (boardStore.getBoards().value.length > 0) {
+        alert('You can only create one board.');
+        return;
+    }
+    const newBoard = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards`, board.value, loginStore.getToken());
     if (!newBoard.status === 201) {
         throw new Error("Failed to add status");
     }
-    boardStore.addBoard({ board_name: boardName.value });
+    boardStore.addBoard(newBoard);
+    boardExists.value = true;
     closeModal();
     router.push({ name: 'Board' })
 };
 
 const closeModal = () => {
-    boardName.value = '';
+    board.value = '';
     showModal.value = false;
     router.push({ name: 'Board' })
 };
@@ -41,15 +47,18 @@ const closeModal = () => {
                 <h2 class="text-xl font-bold mb-4">Create New Board</h2>
                 <form>
                     <div class="mb-4">
-                        <label for="board_name" class="block text-sm font-bold mb-2">Board Name</label>
-                        <input v-model="boardName" type="text" id="board_name"
+                        <label for="name" class="block text-sm font-bold mb-2">Board Name</label>
+                        <input v-model="board.name" type="text" id="name"
                             class="itbkk-board-name w-full px-3 py-2 border rounded-lg" required />
                     </div>
                     <div class="flex justify-end">
-                        <button type="button" @click="createBoard"
-                            class="itbkk-button-ok bg-green-500 text-white font-bold px-8 py-2 rounded hover:bg-green-700">Create</button>
+                        <button type="button" @click="createBoard" :disabled="!board.name || boardExists"
+                            class="itbkk-button-ok bg-green-500 text-white font-bold px-8 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">Create</button>
                     </div>
                 </form>
+                <p v-if="boardExists" class="text-red-500 mt-2 text-center">
+                    You can only create one board.
+                </p>
             </div>
         </div>
     </transition>
