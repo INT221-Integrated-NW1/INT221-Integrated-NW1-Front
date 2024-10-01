@@ -1,25 +1,26 @@
 <script setup>
-import { onBeforeMount, ref, watch } from "vue";
+import { onBeforeMount, computed, ref } from "vue";
 import Notification from "../components/Notification.vue";
 import Profile from "../components/Profile.vue";
-import { getItems, deleteItemById } from "../libs/fetchUtils.js"
+import { getItems, deleteItemById, deleteTransfer } from "../libs/fetchUtils.js"
 import { useRouter, RouterView, useRoute } from "vue-router";
-import { useTaskStore } from '../stores/taskStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
+import { useTaskStore } from '../stores/taskStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
 import 'animate.css';
 
 const taskStore = useTaskStore();
 const tasks = taskStore.getTasks();
-const notiStore = useNotiStore();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
+const selectedStatuses = ref([]);
+
+const notiStore = useNotiStore();
 const loginStore = useLoginStore();
 
-const router = useRouter()
+const router = useRouter();
 const route = useRoute();
-const selectedStatuses = ref([]);
 
 const getAllStatus = async (id) => {
     try {
@@ -33,27 +34,142 @@ const getAllStatus = async (id) => {
     }
 };
 
-const checkBox = ref(false);
-const openCheckbox = () => {
-    checkBox.value = !checkBox.value;
-};
+// const getAllTasks = async (id) => {
+//     try {
+//         const queryParams = new URLSearchParams();
+//         if (selectedStatuses.value.length > 0) {
+//             queryParams.append('filterStatuses', selectedStatuses.value.join(','));
+//         }
+//         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks?${queryParams.toString()}`, loginStore.getToken());
+//         if (data.status === 401) {
+//             router.push({ name: "Login" })
+//         }
+//         tasks.value = data;
+//     } catch (error) {
+//         console.error('Failed to fetch tasks:', error);
+//     }
+// };
 
-const deleteConfirmModal = ref(false);
-const taskToDelete = ref(null);
-
-const openConfirmModal = (task) => {
-    taskToDelete.value = task;
-    deleteConfirmModal.value = true;
-};
+const confirmDeleteModal = ref(false);
+const deleteTransferModal = ref(false);
 
 const closeConfirmModal = () => {
-    taskToDelete.value = null;
-    deleteConfirmModal.value = false;
+    confirmDeleteModal.value = false;
 };
+
+const closeDeleteTransferModal = () => {
+    deleteTransferModal.value = false;
+};
+
+const closeConfirmDeleteModal = () => {
+    confirmDeleteModal.value = false;
+}
+
+const editStatus = (status) => {
+    const statusName = status.name.toLowerCase();
+    if (statusName.includes("no status")) {
+        notiStore.setNotificationMessage("Cannot edit status named 'No Status'");
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("error");
+        return;
+    }
+    router.push({ name: 'EditBoardStatus', params: { status: status.id } });
+};
+
+const statusToDelete = ref({ id: "", name: "", modal: false })
+
+const deleteStatus = async (id) => {
+    try {
+        const res = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, id, loginStore.getToken());
+        // Check if the deletion was successful (HTTP status code 200 means success)
+        if (res === 200) {
+            // Create a new array that doesn't include the deleted task
+            statuses.value = statuses.value.filter(status => status.id !== id);
+            notiStore.setNotificationMessage(`The status "${statusToDelete.value.name}" is deleted successfully`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("success");
+
+            closeConfirmModal();
+        } else if (res === 404) {
+            console.error(`Failed to delete status with ID ${id}. Status does not exist.`);
+            notiStore.setNotificationMessage(`An error occurred deleting the status "${statusToDelete.value.name}"`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            closeConfirmModal();
+        } else {
+            console.error(`Failed to delete status with ID ${id} HTTP status: ${res}`);
+        }
+    } catch (error) {
+        console.error(`Failed to delete status with ID ${id}:`, error);
+    }
+};
+
+const checkStatusUsage = (statusId) => {
+    const status = statuses.value.find(status => status.id === statusId);
+    if (!status) {
+        console.error(`Status with ID ${statusId} not found.`);
+        return;
+    }
+    if (status.name === "No Status") {
+        notiStore.setNotificationMessage("Cannot delete status named 'No Status'");
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("error");
+        return;
+    }
+    const isUsed = tasks.value.some(task => task.status.id === status.id);
+    if (isUsed) {
+        openDeleteTransferModal(status);
+    } else {
+        openConfirmModal(status);
+    }
+};
+
+const openDeleteTransferModal = (status) => {
+    statusToDelete.value = status;
+    deleteTransferModal.value = true;
+};
+
+const openConfirmModal = (status) => {
+    statusToDelete.value = status;
+    confirmDeleteModal.value = true;
+};
+
+const newStatusId = ref({ id: "", name: "", description: "" });
+const deleteStatusWithTransfer = async () => {
+    try {
+        const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, statusToDelete.value.id, newStatusId.value.id, loginStore.getToken());
+        if (res === 200) {
+            statusStore.removeStatuses(statusToDelete.value);
+            statusStore.addStatus(newStatusId.value);
+            notiStore.setNotificationMessage("Transfer and delete operation successful");
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("success");
+            closeDeleteTransferModal();
+            getAllStatus();
+        } else {
+            console.error('Failed to transfer and delete status:', res.statusText);
+            notiStore.setNotificationMessage('An error occurred during the transfer and delete operation');
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            closeDeleteTransferModal();
+        }
+    } catch (error) {
+        console.error('Error transferring and deleting status:', error);
+        notiStore.setNotificationMessage('An error occurred during the transfer and delete operation');
+        notiStore.setShowNotification(true);
+        notiStore.setNotificationType("error");
+        closeDeleteTransferModal();
+    }
+};
+
+const filteredStatuses = computed(() => {
+    return statuses.value.filter(status => status.id !== statusToDelete.value.id);
+});
 
 onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the router parameters
     getAllStatus(id);
+    // getAllTasks(id);
 });
 </script>
 
@@ -71,13 +187,13 @@ onBeforeMount(() => {
         <div class="w-full max-w-screen-lg px-8">
             <div class="flex pb-2 gap-2 justify-between">
                 <div>
-                    <RouterLink :to="{ name: 'TaskBoard' }">
+                    <RouterLink :to="{ name: 'Board' }">
                         <button
-                            class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-[#0062ff] hover:text-[#f0f0f0]">Task</button>
+                            class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-[#0062ff] hover:text-[#f0f0f0]">Home</button>
                     </RouterLink>
                 </div>
                 <div>
-                    <button @click="router.push({ name: 'AddStatus' })"
+                    <button @click="router.push({ name: 'AddBoardStatus' })"
                         class="itbkk-button-add bg-green-400 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-white hover:bg-green-500 hover:text-[#f0f0f0] focus:ring-4 focus:outline-none focus:ring-green-300">Add
                         Status</button>
                 </div>
@@ -115,7 +231,7 @@ onBeforeMount(() => {
                                     Delete</button>
                             </td>
                             <td class="px-6 py-4" v-else>
-                                
+
                             </td>
                         </tr>
                     </tbody>
@@ -123,43 +239,57 @@ onBeforeMount(() => {
             </div>
         </div>
     </div>
-    <!-- Delete Confirm Modal -->
+
+    <!-- Delete Transfer Modal -->
     <div class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
-        v-if="deleteConfirmModal">
-        <div class="bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
-            <h3 class="text-[#FFC745] font-bold text-lg ">Delete a Task</h3>
+        v-if="deleteTransferModal">
+        <div class="itbkk-message bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
+            <!-- Modal content -->
+            <h3 class="text-[#FFC745] font-bold text-lg">Delete Status with Transfer</h3>
             <hr>
             <div class="text-center overflow-hidden">
-                <p>Do you want to delete the task</p>
-                <p>"{{ taskToDelete.title }}" ?</p>
+                <p>Deleting this status will transfer its tasks to another status.</p>
+                <!-- You can add a select dropdown here to choose the status for transferring tasks -->
+                <label for="transferStatus" class="block text-sm font-medium text-gray-300">Transfer tasks to:</label>
+                <select id="transferStatus" name="transferStatus" v-model="newStatusId.id"
+                    class="mt-1 block w-full p-2 rounded-md bg-gray-700 text-gray-300">
+                    <!-- Loop through statuses and generate options -->
+                    <option v-for="status in filteredStatuses" :key="status.id" :value="status.id">{{ status.name }}
+                    </option>
+                </select>
             </div>
             <div class="flex justify-center mt-4">
                 <button
                     class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
-                    @click="deleteTask(taskToDelete.id)">Confirm</button>
+                    @click="deleteStatusWithTransfer(statusToDelete.id)">Delete with Transfer</button>
                 <button
                     class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
-                    @click="closeConfirmModal">Cancel</button>
+                    @click="closeDeleteTransferModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-50"
+        v-if="confirmDeleteModal">
+        <div class="itbkk-message bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
+            <!-- Modal content -->
+            <h3 class="text-[#FFC745] font-bold text-lg">Confirm Delete</h3>
+            <hr>
+            <div class="text-center overflow-hidden">
+                <p>Are you sure you want to delete the status "{{ statusToDelete.name }}"?</p>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button
+                    class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
+                    @click="deleteStatus(statusToDelete.id)">Confirm</button>
+                <button
+                    class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
+                    @click="closeConfirmDeleteModal">Cancel</button>
             </div>
         </div>
     </div>
     <RouterView />
 </template>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
-
-.lobster-regular {
-    font-family: "Lobster", sans-serif;
-    font-weight: 200;
-    font-style: normal;
-}
-
-.head-shadow {
-    filter: drop-shadow(#FFC55A 3px 3px 0px)
-}
-
-.button-shadow {
-    filter: drop-shadow(#2C4E80 3px 3px 0px)
-}
-</style>
+<style scoped></style>

@@ -33,7 +33,6 @@ export const useStatusStore = defineStore("statusStore", () => {
 			if (status.id === newStatus.id) {
 				status.name = newStatus.name;
 				status.description = newStatus.description;
-			
 			}
 		});
 	};

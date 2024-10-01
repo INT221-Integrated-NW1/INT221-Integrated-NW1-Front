@@ -1,9 +1,8 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue';
-import { getItems } from "../libs/fetchUtils.js"
 import { useRoute, useRouter } from 'vue-router';
 import { useTaskStore } from '../stores/taskStore.js';
-import { editItem, getItemById } from '../libs/fetchUtils.js';
+import { getItems, editItem, getItemById, editTask } from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
@@ -34,6 +33,7 @@ const getTasksById = async (task) => {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${task}`, loginStore.getToken());
         if (data) {
             tasksId.value = data;
+            originalTask.value = { ...data };
         } else {
             console.warn(`Task with ID ${task} not found.`);
         }
@@ -55,14 +55,12 @@ const saveTask = async () => {
         if (!tasksId.value.status) {
             tasksId.value.status = "No Status";
         }
-        const updatedTask = await editItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${tasksId.value.id}`, tasksId.value, loginStore.getToken());
+        const updatedTask = await editTask(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${tasksId.value.id}`, tasksId.value, loginStore.getToken());
         // Update task in store
         taskStore.editTask(updatedTask);
-
         notiStore.setNotificationMessage(`The task "${tasksId.value.title}" has been updated`);
         notiStore.setNotificationType("success");
         notiStore.setShowNotification(true);
-
         // Reset form and navigate back to task list
         tasksId.value = { id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" };
         router.push({ name: 'TaskBoard' });
@@ -93,13 +91,15 @@ const formattedUpdatedOn = computed(() => {
 });
 
 const isFormValid = () => {
-    return (
-        tasksId.value.title !== originalTask.value?.title ||
-        tasksId.value.description !== originalTask.value?.description ||
-        tasksId.value.assignees !== originalTask.value?.assignees ||
-        tasksId.value.status !== originalTask.value?.status
-    );
+    const isStatusSelected = tasksId.value.status && tasksId.value.status !== "";
+    const isDataChanged =
+        (tasksId.value.title || "") !== (originalTask.value?.title || "") ||
+        (tasksId.value.description || "") !== (originalTask.value?.description || "") ||
+        (tasksId.value.assignees || "") !== (originalTask.value?.assignees || "") ||
+        tasksId.value.status !== originalTask.value?.status;
+    return isStatusSelected && isDataChanged;
 };
+
 </script>
 
 <template>
@@ -115,7 +115,7 @@ const isFormValid = () => {
                     </div>
                     <div class=" w-96">
                         <label for="assignees" class="block">Assignees</label>
-                        <textarea v-if="!tasksId.assignees" id="assignees"
+                        <textarea v-if="!tasksId.assignees" v-model.trim="tasksId.assignees" id="assignees"
                             class="itbkk-assignees text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-[3px] border-gray-300 rounded-md">Unassigned</textarea>
                         <textarea v-else id="assignees" maxlength="30" v-model.trim="tasksId.assignees"
                             class="itbkk-assignees p-2 mt-2 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-[3px] border-gray-300 rounded-md"></textarea>
@@ -124,7 +124,7 @@ const isFormValid = () => {
                         <label for="status" class="block">Status</label>
                         <select id="status" v-model="tasksId.status" required
                             class="itbkk-status text-xl bg-[#151515] font-semi bold h-[60.8px] p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-[3px] border-gray-300 rounded-md">
-                            <option value="" disabled selected>Select Status</option>
+                            <option value="" disabled>Select Status</option>
                             <option v-for="status in statuses" :value="status.id" :key="status.id">{{ status.name }}
                             </option>
                         </select>
@@ -148,7 +148,7 @@ const isFormValid = () => {
                 <form class="my-4 flex">
                     <div class="w-[39em]">
                         <label for="description" class="block">Description</label>
-                        <textarea v-if="!tasksId.description" id="description" maxlength="500" rows="5"
+                        <textarea v-if="!tasksId.description" v-model.trim="tasksId.description" id="description" maxlength="500" rows="5"
                             class="itbkk-description text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-[3px] border-gray-300 rounded-md">No Description Provided</textarea>
                         <textarea v-else v-model.trim="tasksId.description" id="description" maxlength="500" rows="5"
                             class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-[3px] border-gray-300 rounded-md"></textarea>
