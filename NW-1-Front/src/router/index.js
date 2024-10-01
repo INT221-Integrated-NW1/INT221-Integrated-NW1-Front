@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import TaskList from "../views/TaskList.vue";
-import { getItemById } from "@/libs/fetchUtils";
+import { getItemById, getItems } from "@/libs/fetchUtils";
 import { useLoginStore } from "../stores/loginStore";
 
 const history = createWebHistory(import.meta.env.BASE_URL);
@@ -125,6 +125,18 @@ const routes = [
 		path: "/board/:id/status",
 		name: "StatusBoard",
 		component: () => import("../views/StatusBoard.vue"),
+		children: [
+			{
+				path: '/board/:id/status/add',
+				name: 'AddBoardStatus',
+				component: () => import("../components/AddBoardStatus.vue")
+			},
+			{
+				path: '/board/:id/status/:status-id/edit',
+				name: 'EditBoardStatus',
+				component: () => import("../components/EditBoardStatus.vue")
+			},
+		]
 	},
 	{
 		path: "/login",

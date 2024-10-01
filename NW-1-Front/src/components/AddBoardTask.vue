@@ -81,7 +81,7 @@ onBeforeMount(() => {
                     </div>
                     <select id="status" v-model="addTask.status" required
                         class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm">
-                        <option value="">Select Status</option>
+                        <option disabled value="">Select Status</option>
                         <!-- Loop through status options -->
                         <option v-for="status in statuses" :value="status.id" :key="status.id">{{ status.name }}
                         </option>

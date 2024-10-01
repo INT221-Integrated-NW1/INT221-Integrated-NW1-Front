@@ -8,7 +8,7 @@ async function getItems(url, header) {
 			},
 		});
 		if (data.status === 401) {
-			router.push({ name: "Login"})
+			router.push({ name: "Login" })
 		}
 		const items = await data.json();
 		return items;
@@ -26,7 +26,7 @@ async function getItemById(url, id, header) {
 			},
 		});
 		const item = await data.json();
-		return {res: data.status, data: item};
+		return { res: data.status, data: item };
 	} catch (error) {
 		console.log("Tasks Not Found!");
 		console.log(`error: ${error}`);
@@ -111,6 +111,25 @@ async function editItem(url, data, header) {
 	return await response.json();
 }
 
+async function editTask(url, data, header) {
+	try {
+		const data = await fetch(url, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${header}`
+			},
+			body: JSON.stringify(data),
+		});
+		if (data.status === 400) {
+			router.push({ name: "TaskBoard" })
+		}
+	} catch (error) {
+		alert("Please Choose Status")
+		return await response.json();
+	}
+}
+
 export {
 	getItems,
 	getItemById,
@@ -119,4 +138,5 @@ export {
 	editItem,
 	deleteTransfer,
 	deleteItem,
+	editTask,
 };
