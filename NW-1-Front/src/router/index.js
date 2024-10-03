@@ -115,12 +115,12 @@ const routes = [
 				component: () => import("../components/AddBoardTask.vue")
 			},
 			{
-				path: "/board/:id/tasks/:taskId",
+				path: "/board/:id/task/:taskId",
 				name: "TaskModal",
 				component: () => import("../views/TaskModal.vue"),
 			},
 			{
-				path: "/board/:id/tasks/:task-id/edit",
+				path: "/board/:id/task/:task-id/edit",
 				name: "EditBoardTask",
 				component: () => import("../components/EditBoardTask.vue"),
 			},
