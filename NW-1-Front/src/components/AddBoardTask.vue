@@ -53,7 +53,7 @@ const saveTask = async () => {
 };
 
 const isFormValid = () => {
-    return addTask.value.title.trim() !== ""
+    return addTask.value.title.trim() !== "" && addTask.value.status.trim() !== ""
 };
 
 const id = route.params.id
@@ -72,24 +72,23 @@ onBeforeMount(() => {
                     <div>
                         <label for="title" class="block pb-1">Title</label>
                         <textarea id="title" maxlength="100" v-model="addTask.title" required
-                            class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
+                            class="p-3 mt-1 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
                     </div>
                     <div>
                         <label for="assignees" class="block pb-1">Assignees</label>
                         <textarea id="assignees" maxlength="30" v-model="addTask.assignees" required
-                            class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
+                            class="p-3 mt-1 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
                     </div>
                     <select id="status" v-model="addTask.status" required
-                        class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm">
+                        class="p-3 mt-1 bg-[#151515] text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm">
                         <option disabled value="">Select Status</option>
-                        <!-- Loop through status options -->
                         <option v-for="status in statuses" :value="status.id" :key="status.id">{{ status.name }}
                         </option>
                     </select>
                     <div class="col-span-2">
                         <label for="description" class="block pb-1">Description</label>
                         <textarea id="description" maxlength="500" rows="5" v-model="addTask.description" required
-                            class="p-3 mt-1 bg-gray-800 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
+                            class="p-3 mt-1 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
                     </div>
                 </form>
                 <div class="flex justify-end gap-4 mt-4">

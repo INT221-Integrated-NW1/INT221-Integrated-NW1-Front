@@ -2,7 +2,7 @@
 import { onBeforeMount, computed, ref } from "vue";
 import Notification from "../components/Notification.vue";
 import Profile from "../components/Profile.vue";
-import { getItems, deleteItemById, deleteTransfer } from "../libs/fetchUtils.js"
+import { getItems, deleteItemById, deleteTransfer, deleteItem } from "../libs/fetchUtils.js"
 import { useRouter, RouterView, useRoute } from "vue-router";
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
@@ -26,29 +26,29 @@ const getAllStatus = async (id) => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, loginStore.getToken());
         statuses.value = data;
-        if (data.status === 401) {
-            router.push({ name: "Login" })
-        }
+        // if (data.status === 401) {
+        //     router.push({ name: "Login" })
+        // }
     } catch (error) {
         console.error('Failed to fetch status:', error);
     }
 };
 
-// const getAllTasks = async (id) => {
-//     try {
-//         const queryParams = new URLSearchParams();
-//         if (selectedStatuses.value.length > 0) {
-//             queryParams.append('filterStatuses', selectedStatuses.value.join(','));
-//         }
-//         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks?${queryParams.toString()}`, loginStore.getToken());
-//         if (data.status === 401) {
-//             router.push({ name: "Login" })
-//         }
-//         tasks.value = data;
-//     } catch (error) {
-//         console.error('Failed to fetch tasks:', error);
-//     }
-// };
+const getAllTasks = async (id) => {
+    try {
+        const queryParams = new URLSearchParams();
+        if (selectedStatuses.value.length > 0) {
+            queryParams.append('filterStatuses', selectedStatuses.value.join(','));
+        }
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks?${queryParams.toString()}`, loginStore.getToken());
+        if (data.status === 401) {
+            router.push({ name: "Login" })
+        }
+        tasks.value = data;
+    } catch (error) {
+        console.error('Failed to fetch tasks:', error);
+    }
+};
 
 const confirmDeleteModal = ref(false);
 const deleteTransferModal = ref(false);
@@ -78,17 +78,17 @@ const editStatus = (status) => {
 
 const statusToDelete = ref({ id: "", name: "", modal: false })
 
-const deleteStatus = async (id) => {
+const deleteStatus = async (statusId) => {
     try {
-        const res = await deleteItemById(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, id, loginStore.getToken());
+        const id = route.params.id;
+        const res = await deleteItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses/${statusId}`, loginStore.getToken());
         // Check if the deletion was successful (HTTP status code 200 means success)
         if (res === 200) {
-            // Create a new array that doesn't include the deleted task
+            statusStore.removeStatuses(res)
             statuses.value = statuses.value.filter(status => status.id !== id);
             notiStore.setNotificationMessage(`The status "${statusToDelete.value.name}" is deleted successfully`);
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
-
             closeConfirmModal();
         } else if (res === 404) {
             console.error(`Failed to delete status with ID ${id}. Status does not exist.`);
@@ -169,7 +169,7 @@ const filteredStatuses = computed(() => {
 onBeforeMount(() => {
     const id = route.params.id; // Get the task ID from the router parameters
     getAllStatus(id);
-    // getAllTasks(id);
+    getAllTasks(id);
 });
 </script>
 
@@ -186,10 +186,14 @@ onBeforeMount(() => {
     <div class="max-h-screen dark:bg-gray-800 flex justify-center">
         <div class="w-full max-w-screen-lg px-8">
             <div class="flex pb-2 gap-2 justify-between">
-                <div>
+                <div class="flex gap-4">
                     <RouterLink :to="{ name: 'Board' }">
                         <button
-                            class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-[#0062ff] hover:text-[#f0f0f0]">Home</button>
+                            class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
+                    </RouterLink>
+                    <RouterLink :to="{ name: 'TaskBoard' }">
+                        <button
+                            class="itbkk-button-task bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Task</button>
                     </RouterLink>
                 </div>
                 <div>
