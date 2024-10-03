@@ -55,9 +55,17 @@ const saveTask = async () => {
         if (!tasksId.value.status) {
             tasksId.value.status = "No Status";
         }
-        const updatedTask = await editTask(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${tasksId.value.id}`, tasksId.value, loginStore.getToken());
-        // Update task in store
-        taskStore.editTask(updatedTask);
+        const { data, status } = await editTask(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${tasksId.value.id}`, tasksId.value, loginStore.getToken());
+        if (status === 400) {
+            notiStore.setNotificationMessage(`Please choose status`);
+            notiStore.setNotificationType("error");
+            notiStore.setShowNotification(true);
+            router.push({ name: 'TaskBoard' })
+            return
+        }
+        console.log(data);
+        console.log(status);
+        taskStore.editTask(data);
         notiStore.setNotificationMessage(`The task "${tasksId.value.title}" has been updated`);
         notiStore.setNotificationType("success");
         notiStore.setShowNotification(true);
@@ -99,7 +107,6 @@ const isFormValid = () => {
         tasksId.value.status !== originalTask.value?.status;
     return isStatusSelected && isDataChanged;
 };
-
 </script>
 
 <template>

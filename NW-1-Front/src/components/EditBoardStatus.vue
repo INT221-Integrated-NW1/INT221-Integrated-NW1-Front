@@ -36,6 +36,7 @@ onBeforeMount(() => {
 const saveStatus = async () => {
     try {
         // Check if the edited status name is unique
+        const boardId = route.params.id;
         const isUnique = !statuses.value.some(status => status.name === statusId.value.name && status.id !== statusId.value.id);
         if (!isUnique) {
             notiStore.setNotificationMessage("Status name must be unique, please choose another name.");
@@ -43,10 +44,7 @@ const saveStatus = async () => {
             notiStore.setShowNotification(true);
             return; 
         }
-        const boardId = route.params.id;
         const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/statuses/${statusId.value.id}`, statusId.value , loginStore.getToken());
-        console.log(statusStore.getStatuses());
-        console.log(updatedStatus);
         statusStore.editStatus(updatedStatus); 
         notiStore.setNotificationMessage(`The status "${statusId.value.name}" has been updated`);
         notiStore.setNotificationType("success");

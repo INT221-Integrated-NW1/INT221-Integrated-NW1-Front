@@ -111,9 +111,33 @@ async function editItem(url, data, header) {
 	return await response.json();
 }
 
+// async function editTask(url, data, header) {
+// 	const response = await fetch(url, {
+// 		method: "PUT",
+// 		headers: {
+// 			"Content-Type": "application/json",
+// 			"Authorization": `Bearer ${header}`
+// 		},
+// 		body: JSON.stringify(data),
+// 	});
+// 	if (response.status === 400) {
+// 		alert("Please choose status.");
+// 		router.push({ name: "StatusBoard" });
+// 	} else if (response.status === 401) {
+// 		alert("Please log in again.");
+// 		router.push({ name: "Login" });
+// 	} else if (!response.ok) {
+// 		// Handle other errors
+// 		throw new Error(`Unexpected error: ${response.status}`);
+// 	}
+// 	const items = await response.json();
+// 	return items;
+// }
+
+
 async function editTask(url, data, header) {
 	try {
-		const data = await fetch(url, {
+		const response = await fetch(url, {
 			method: "PUT",
 			headers: {
 				"Content-Type": "application/json",
@@ -121,14 +145,21 @@ async function editTask(url, data, header) {
 			},
 			body: JSON.stringify(data),
 		});
-		if (data.status === 400) {
-			router.push({ name: "TaskBoard" })
-		}
+		const result = await response.json();
+		return {
+			status: response.status,
+			data: result,
+		};
 	} catch (error) {
-		alert("Please Choose Status")
-		return await response.json();
+		console.log(`error: ${error}`);
+		// คืนค่าอ็อบเจ็กต์แสดงข้อผิดพลาด (ถ้าต้องการ)
+		return {
+			status: "error",
+			message: error.message,
+		};
 	}
 }
+
 
 export {
 	getItems,
