@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import TaskList from "../views/TaskList.vue";
-import { getItemById, getItems } from "@/libs/fetchUtils";
+import { getItemById, getItems, getItemsRes } from "@/libs/fetchUtils";
 import { useLoginStore } from "../stores/loginStore";
 
 const history = createWebHistory(import.meta.env.BASE_URL);
@@ -118,6 +118,21 @@ const routes = [
 				path: "/board/:id/task/:taskId",
 				name: "TaskModal",
 				component: () => import("../views/TaskModal.vue"),
+				beforeEnter: async (to, from, next) => {
+					const loginStore = useLoginStore();
+					const taskId = parseInt(to.params.taskId);
+					const boardId = to.params.id;
+					const  { status, data }  = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${taskId}`, loginStore.getToken());
+					if (status === 200) {
+						next();
+						console.log("Have Task");
+					} else {
+						window.alert("The requested task does not exist");
+						// next({ name: "TaskBoard" });
+						next(router.go(-1));
+						console.log(`The requested task Id: ${id} does not exist`);
+					}
+				},
 			},
 			{
 				path: "/board/:id/task/:task-id/edit",

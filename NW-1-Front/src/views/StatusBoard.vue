@@ -25,10 +25,7 @@ const route = useRoute();
 const getAllStatus = async (id) => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, loginStore.getToken());
-        statuses.value = data;
-        // if (data.status === 401) {
-        //     router.push({ name: "Login" })
-        // }
+        statuses.value = data;   
     } catch (error) {
         console.error('Failed to fetch status:', error);
     }
@@ -110,13 +107,13 @@ const checkStatusUsage = (statusId) => {
         console.error(`Status with ID ${statusId} not found.`);
         return;
     }
-    if (status.name === "No Status") {
+    if (status.name.toLowerCase() === "no status") {
         notiStore.setNotificationMessage("Cannot delete status named 'No Status'");
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("error");
         return;
     }
-    const isUsed = tasks.value.some(task => task.status.id === status.id);
+    const isUsed = tasks.value.some(task => task.status === status.name);
     if (isUsed) {
         openDeleteTransferModal(status);
     } else {
@@ -137,15 +134,18 @@ const openConfirmModal = (status) => {
 const newStatusId = ref({ id: "", name: "", description: "" });
 const deleteStatusWithTransfer = async () => {
     try {
-        const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v2/statuses`, statusToDelete.value.id, newStatusId.value.id, loginStore.getToken());
+        const boardId = route.params.id;
+        const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/statuses`, statusToDelete.value.id, newStatusId.value.id, loginStore.getToken());
         if (res === 200) {
             statusStore.removeStatuses(statusToDelete.value);
+            console.log(statusToDelete.value);
             statusStore.addStatus(newStatusId.value);
+            console.log(newStatusId.value);
             notiStore.setNotificationMessage("Transfer and delete operation successful");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
             closeDeleteTransferModal();
-            getAllStatus();
+            // getAllStatus();
         } else {
             console.error('Failed to transfer and delete status:', res.statusText);
             notiStore.setNotificationMessage('An error occurred during the transfer and delete operation');
