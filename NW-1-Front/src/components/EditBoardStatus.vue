@@ -61,7 +61,7 @@ const saveStatus = async () => {
 };
 const isFormValid = () => {
     return (
-        statusId.value.name.trim() !== statusIdOriginal.value.name.trim() ||
+        statusId.value.name?.trim() !== statusIdOriginal.value.name?.trim() ||
         statusId.value.description?.trim() !== statusIdOriginal.value.description?.trim() 
     );
 };

@@ -122,10 +122,9 @@ const routes = [
 					const loginStore = useLoginStore();
 					const taskId = parseInt(to.params.taskId);
 					const boardId = to.params.id;
-					const  { status, data }  = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${taskId}`, loginStore.getToken());
+					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${taskId}`, loginStore.getToken());
 					if (status === 200) {
 						next();
-						console.log("Have Task");
 					} else {
 						window.alert("The requested task does not exist");
 						// next({ name: "TaskBoard" });
@@ -138,6 +137,20 @@ const routes = [
 				path: "/board/:id/task/:task-id/edit",
 				name: "EditBoardTask",
 				component: () => import("../components/EditBoardTask.vue"),
+				beforeEnter: async (to, from, next) => {
+					const loginStore = useLoginStore();
+					const taskId = parseInt(to.params.task);
+					const boardId = to.params.id;
+					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${taskId}`, loginStore.getToken());
+					if (status === 200) {
+						next();
+					} else {
+						window.alert("The requested task does not exist");
+						// next({ name: "TaskBoard" });
+						next(router.go(-1));
+						console.log(`The requested task Id: ${id} does not exist`);
+					}
+				},
 			},
 		]
 	},
@@ -154,7 +167,21 @@ const routes = [
 			{
 				path: '/board/:id/status/:status-id/edit',
 				name: 'EditBoardStatus',
-				component: () => import("../components/EditBoardStatus.vue")
+				component: () => import("../components/EditBoardStatus.vue"),
+				beforeEnter: async (to, from, next) => {
+					const loginStore = useLoginStore();
+					const id = to.params.id;
+					const { status, data } = await getItemsRes(
+						`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, loginStore.getToken()
+					);
+					if (status === 200) {
+						next();
+					} else {
+						window.alert("The requested status does not exist");
+						next({ name: "StatusBoard" });
+						console.log(`The requested status Id: 	${id} does not exist `);
+					}
+				},
 			},
 		]
 	},
@@ -167,7 +194,7 @@ const routes = [
 		path: "/:pathMatch(.*)",
 		name: "NotFound",
 		component: () => import("../views/NotFound.vue"),
-		redirect: "/task",
+		redirect: "/board",
 	},
 
 ];
