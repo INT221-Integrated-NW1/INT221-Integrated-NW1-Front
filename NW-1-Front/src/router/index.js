@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import TaskList from "../views/TaskList.vue";
-import { getItemById, getItems, getItemsRes } from "@/libs/fetchUtils";
+import { getItemsRes } from "@/libs/fetchUtils";
 import { useLoginStore } from "../stores/loginStore";
 
 const history = createWebHistory(import.meta.env.BASE_URL);
@@ -171,15 +170,14 @@ const routes = [
 				beforeEnter: async (to, from, next) => {
 					const loginStore = useLoginStore();
 					const id = to.params.id;
-					const { status, data } = await getItemsRes(
-						`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, loginStore.getToken()
-					);
+					const statusId = to.params.status
+					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses/${statusId}`, loginStore.getToken());
 					if (status === 200) {
 						next();
 					} else {
 						window.alert("The requested status does not exist");
-						next({ name: "StatusBoard" });
-						console.log(`The requested status Id: 	${id} does not exist `);
+						next(router.go(-1));
+						console.log(`The requested status Id: ${id} does not exist`);
 					}
 				},
 			},
