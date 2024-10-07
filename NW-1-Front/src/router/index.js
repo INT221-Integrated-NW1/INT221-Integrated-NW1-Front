@@ -194,7 +194,6 @@ const routes = [
 		component: () => import("../views/NotFound.vue"),
 		redirect: "/board",
 	},
-
 ];
 
 const router = createRouter({
