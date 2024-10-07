@@ -67,22 +67,25 @@ const isFormValid = computed(() => {
             <Notification class="itbkk-message" :message="notiStore.notificationMessage"
                 v-if="notiStore.showNotification" />
         </div>
-        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-            <form @submit.prevent="login">
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" class="itbkk-username" v-model="username"
-                        placeholder="Enter your username" maxlength="50" required />
+        <div class="bg-gradient-to-tr from-indigo-700 from- to-sky-300 p-10 rounded-xl shadow-2xl w-full max-w-md">
+            <form @submit.prevent="login" class="text-white font-bold space-y-6">
+                <div class="form-group space-y-2">
+                    <label for="username" class="block text-lg">Username :</label>
+                    <input type="text" id="username"
+                        class="itbkk-username w-full bg-white text-black p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        v-model="username" placeholder="Enter your username" maxlength="50" required />
                 </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" class="itbkk-password" v-model="password"
-                        placeholder="Enter your password" maxlength="14" required />
+                <div class="form-group space-y-2">
+                    <label for="password" class="block text-lg">Password :</label>
+                    <input type="password" id="password"
+                        class="itbkk-password w-full bg-white text-black p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        v-model="password" placeholder="Enter your password" maxlength="14" required />
                 </div>
                 <button :class="{
+                    'w-full py-3 rounded-lg shadow-lg transform transition duration-300 ease-in-out': true,
                     'itbkk-button-signin': true,
                     'disabled:bg-gray-400 disabled:cursor-not-allowed disabled': !isFormValid,
-                    'bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none': isFormValid
+                    'bg-black text-white font-semibold hover:bg-black hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500': isFormValid
                 }" type="submit" :disabled="!isFormValid">
                     Sign in
                 </button>
@@ -92,46 +95,4 @@ const isFormValid = computed(() => {
 </template>
 
 <style scoped>
-.login-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-input {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
 </style>
