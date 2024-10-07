@@ -94,7 +94,7 @@ watchEffect(() => {
                                 </thead>
                                 <tbody class="font-semibold">
                                     <tr
-                                        class="itbkk-item text-[1.2em] odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
+                                        class="itbkk-item text-[1.2em] odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800">
                                         <td class="itbkk-assignees text-center py-6 px-4 bg-gradient-to-r from-pink-200 via-pink-400 to-rose-400 text-white shadow-md uppercase tracking-wide"
                                             colspan="3">
                                             No Board

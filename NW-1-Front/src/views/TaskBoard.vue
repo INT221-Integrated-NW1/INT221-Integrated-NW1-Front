@@ -160,76 +160,85 @@ watch(selectedStatuses, async () => {
   <Profile />
   <!-- Empty Table -->
   <div v-if="tasks.length === 0">
-    <div class="flex justify-center items-center gap-10 pb-2 mt-6">
-      <div>
-        <RouterLink :to="{ name: 'Board' }">
-          <button
-            class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
-        </RouterLink>
-      </div>
-      <RouterLink :to="{ name: 'StatusBoard' }">
-        <button
-          class="bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
-          Status</button>
-      </RouterLink>
-      <div class="dropdown">
-        <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
-          class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
-          type="button">
-          Filter
-          <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 10 6">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="m1 1 4 4 4-4" />
-          </svg>
-        </button>
-        <!-- Dropdown menu -->
-        <div v-if="checkBox" id="dropdownBgHover"
-          class="absolute z-30 w-48 bg-white rounded-lg shadow dark:bg-gray-700 mt-2">
-          <!-- Adjust the position here to make it relative to the button -->
-          <ul class="dropdown-bottom p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200"
-            aria-labelledby="dropdownBgHoverButton">
-            <li v-for="status in statuses" :key="status.id">
-              <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                <input :id="`checkbox-item-${status.id}`" type="checkbox" :value="status.name"
-                  v-model="selectedStatuses"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                <label :for="`checkbox-item-${status.id}`"
-                  class="truncate w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">
-                  {{ status.name }}
-                </label>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
     <div class="flex justify-center">
-      <div class="flex items-center">
-        <button class="itbkk-button-add" @click="router.push({ name: 'AddBoardTask' })">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-8 h-8 rounded-md fill-[#00215E]">
-            <path
-              d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
-          </svg>
-        </button>
-      </div>
-      <div
-        class="overflow-x-auto border-[4px] border-slate-600 rounded-lg hide  hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
-        <table class="table table-zebra table-pin-rows text-center">
-          <thead class="text-3xl">
-            <tr class="lobster-regular text-black">
-              <th>Id</th>
-              <th>Title</th>
-              <th>Assignees</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="itbkk-item text-[1.5em] lobster-regular">
-              <td colspan="4">No Task</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="max-h-screen flex justify-center">
+        <div class="flex items-start pt-8">
+          <button @click="router.push({ name: 'AddBoardTask' })" class="itbkk-button-add">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
+              class="w-[3rem] h-[3rem] rounded-md bg-[#c5daff] fill-[#00215E] hover:scale-125 duration-150">
+              <path
+                d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
+            </svg>
+          </button>
+        </div>
+        <div class="w-full max-w-screen-lg pl-2">
+          <div class="flex justify-between pb-2 gap-4">
+            <div class="flex gap-4">
+              <RouterLink :to="{ name: 'Board' }">
+                <button
+                  class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
+              </RouterLink>
+              <RouterLink :to="{ name: 'StatusBoard' }">
+                <button
+                  class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
+                  Status</button>
+              </RouterLink>
+            </div>
+            <div class="flex gap-2">
+              <div class="dropdown">
+                <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
+                  class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
+                  type="button">
+                  Filter
+                  <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="m1 1 4 4 4-4" />
+                  </svg>
+                </button>
+                <!-- Dropdown menu -->
+                <div v-if="checkBox" id="dropdownBgHover"
+                  class="absolute z-30 w-48 bg-white rounded-lg shadow dark:bg-gray-700 mt-2">
+                  <!-- Adjust the position here to make it relative to the button -->
+                  <ul class="dropdown-bottom p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200"
+                    aria-labelledby="dropdownBgHoverButton">
+                    <li v-for="status in statuses" :key="status.id">
+                      <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                        <input :id="`checkbox-item-${status.id}`" type="checkbox" :value="status.name"
+                          v-model="selectedStatuses"
+                          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                        <label :for="`checkbox-item-${status.id}`"
+                          class="truncate w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">
+                          {{ status.name }}
+                        </label>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="overflow-x-auto rounded-lg hide hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
+            <table class="table-lg bg-white text-center">
+              <thead class="text-3xl">
+                <tr class="text-black">
+                  <th>Id</th>
+                  <th>Title</th>
+                  <th>Assignees</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="itbkk-item text-[1.5em]">
+                  <td
+                    class="text-center font-bold py-6 px-4 bg-gradient-to-r from-pink-200 via-pink-400 to-rose-400 text-white shadow-md uppercase tracking-wide"
+                    colspan="4">No Task</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -262,42 +271,49 @@ watch(selectedStatuses, async () => {
                   Status</button>
               </RouterLink>
             </div>
-            <div class="dropdown">
-              <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
-                class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
-                type="button">
-                Filter
-                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 10 6">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m1 1 4 4 4-4" />
-                </svg>
-              </button>
-              <!-- Dropdown menu -->
-              <div v-if="checkBox" id="dropdownBgHover"
-                class="absolute z-30 w-48 bg-white rounded-lg shadow dark:bg-gray-700 mt-2">
-                <!-- Adjust the position here to make it relative to the button -->
-                <ul class="dropdown-bottom p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200"
-                  aria-labelledby="dropdownBgHoverButton">
-                  <li v-for="status in statuses" :key="status.id">
-                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                      <input :id="`checkbox-item-${status.id}`" type="checkbox" :value="status.name"
-                        v-model="selectedStatuses"
-                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                      <label :for="`checkbox-item-${status.id}`"
-                        class="truncate w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">
-                        {{ status.name }}
-                      </label>
-                    </div>
-                  </li>
-                </ul>
+            <div class="flex gap-2">
+              <label class="label cursor-pointer flex gap-1">
+                <span class="label-text text-black font-bold">PRIVATE</span>
+                <input type="checkbox" class="toggle toggle-md toggle-primary" />
+                <span class="label-text text-black font-bold">PUBLIC</span>
+              </label>
+              <div class="dropdown">
+                <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
+                  class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
+                  type="button">
+                  Filter
+                  <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="m1 1 4 4 4-4" />
+                  </svg>
+                </button>
+                <!-- Dropdown menu -->
+                <div v-if="checkBox" id="dropdownBgHover"
+                  class="absolute z-30 w-48 bg-white rounded-lg shadow dark:bg-gray-700 mt-2">
+                  <!-- Adjust the position here to make it relative to the button -->
+                  <ul class="dropdown-bottom p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200"
+                    aria-labelledby="dropdownBgHoverButton">
+                    <li v-for="status in statuses" :key="status.id">
+                      <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                        <input :id="`checkbox-item-${status.id}`" type="checkbox" :value="status.name"
+                          v-model="selectedStatuses"
+                          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                        <label :for="`checkbox-item-${status.id}`"
+                          class="truncate w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">
+                          {{ status.name }}
+                        </label>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
           <div class="relative max-h-[26.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left rtl:text-right table-fixed">
+            <table class="w-full text-sm text-left rtl:text-right table-fixed text-black">
               <thead class="text-lg uppercase bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
-                <tr class="text-black">
+                <tr>
                   <th class="px-6 py-3 w-[4%] text-center">Id</th>
                   <th class="px-6 py-3 w-[3%]"></th>
                   <th class="px-6 py-3 w-1/4 text-center">Title</th>
@@ -382,20 +398,4 @@ watch(selectedStatuses, async () => {
   <RouterView />
 </template>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
-
-.lobster-regular {
-  font-family: "Lobster", sans-serif;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.head-shadow {
-  filter: drop-shadow(#FFC55A 3px 3px 0px)
-}
-
-.button-shadow {
-  filter: drop-shadow(#2C4E80 3px 3px 0px)
-}
-</style>
+<style scoped></style>

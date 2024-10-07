@@ -6,9 +6,6 @@ export default {
 		"./node_modules/flowbite/**/*.js",
 	],
 	plugins: [require("daisyui"), require("flowbite/plugin")],
-	daisyui: {
-		themes: [],
-	},
 	// darkMode: "class",
 	// darkMode: "media",
 };
