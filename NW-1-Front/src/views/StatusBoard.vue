@@ -176,8 +176,8 @@ onBeforeMount(() => {
 <template>
     <header class="pt-8 pb-8 flex justify-center">
         <h1
-            class="mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(63,77,204)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
-            IT-Bangmod<span class="text-gray-900 dark:text-white"> Kradan Kanban</span></h1>
+            class="mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(51,56,145)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
+            {{ loginStore.getName() }} <span class="text-gray-900 dark:text-white"> Personal Board</span></h1>
     </header>
     <Profile />
     <div class="flex justify-center w-auto">
