@@ -152,6 +152,38 @@ async function editTask(url, data, header) {
 	}
 }
 
+async function updateBoardVisibility(url, visibility, header) {
+	try {
+		const response = await fetch(url, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${header}`
+			},
+			body: JSON.stringify({ visibility }),
+		});
+
+		if (!response.ok) {
+			if (response.status === 401) {
+				router.push({ name: "Login" });
+			}
+			const errorMessage = await response.text();
+			throw new Error(errorMessage);
+		}
+
+		const updatedBoard = await response.json();
+		return {
+			status: response.status,
+			data: updatedBoard,
+		};
+	} catch (error) {
+		console.log(`Error updating board visibility: ${error}`);
+		return {
+			status: "error",
+			message: error.message,
+		};
+	}
+}
 
 export {
 	getItems,
@@ -162,5 +194,6 @@ export {
 	deleteTransfer,
 	deleteItem,
 	editTask,
-	getItemsRes
+	getItemsRes,
+	updateBoardVisibility,
 };
