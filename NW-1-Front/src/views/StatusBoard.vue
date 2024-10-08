@@ -25,7 +25,7 @@ const route = useRoute();
 const getAllStatus = async (id) => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, loginStore.getToken());
-        statuses.value = data;   
+        statuses.value = data;
     } catch (error) {
         console.error('Failed to fetch status:', error);
     }
@@ -137,15 +137,16 @@ const deleteStatusWithTransfer = async () => {
         const boardId = route.params.id;
         const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/statuses`, statusToDelete.value.id, newStatusId.value.id, loginStore.getToken());
         if (res === 200) {
-            statusStore.removeStatuses(statusToDelete.value);
-            console.log(statusToDelete.value);
-            statusStore.addStatus(newStatusId.value);
-            console.log(newStatusId.value);
+            // ลบ status เดิมออกจาก store
+            statusStore.removeStatuses(statusToDelete.value.id);
+            // เพิ่ม status ใหม่เข้าไปใน store (ถ้ามีการย้าย task ไป status ใหม่)
+            if (newStatusId.value.id && newStatusId.value.name) {
+                statusStore.addStatus(newStatusId.value);
+            }
             notiStore.setNotificationMessage("Transfer and delete operation successful");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
             closeDeleteTransferModal();
-            // getAllStatus();
         } else {
             console.error('Failed to transfer and delete status:', res.statusText);
             notiStore.setNotificationMessage('An error occurred during the transfer and delete operation');
@@ -167,7 +168,7 @@ const filteredStatuses = computed(() => {
 });
 
 onBeforeMount(() => {
-    const id = route.params.id; // Get the task ID from the router parameters
+    const id = route.params.id;
     getAllStatus(id);
     getAllTasks(id);
 });
@@ -257,10 +258,10 @@ onBeforeMount(() => {
                 <label for="transferStatus" class="block text-sm font-medium text-gray-300">Transfer tasks to:</label>
                 <select id="transferStatus" name="transferStatus" v-model="newStatusId.id"
                     class="mt-1 block w-full p-2 rounded-md bg-gray-700 text-gray-300">
-                    <!-- Loop through statuses and generate options -->
                     <option v-for="status in filteredStatuses" :key="status.id" :value="status.id">{{ status.name }}
                     </option>
                 </select>
+
             </div>
             <div class="flex justify-center mt-4">
                 <button
