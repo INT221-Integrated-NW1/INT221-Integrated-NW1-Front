@@ -1,13 +1,14 @@
 <script setup>
-import { onBeforeMount, ref, watch } from "vue";
+import { onMounted, onBeforeMount, ref, watch } from "vue";
 import Notification from "../components/Notification.vue";
 import Profile from "../components/Profile.vue";
-import { getItems, deleteItem } from "../libs/fetchUtils.js"
+import { getItems, deleteItem, updateBoardVisibility } from "../libs/fetchUtils.js"
 import { useRouter, RouterView, useRoute } from "vue-router";
 import { useTaskStore } from '../stores/taskStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
+import { useBoardStore } from "@/stores/boardStore";
 import 'animate.css';
 
 const taskStore = useTaskStore();
@@ -16,11 +17,30 @@ const notiStore = useNotiStore();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const loginStore = useLoginStore();
+const boardStore = useBoardStore();
+const boards = boardStore.getBoards()
 
 const router = useRouter()
 const route = useRoute();
 const id = route.params.id;
 const selectedStatuses = ref([]);
+const visibility = ref("");
+const isPublic = ref(false);
+
+const getBoardId = async () => {
+  try {
+    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
+    boards.value = data;
+    visibility.value = data.visibility;
+    isPublic.value = data.visibility === 'PUBLIC' ? true : false;
+  } catch (error) {
+    console.error('Failed to fetch status:', error);
+  }
+};
+
+onMounted(() => {
+   getBoardId();
+});
 
 const getAllTasks = async (id) => {
   try {
@@ -149,6 +169,19 @@ watch(selectedStatuses, async () => {
     sortStatusByDesc();
   }
 });
+
+const toggleVisibility = async () => {
+  const _visibility = isPublic.value ? 'PRIVATE' : 'PUBLIC';
+  const result = await updateBoardVisibility(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`,  _visibility , loginStore.getToken());
+  if (result.status === 'error') {
+    console.error(result.message); // Handle error
+  }
+  else {
+    console.log('Board visibility updated successfully:', result.data);
+    visibility.value = result.data.visibility;
+    isPublic.value = result.data.visibility === 'PUBLIC' ? true : false;
+  }
+};
 </script>
 
 <template>
@@ -273,7 +306,7 @@ watch(selectedStatuses, async () => {
             </div>
             <div class="flex gap-3">
               <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" value="" class="sr-only peer">
+                <input type="checkbox" class="sr-only peer" v-model="isPublic" @click="toggleVisibility">
                 <span class="me-2 text-sm font-bold text-gray-900 dark:text-gray-300">PRIVATE</span>
                 <div
                   class="itbkk-board-visibility relative w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">

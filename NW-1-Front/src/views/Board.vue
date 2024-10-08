@@ -5,14 +5,11 @@ import AddBoard from "../components/AddBoard.vue"
 import Profile from "../components/Profile.vue";
 import { getItems } from "../libs/fetchUtils.js"
 import { useRouter, useRoute } from "vue-router";
-// import { useTaskStore } from '../stores/taskStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
 import { useBoardStore } from '../stores/boardStore.js';
 import 'animate.css';
 
-// const taskStore = useTaskStore();
-// const tasks = taskStore.getTasks();
 const route = useRoute();
 const router = useRouter()
 const boardStore = useBoardStore();
@@ -24,9 +21,6 @@ const getAllBoards = async () => {
     try {
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards`, loginStore.getToken());
         boards.value = data;
-        if (data.status === 401) {
-            router.push({ name: "Login" })
-        }
         if (boards.value.length > 0) {
             router.push({ name: "TaskBoard", params: { id: boards.value[0].id } });
         }
@@ -133,14 +127,14 @@ watchEffect(() => {
                                 </thead>
                                 <tbody class="font-semibold">
                                     <tr v-for="(board, index) in boards" :key="index"
-                                        class="itbkk-item text-[1.2em] odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
+                                        class="itbkk-item text-[1.2em] text-black odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
                                         <td class="text-center">{{ index + 1 }}</td>
                                         <td @click="router.push({ name: 'TaskBoard', params: { id: board.id } })"
                                             class="text-center cursor-pointer">{{ board.name }}</td>
                                         <td class="text-center px-6 py-4">
-                                            <button @click=""
-                                                class="itbkk-button-delete px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
-                                                Delete</button>
+                                            <button @click="router.push({ name: 'TaskBoard', params: { id: board.id } })"
+                                                class="itbkk-button-delete px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                                                View</button>
                                         </td>
                                     </tr>
                                 </tbody>
