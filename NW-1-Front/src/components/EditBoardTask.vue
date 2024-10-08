@@ -63,8 +63,6 @@ const saveTask = async () => {
             router.push({ name: 'TaskBoard' })
             return
         }
-        console.log(data);
-        console.log(status);
         taskStore.editTask(data);
         notiStore.setNotificationMessage(`The task "${tasksId.value.title}" has been updated`);
         notiStore.setNotificationType("success");
