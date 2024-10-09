@@ -175,15 +175,24 @@ const toggleVisibility = async () => {
   try {
     const newVisibility = isPublic.value ? 'PRIVATE' : 'PUBLIC';
     const result = await updateBoardVisibility(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, newVisibility, loginStore.getToken());
-    if (result.status === 'error') {
+    if (result.status === 403) {
+      notiStore.setNotificationMessage("You do not have permission to change board visibility mode.")
+      notiStore.showNotification(true)
+      notiStore.setNotificationType("error");
       console.error(result.message);
     } else {
-      console.log('Board visibility updated successfully:', result.data);
       visibility.value = result.data.visibility;
       isPublic.value = result.data.visibility === 'PUBLIC';
+      notiStore.setNotificationMessage(`Board visibility updated successfully`);
+      notiStore.setShowNotification(true);
+      notiStore.setNotificationType("success");
+      console.log('Board visibility updated successfully:', result.data);
     }
   } catch (error) {
-    console.error('An error occurred while updating visibility:', error);
+    notiStore.setNotificationMessage("There is a problem. Please try again later.")
+    notiStore.showNotification(true)
+    notiStore.setNotificationType("error");
+    console.error(error);
   }
 };
 
@@ -193,7 +202,7 @@ const openVisibilityModal = () => {
 };
 const confirmChange = async () => {
   showModal.value = false; // Close modal
-  await toggleVisibility(); 
+  await toggleVisibility();
 };
 </script>
 
