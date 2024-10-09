@@ -15,7 +15,7 @@ const props = defineProps({
 // ส่ง event กลับไปที่ component หลัก
 const emit = defineEmits(['confirm', 'close']);
 // Method ปิด modal
-const close = () => emit('closess');
+const close = () => emit('close');
 const confirm = () => emit('confirm');
 </script>
 
