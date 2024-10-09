@@ -2,6 +2,7 @@
 import { onMounted, onBeforeMount, ref, watch } from "vue";
 import Notification from "../components/Notification.vue";
 import Profile from "../components/Profile.vue";
+import VisibilityModal from "@/components/VisibilityModal.vue";
 import { getItems, deleteItem, updateBoardVisibility } from "../libs/fetchUtils.js"
 import { useRouter, RouterView, useRoute } from "vue-router";
 import { useTaskStore } from '../stores/taskStore.js';
@@ -24,8 +25,6 @@ const router = useRouter()
 const route = useRoute();
 const id = route.params.id;
 const selectedStatuses = ref([]);
-const visibility = ref("");
-const isPublic = ref(false);
 
 const getBoardId = async () => {
   try {
@@ -39,7 +38,7 @@ const getBoardId = async () => {
 };
 
 onMounted(() => {
-   getBoardId();
+  getBoardId();
 });
 
 const getAllTasks = async (id) => {
@@ -170,17 +169,31 @@ watch(selectedStatuses, async () => {
   }
 });
 
+const visibility = ref("");
+const isPublic = ref(false);
 const toggleVisibility = async () => {
-  const _visibility = isPublic.value ? 'PRIVATE' : 'PUBLIC';
-  const result = await updateBoardVisibility(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`,  _visibility , loginStore.getToken());
-  if (result.status === 'error') {
-    console.error(result.message); // Handle error
+  try {
+    const newVisibility = isPublic.value ? 'PRIVATE' : 'PUBLIC';
+    const result = await updateBoardVisibility(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, newVisibility, loginStore.getToken());
+    if (result.status === 'error') {
+      console.error(result.message);
+    } else {
+      console.log('Board visibility updated successfully:', result.data);
+      visibility.value = result.data.visibility;
+      isPublic.value = result.data.visibility === 'PUBLIC';
+    }
+  } catch (error) {
+    console.error('An error occurred while updating visibility:', error);
   }
-  else {
-    console.log('Board visibility updated successfully:', result.data);
-    visibility.value = result.data.visibility;
-    isPublic.value = result.data.visibility === 'PUBLIC' ? true : false;
-  }
+};
+
+const showModal = ref(false);
+const openVisibilityModal = () => {
+  showModal.value = true;
+};
+const confirmChange = async () => {
+  showModal.value = false; // Close modal
+  await toggleVisibility(); 
 };
 </script>
 
@@ -306,13 +319,16 @@ const toggleVisibility = async () => {
             </div>
             <div class="flex gap-3">
               <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" class="sr-only peer" v-model="isPublic" @click="toggleVisibility">
+                <input type="checkbox" class="sr-only peer" :checked="isPublic" @click.prevent="openVisibilityModal">
                 <span class="me-2 text-sm font-bold text-gray-900 dark:text-gray-300">PRIVATE</span>
                 <div
                   class="itbkk-board-visibility relative w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
                 </div>
                 <span class="ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">PUBLIC</span>
               </label>
+              <!-- Confirmation Modal Component -->
+              <VisibilityModal :show="showModal" title="Confirm Visibility Change"
+                :message="`${isPublic ? 'PRIVATE' : 'PUBLIC'}`" @confirm="confirmChange" @close="showModal = false" />
               <div class="dropdown">
                 <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
                   class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
