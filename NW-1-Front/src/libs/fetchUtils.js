@@ -167,6 +167,9 @@ async function updateBoardVisibility(url, visibility, header) {
 			if (response.status === 401) {
 				router.push({ name: "Login" });
 			}
+			if (response.status === 403) {
+				alert("You do not have permission to change board visibility mode.");
+			}
 			const errorMessage = await response.text();
 			throw new Error(errorMessage);
 		}
@@ -177,7 +180,7 @@ async function updateBoardVisibility(url, visibility, header) {
 			data: updatedBoard,
 		};
 	} catch (error) {
-		console.log(`Error updating board visibility: ${error}`);
+		console.log(error);
 		return {
 			status: "error",
 			message: error.message,
