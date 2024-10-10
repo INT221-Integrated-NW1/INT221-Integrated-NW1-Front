@@ -180,7 +180,6 @@ async function updateBoardVisibility(url, visibility, header) {
 			data: updatedBoard,
 		};
 	} catch (error) {
-		console.log(error);
 		return {
 			status: "error",
 			message: error.message,
