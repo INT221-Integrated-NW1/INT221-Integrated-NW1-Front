@@ -3,15 +3,17 @@ import { defineStore, acceptHMRUpdate } from "pinia";
 
 export const useLoginStore = defineStore("loginStore", () => {
 	const token = ref(null);
-	const username = ref(null);
 	const name = ref("");
+	const oid = ref(null);
 
 	const login = (newToken) => {
 		name.value = newToken.name;
+		oid.value = newToken.oid;
 		const d = new Date(newToken.exp * 1000);
 		const expires = "expires=" + d.toUTCString();
 		document.cookie = "name =" + newToken.name + ";" + expires + ";path=/";
 		document.cookie = "token=" + token.value + ";" + expires + ";path=/";
+		document.cookie = "oid=" + newToken.oid + ";" + expires + ";path=/";
 	};
 	const getCookie = (cookieName) => {
 		const nameEQ = cookieName + "=";
@@ -31,10 +33,16 @@ export const useLoginStore = defineStore("loginStore", () => {
 	};
 	const getToken = () => {
 		if (!token.value) {
-            token.value = getCookie("token")
-        }
+			token.value = getCookie("token")
+		}
 		return token.value
 	}
+	const getUserId = () => {
+		if (!oid.value) {
+			oid.value = getCookie("oid");
+		}
+		return oid.value;
+	};
 	const setToken = (newToken) => {
 		token.value = newToken;
 	};
@@ -43,14 +51,12 @@ export const useLoginStore = defineStore("loginStore", () => {
 		// return getCookie("name") !== null && token !== null || undefined;
 	};
 	return {
-		token,
-		username,
-		name,
 		login,
 		getName,
+		getToken,
+		getUserId,
 		setToken,
 		isAuthenticated,
-		getToken
 	};
 });
 if (import.meta.hot) {

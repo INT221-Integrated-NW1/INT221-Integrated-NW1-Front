@@ -44,8 +44,8 @@ const closeModal = () => {
             <div class="itbkk-modal-new relative p-6 bg-white w-full max-w-md m-auto flex-col flex rounded-lg">
                 <button @click="closeModal"
                     class="itbkk-button-cancel btn btn-md btn-circle btn-ghost absolute right-2 top-[10px] hover:bg-slate-200">X</button>
-                <h2 class="text-xl font-bold mb-4">Create New Board</h2>
-                <form>
+                <h2 class="text-xl text-black font-bold mb-4">Create New Board</h2>
+                <form class="text-black">
                     <div class="mb-4">
                         <label for="name" class="block text-sm font-bold mb-2">Board Name</label>
                         <input v-model="board.name" type="text" id="name" maxlength="200"
