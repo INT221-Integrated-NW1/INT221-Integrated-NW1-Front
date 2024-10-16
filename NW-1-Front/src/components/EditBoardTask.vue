@@ -2,7 +2,7 @@
 import { ref, onBeforeMount, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTaskStore } from '../stores/taskStore.js';
-import { getItems, editItem, getItemById, editTask } from '../libs/fetchUtils.js';
+import { getItems, editTask } from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
