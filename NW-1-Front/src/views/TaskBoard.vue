@@ -76,9 +76,9 @@ const openCheckbox = () => {
   checkBox.value = !checkBox.value;
 };
 
+// Delete Modal
 const deleteConfirmModal = ref(false);
 const taskToDelete = ref(null);
-
 const openConfirmModal = (task) => {
   taskToDelete.value = task;
   deleteConfirmModal.value = true;
@@ -205,7 +205,7 @@ const toggleVisibility = async () => {
     console.error(error);
   }
 };
-
+// Visibility Modal
 const showModal = ref(false);
 const openVisibilityModal = () => {
   showModal.value = true;
@@ -219,12 +219,15 @@ const confirmChange = async () => {
 <template>
   <header class="pt-8 flex justify-center">
     <h1
-      class="mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(51,56,145)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
+      class="itbkk-board-name mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(51,56,145)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
       {{ loginStore.getName() }}<span class="text-gray-900 dark:text-white"> Personal Board</span></h1>
   </header>
   <Profile />
   <!-- Empty Table -->
-  <div v-if="tasks.length === 0">
+  <div v-if="tasks.length === 0" class="pt-8">
+    <div class="flex justify-center w-auto">
+      <Notification class="mb-2" :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
+    </div>
     <div class="flex justify-center">
       <div class="max-h-screen flex justify-center">
         <div class="flex items-start pt-8">
@@ -241,7 +244,7 @@ const confirmChange = async () => {
             <div class="flex gap-4">
               <RouterLink :to="{ name: 'Board' }">
                 <button
-                  class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
+                  class="itbkk-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
               </RouterLink>
               <RouterLink :to="{ name: 'StatusBoard' }">
                 <button
@@ -249,7 +252,18 @@ const confirmChange = async () => {
                   Status</button>
               </RouterLink>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-3">
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" :checked="isPublic" @click.prevent="openVisibilityModal">
+                <span class="me-2 text-sm font-bold text-gray-900 dark:text-gray-300">PRIVATE</span>
+                <div
+                  class="itbkk-board-visibility relative w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                </div>
+                <span class="ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">PUBLIC</span>
+              </label>
+              <!-- Confirmation Modal Component -->
+              <VisibilityModal :show="showModal" title="Confirm Visibility Change"
+                :message="`${isPublic ? 'PRIVATE' : 'PUBLIC'}`" @confirm="confirmChange" @close="showModal = false" />
               <div class="dropdown">
                 <button @click="openCheckbox" id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
                   class="text-blue-700 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-white dark:hover:bg-gray-200 dark:focus:ring-gray-400"
@@ -283,15 +297,14 @@ const confirmChange = async () => {
               </div>
             </div>
           </div>
-          <div
-            class="overflow-x-auto rounded-lg hide hover:shadow-[rgba(200,200,200,0.7)0_0px_100px_] transition-shadow">
-            <table class="table-lg bg-white text-center">
-              <thead class="text-3xl">
+          <div class="relative max-h-[26.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left rtl:text-right table-fixed text-black">
+              <thead class="text-lg uppercase bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                 <tr class="text-black">
-                  <th>Id</th>
-                  <th>Title</th>
-                  <th>Assignees</th>
-                  <th>Status</th>
+                  <th class="px-6 py-3 w-[1%] text-center">Id</th>
+                  <th class="px-6 py-3 w-[5%] text-center">Title</th>
+                  <th class="px-6 py-3 w-[5%] text-center">Assignees</th>
+                  <th class="px-6 py-3 w-[5%] text-center">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -328,7 +341,7 @@ const confirmChange = async () => {
             <div class="flex gap-4">
               <RouterLink :to="{ name: 'Board' }">
                 <button
-                  class="itbkk-button-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
+                  class="itbkk-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
               </RouterLink>
               <RouterLink :to="{ name: 'StatusBoard' }">
                 <button
@@ -422,9 +435,10 @@ const confirmChange = async () => {
                     <button class="text-[1.8em] dropdown dropdown-right">
                       <div tabindex="0" class="itbkk-button-action">⋮</div>
                       <ul tabindex="0" class="dropdown-content menu mt-2 p-2 shadow bg-red-100 rounded-box w-52 z-[1]">
-                        <li><a @click="router.push({ name: 'EditBoardTask', params: { task: task.id } })"
-                            class="itbkk-button-edit hover:bg-red-200">Edit</a></li>
-                        <li><a @click="openConfirmModal(task)" class="itbkk-button-delete hover:bg-red-200">Delete</a>
+                        <li><button @click="router.push({ name: 'EditBoardTask', params: { task: task.id } })"
+                            class="itbkk-button-edit hover:bg-red-200">Edit</button></li>
+                        <li><button @click="openConfirmModal(task)"
+                            class="itbkk-button-delete hover:bg-red-200">Delete</button>
                         </li>
                       </ul>
                     </button>

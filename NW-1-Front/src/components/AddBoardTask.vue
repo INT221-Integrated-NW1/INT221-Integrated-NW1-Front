@@ -1,17 +1,20 @@
 <script setup>
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { addItem, getItems } from '../libs/fetchUtils.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useTaskStore } from '../stores/taskStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
+import { useBoardStore } from "@/stores/boardStore";
 
 const taskStore = useTaskStore();
 const notiStore = useNotiStore();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const loginStore = useLoginStore();
+const boardStore = useBoardStore();
+const boards = boardStore.getBoards()
 
 const router = useRouter();
 const route = useRoute();
@@ -60,6 +63,25 @@ const id = route.params.id
 onBeforeMount(() => {
     getAllStatus(id);
 });
+
+const boardOwnerId = ref(null);
+const getBoardId = async () => {
+  try {
+    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
+    boards.value = data;
+    boardOwnerId.value = data.user.oid
+  } catch (error) {
+    console.error('Failed to fetch status:', error);
+  }
+};
+
+onMounted(() => {
+  getBoardId();
+});
+
+const hasPermission = computed(() => {
+    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
+});
 </script>
 
 <template>
@@ -91,9 +113,10 @@ onBeforeMount(() => {
                             class="p-3 mt-1 text-[#BFF1FF] focus:ring-[#BFF1FF] focus:border-[#BFF1FF] block w-full rounded-lg shadow-sm"></textarea>
                     </div>
                 </form>
-                <div class="flex justify-end gap-4 mt-4">
-                    <button @click="saveTask" :disabled="!isFormValid()"
-                        class="itbkk-button-confirm bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Save</button>
+                <div class="flex justify-end items-center gap-4 mt-4">
+                    <p v-if="!hasPermission" class="text-red-400 text-sm">คุณไม่มีสิทธิ์แก้ไข เฉพาะเจ้าของเท่านั้นที่แก้ไขได้</p>
+                    <button @click="saveTask" :disabled="!isFormValid() || !hasPermission"
+                        class="itbkk-button-confirm bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Add</button>
                     <button @click="router.push({ name: 'TaskBoard' })"
                         class="itbkk-button-cancel bg-[#F44336] hover:bg-[#E53935] text-white py-2 px-4 rounded-lg shadow">Cancel</button>
                 </div>
