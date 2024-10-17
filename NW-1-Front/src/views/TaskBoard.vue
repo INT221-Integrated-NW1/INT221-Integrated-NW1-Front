@@ -186,7 +186,7 @@ const toggleVisibility = async () => {
       router.push({ name: "Login" });
       return;
     }
-    if (result.status === 403 || hasPermission()) {
+    if (result.status === 403 || !hasPermission) {
       notiStore.setNotificationMessage("You do not have permission to change board visibility mode.")
       notiStore.setShowNotification(true)
       notiStore.setNotificationType("error");
@@ -445,7 +445,7 @@ const confirmChange = async () => {
                   <td class="text-center">
                     <button
                       class="itbkk-title max-w-[12rem] truncate cursor-pointer hover:no-underline hover:bg-blue-100 rounded-lg hover:text-blue-600 transition ease-in-out duration-300"
-                      @click="router.push({ name: 'TaskModal', params: { taskId: task.id } })">{{ task.title }}</button>
+                      @click="router.push({ name: 'TaskModal', params: { task: task.id } })">{{ task.title }}</button>
                   </td>
                   <td class="itbkk-assignees italic text-gray-500 text-center" v-if="!task.assignees">Unassigned</td>
                   <td class="itbkk-assignees italic text-center" v-else.trim>{{ task.assignees }}</td>

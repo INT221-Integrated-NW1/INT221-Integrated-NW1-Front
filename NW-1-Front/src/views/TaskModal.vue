@@ -23,7 +23,7 @@ const getTasksById = async (task) => {
 }
 
 onBeforeMount(() => {
-    const taskId = route.params.taskId;
+    const taskId = route.params.task;
     getTasksById(taskId);
 });
 
