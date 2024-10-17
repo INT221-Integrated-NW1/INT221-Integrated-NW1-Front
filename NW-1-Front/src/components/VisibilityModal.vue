@@ -26,7 +26,7 @@ const confirm = () => emit('confirm');
             <hr>
             <div class="text-center overflow-hidden">
                 <p class="mb-6">
-                    Are you sure you want to change the board visibility to
+                    Do you want to change board visibility to
                     <strong>{{ message }}</strong> ?
                 </p>
             </div>

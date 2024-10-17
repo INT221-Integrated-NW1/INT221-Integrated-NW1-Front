@@ -50,8 +50,17 @@ export const useLoginStore = defineStore("loginStore", () => {
 		return getCookie("name") !== null;
 		// return getCookie("name") !== null && token !== null || undefined;
 	};
+	const logout = () => {
+		token.value = null;
+		name.value = "";
+		oid.value = null;
+		document.cookie = "name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+		document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+		document.cookie = "oid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+	};
 	return {
 		login,
+		logout,
 		getName,
 		getToken,
 		getUserId,

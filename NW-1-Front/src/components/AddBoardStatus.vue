@@ -1,17 +1,20 @@
 <script setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, onMounted, computed } from "vue";
 import { getItems } from "../libs/fetchUtils.js"
 import { addItem } from '../libs/fetchUtils.js';
 import { useRouter, useRoute } from "vue-router";
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
+import { useBoardStore } from "@/stores/boardStore";
 import 'animate.css';
 
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const notiStore = useNotiStore();
 const loginStore = useLoginStore();
+const boardStore = useBoardStore();
+const boards = boardStore.getBoards()
 
 const addStatus = ref({ id: "", name: "", description: "" })
 
@@ -44,7 +47,7 @@ const saveStatus = async () => {
             router.push({ name: 'StatusBoard' });
             return;
         }
-        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, addStatus.value, loginStore.getToken());    
+        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, addStatus.value, loginStore.getToken());
         if (!newStatus.status === 201) {
             throw new Error("Failed to add status");
         }
@@ -69,6 +72,24 @@ const isFormValid = () => {
 
 onBeforeMount(() => {
     getAllStatus(id);
+});
+
+const boardOwnerId = ref(null);
+const getBoardId = async () => {
+  try {
+    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
+    boards.value = data;
+    boardOwnerId.value = data.user.oid
+  } catch (error) {
+    console.error('Failed to fetch status:', error);
+  }
+};
+onMounted(() => {
+  getBoardId();
+});
+
+const hasPermission = computed(() => {
+    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
 });
 </script>
 
@@ -113,17 +134,19 @@ onBeforeMount(() => {
                                 placeholder="Write status description here"></textarea>
                         </div>
                     </div>
-                    <button @click="saveStatus"
-                        :disabled="isFormValid()"
-                        class="itbkk-button-confirm text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:cursor-not-allowed disabled:opacity-50 ">
-                        <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" 
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        Add new status
-                    </button>
+                    <div class="flex gap-3 items-center">
+                        <button @click="saveStatus" :disabled="isFormValid() || !hasPermission"
+                            class="itbkk-button-confirm text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:cursor-not-allowed disabled:opacity-50">
+                            <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Add new status
+                        </button>
+                        <p v-if="!hasPermission" class="text-red-400 text-[14px]">You need to be board owner to perform this action.</p>
+                    </div>
                 </form>
             </div>
         </div>

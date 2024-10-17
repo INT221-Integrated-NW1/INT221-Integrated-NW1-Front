@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onBeforeMount, ref, watch } from "vue";
+import { onMounted, onBeforeMount, ref, watch, computed } from "vue";
 import Notification from "../components/Notification.vue";
 import Profile from "../components/Profile.vue";
 import VisibilityModal from "@/components/VisibilityModal.vue";
@@ -27,9 +27,9 @@ const id = route.params.id;
 const selectedStatuses = ref([]);
 const boardOwnerId = ref(null);
 
-const isNotOwner = () => {
-  return loginStore.getUserId() !== boardOwnerId.value;
-};
+const hasPermission = computed(() => {
+    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
+});
 
 const getBoardId = async () => {
   try {
@@ -181,26 +181,25 @@ const toggleVisibility = async () => {
   try {
     const newVisibility = isPublic.value ? 'PRIVATE' : 'PUBLIC';
     const result = await updateBoardVisibility(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, newVisibility, loginStore.getToken());
-    if (isNotOwner()) {
-      notiStore.setNotificationMessage("You do not have permission to change board visibility mode.");
-      notiStore.showNotification(true);
-      notiStore.setNotificationType("error");
+    if (result.status === 401) {
+      loginStore.logout()
+      router.push({ name: "Login" });
+      return;
     }
-    if (result.status === 403) {
+    if (result.status === 403 || hasPermission()) {
       notiStore.setNotificationMessage("You do not have permission to change board visibility mode.")
-      notiStore.showNotification(true)
+      notiStore.setShowNotification(true)
       notiStore.setNotificationType("error");
-      console.error(result.message);
-    } else {
-      visibility.value = result.data.visibility;
-      isPublic.value = result.data.visibility === 'PUBLIC';
-      notiStore.setNotificationMessage(`Board visibility updated successfully`);
-      notiStore.setShowNotification(true);
-      notiStore.setNotificationType("success");
+      return;
     }
+    visibility.value = result.data.visibility;
+    isPublic.value = result.data.visibility === 'PUBLIC';
+    notiStore.setNotificationMessage(`Board visibility updated successfully`);
+    notiStore.setShowNotification(true);
+    notiStore.setNotificationType("success");
   } catch (error) {
     notiStore.setNotificationMessage("There is a problem. Please try again later.")
-    notiStore.showNotification(true);
+    notiStore.setShowNotification(true);
     notiStore.setNotificationType("error");
     console.error(error);
   }
@@ -323,7 +322,7 @@ const confirmChange = async () => {
   <!-- Table with Tasks -->
   <div v-else class="pt-8">
     <div class="flex justify-center w-auto">
-      <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
+      <Notification class="mb-2" :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
     </div>
     <div class="flex justify-center">
       <div class="max-h-screen flex justify-center">
@@ -471,13 +470,13 @@ const confirmChange = async () => {
         <p>"{{ taskToDelete.title }}" ?</p>
       </div>
       <div class="flex justify-center mt-4">
+        <button @click="deleteTask(taskToDelete.id)" :disabled="!hasPermission"
+          class="itbkk-button-confirm p-4 rounded-lg bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white disabled:cursor-not-allowed disabled:opacity-50">Confirm</button>
         <button
-          class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
-          @click="deleteTask(taskToDelete.id)">Confirm</button>
-        <button
-          class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
+          class="itbkk-button-cancel p-4 rounded-lg bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
           @click="closeConfirmModal">Cancel</button>
       </div>
+      <p v-if="!hasPermission" class="text-red-400 text-[14px] text-center mt-2">You need to be board owner to perform this action.</p>
     </div>
   </div>
   <RouterView />

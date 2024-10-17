@@ -65,7 +65,7 @@ watchEffect(() => {
     <Profile />
     <div>
         <!-- Empty Table -->
-        <div v-if="boards.length === 0" class="pt-4">
+        <div v-if="boards?.length === 0" class="pt-4">
             <div class="flex justify-center w-auto">
                 <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
             </div>

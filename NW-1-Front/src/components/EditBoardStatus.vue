@@ -1,11 +1,12 @@
 <script setup>
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, computed, onMounted } from 'vue';
 import { getItems } from "../libs/fetchUtils.js"
 import { useRoute, useRouter } from 'vue-router';
 import { editItem } from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
+import { useBoardStore } from "@/stores/boardStore";
 
 const notiStore = useNotiStore();
 const statusStore = useStatusStore();
@@ -13,6 +14,8 @@ const statuses = statusStore.getStatuses();
 const route = useRoute();
 const router = useRouter();
 const loginStore = useLoginStore();
+const boardStore = useBoardStore();
+const boards = boardStore.getBoards()
 
 const statusId = ref({ id: "", name: "", description: "" })
 const statusIdOriginal = ref({ id: "", name: "", description: "" })
@@ -42,10 +45,10 @@ const saveStatus = async () => {
             notiStore.setNotificationMessage("Status name must be unique, please choose another name.");
             notiStore.setNotificationType("error");
             notiStore.setShowNotification(true);
-            return; 
+            return;
         }
-        const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/statuses/${statusId.value.id}`, statusId.value , loginStore.getToken());
-        statusStore.editStatus(updatedStatus); 
+        const updatedStatus = await editItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/statuses/${statusId.value.id}`, statusId.value, loginStore.getToken());
+        statusStore.editStatus(updatedStatus);
         notiStore.setNotificationMessage(`The status "${statusId.value.name}" has been updated`);
         notiStore.setNotificationType("success");
         notiStore.setShowNotification(true);
@@ -62,9 +65,28 @@ const saveStatus = async () => {
 const isFormValid = () => {
     return (
         statusId.value.name?.trim() !== statusIdOriginal.value.name?.trim() ||
-        statusId.value.description?.trim() !== statusIdOriginal.value.description?.trim() 
+        statusId.value.description?.trim() !== statusIdOriginal.value.description?.trim()
     );
 };
+
+const boardOwnerId = ref(null);
+const getBoardId = async () => {
+    try {
+        const id = route.params.id
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
+        boards.value = data;
+        boardOwnerId.value = data.user.oid
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+};
+onMounted(() => {
+    getBoardId();
+});
+
+const hasPermission = computed(() => {
+    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
+});
 </script>
 
 <template>
@@ -106,10 +128,10 @@ const isFormValid = () => {
                     </div>
                 </form>
 
-                <div class="flex justify-end gap-2 pb-2 mr-[20px]">
-                    <button @click="saveStatus" :disabled="!isFormValid()"
-                        :class="{ 'cursor-not-allowed opacity-50': !isFormValid() }"
-                        class="bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg w-24 shadow">
+                <div class="flex justify-end gap-2 pb-2 mr-[20px] items-center">
+                    <p v-if="!hasPermission" class="text-red-400 text-[12px]">You need to be board owner to perform this action.</p>
+                    <button @click="saveStatus" :disabled="!isFormValid() || !hasPermission"
+                        class="bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg w-24 shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">
                         Save
                     </button>
                     <RouterLink :to="{ name: 'StatusBoard' }">
