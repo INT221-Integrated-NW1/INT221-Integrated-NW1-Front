@@ -1,17 +1,20 @@
 <script setup>
-import { ref, onBeforeMount, computed } from 'vue';
+import { ref, onBeforeMount, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTaskStore } from '../stores/taskStore.js';
 import { getItems, editTask } from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
+import { useBoardStore } from "@/stores/boardStore";
 
 const notiStore = useNotiStore();
 const taskStore = useTaskStore();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const loginStore = useLoginStore();
+const boardStore = useBoardStore();
+const boards = boardStore.getBoards()
 
 const route = useRoute();
 const router = useRouter();
@@ -105,6 +108,25 @@ const isFormValid = () => {
         tasksId.value.status !== originalTask.value?.status;
     return isStatusSelected && isDataChanged;
 };
+
+const boardOwnerId = ref(null);
+const getBoardId = async () => {
+  try {
+    const id = route.params.id
+    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
+    boards.value = data;
+    boardOwnerId.value = data.user.oid
+  } catch (error) {
+    console.error('Failed to fetch status:', error);
+  }
+};
+onMounted(() => {
+  getBoardId();
+});
+
+const hasPermission = computed(() => {
+    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
+});
 </script>
 
 <template>
@@ -160,8 +182,9 @@ const isFormValid = () => {
                     </div>
                 </form>
             </div>
-            <div class="flex justify-end gap-2 mr-4">
-                <button @click="saveTask" :disabled="!isFormValid()"
+            <div class="flex justify-end items-center gap-2 mr-4">
+                <p v-if="!hasPermission" class="text-red-400 text-[20px]">You need to be board owner to perform this action.</p>
+                <button @click="saveTask" :disabled="!isFormValid() || !hasPermission"
                     class="bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Save</button>
                 <RouterLink :to="{ name: 'TaskBoard' }">
                     <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded w-24">

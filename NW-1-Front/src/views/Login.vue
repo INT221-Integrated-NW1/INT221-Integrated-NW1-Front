@@ -86,7 +86,7 @@ const isFormValid = computed(() => {
                     'itbkk-button-signin': true,
                     'disabled:bg-gray-400 disabled:cursor-not-allowed disabled': !isFormValid,
                     'bg-black text-white font-semibold hover:bg-black hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500': isFormValid
-                }" type="submit" :disabled="!isFormValid">
+                }" :disabled="!isFormValid">
                     Sign in
                 </button>
             </form>

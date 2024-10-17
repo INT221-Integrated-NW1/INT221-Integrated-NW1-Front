@@ -1,13 +1,14 @@
 <script setup>
-import { onBeforeMount, computed, ref } from "vue";
+import { onBeforeMount, computed, ref, onMounted } from "vue";
 import Notification from "../components/Notification.vue";
 import Profile from "../components/Profile.vue";
-import { getItems, deleteItemById, deleteTransfer, deleteItem } from "../libs/fetchUtils.js"
+import { getItems, deleteTransfer, deleteItem } from "../libs/fetchUtils.js"
 import { useRouter, RouterView, useRoute } from "vue-router";
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useTaskStore } from '../stores/taskStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
+import { useBoardStore } from "@/stores/boardStore";
 import 'animate.css';
 
 const taskStore = useTaskStore();
@@ -15,7 +16,8 @@ const tasks = taskStore.getTasks();
 const statusStore = useStatusStore();
 const statuses = statusStore.getStatuses();
 const selectedStatuses = ref([]);
-
+const boardStore = useBoardStore();
+const boards = boardStore.getBoards()
 const notiStore = useNotiStore();
 const loginStore = useLoginStore();
 
@@ -172,6 +174,25 @@ onBeforeMount(() => {
     getAllStatus(id);
     getAllTasks(id);
 });
+
+const boardOwnerId = ref(null);
+const getBoardId = async () => {
+    try {
+        const id = route.params.id;
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
+        boards.value = data;
+        boardOwnerId.value = data.user.oid
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+};
+onMounted(() => {
+    getBoardId();
+});
+
+const hasPermission = computed(() => {
+    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
+});
 </script>
 
 <template>
@@ -264,13 +285,15 @@ onBeforeMount(() => {
 
             </div>
             <div class="flex justify-center mt-4">
+                <button @click="deleteStatusWithTransfer(statusToDelete.id)" :disabled="!hasPermission"
+                    class="itbkk-button-confirm p-4 rounded-lg bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white disabled:cursor-not-allowed disabled:opacity-50">Delete
+                    with Transfer</button>
                 <button
-                    class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
-                    @click="deleteStatusWithTransfer(statusToDelete.id)">Delete with Transfer</button>
-                <button
-                    class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
+                    class="itbkk-button-cancel p-4 rounded-lg bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
                     @click="closeDeleteTransferModal">Cancel</button>
             </div>
+            <p v-if="!hasPermission" class="text-red-400 text-[14px] text-center mt-2">You need to be board owner to
+                perform this action.</p>
         </div>
     </div>
 
@@ -285,13 +308,14 @@ onBeforeMount(() => {
                 <p>Are you sure you want to delete the status "{{ statusToDelete.name }}"?</p>
             </div>
             <div class="flex justify-center mt-4">
+                <button @click="deleteStatus(statusToDelete.id)" :disabled="!hasPermission"
+                    class="itbkk-button-confirm p-4 rounded-lg bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white disabled:cursor-not-allowed disabled:opacity-50">Confirm</button>
                 <button
-                    class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
-                    @click="deleteStatus(statusToDelete.id)">Confirm</button>
-                <button
-                    class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
+                    class="itbkk-button-cancel p-4 rounded-lg bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
                     @click="closeConfirmDeleteModal">Cancel</button>
             </div>
+            <p v-if="!hasPermission" class="text-red-400 text-[14px] text-center mt-2">You need to be board owner to
+                perform this action.</p>
         </div>
     </div>
     <RouterView />
