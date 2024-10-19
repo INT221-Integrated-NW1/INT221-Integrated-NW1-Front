@@ -22,8 +22,14 @@ const createBoard = async () => {
         return;
     }
     const newBoard = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards`, board.value, loginStore.getToken());
-    if (!newBoard.status === 201) {
-        throw new Error("Failed to add status");
+    if (newBoard.status === 401) {
+        router.push({ name: "Login" })
+        return
+    }
+    if (newBoard.status === 201) {
+        console.error("Failed to add Board");
+        router.push({ name: 'Board' })
+        return
     }
     boardStore.addBoard(newBoard);
     boardExists.value = true;

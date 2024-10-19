@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { getItemsRes } from "@/libs/fetchUtils";
+import { getItems, getItemsRes } from "@/libs/fetchUtils";
 import { useLoginStore } from "../stores/loginStore";
 
 const history = createWebHistory(import.meta.env.BASE_URL);
@@ -7,7 +7,7 @@ const routes = [
 	{
 		path: "/",
 		name: "Home",
-		redirect: "/board",
+		redirect: "/login",
 	},
 	{
 		path: "/board",
@@ -150,14 +150,44 @@ const router = createRouter({
 });
 
 // Global navigation guard
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
 	const loginStore = useLoginStore();
 	const isAuthenticated = loginStore.isAuthenticated();
-	if (to.name !== "Login" && !isAuthenticated) {
-		next({ name: "Login" });
-	} else {
-		next();
+	if (to.name === "Login") {
+		// Always allow access to the login page
+		return next();
 	}
+	if (to.params.id) {
+		try {
+			// Fetch board data based on the route parameter
+			const response = await getItemsRes(
+				`${import.meta.env.VITE_BASE_URL}/v3/boards/${to.params.id}`,
+				loginStore.getToken() || null
+			);
+			// Ensure response and data are valid
+			if (response && response.data) {
+				const board = response.data;
+				if (board.visibility === "PUBLIC") {
+					return next(); // Allow access to PUBLIC boards
+				} else if (isAuthenticated && board.user.oid === loginStore.getUserId()) {
+					return next(); // Allow access to private boards for the owner
+				} else {
+					return next({ name: "Login" }); 
+				}
+			} else {
+				console.error("Board not found or invalid response.");
+				return next({ name: "Login" }); 
+			}
+		} catch (error) {
+			console.error("Error fetching board data:", error);
+			return next({ name: "Login" }); 
+		}
+	}
+	// If not accessing a board and not authenticated, restrict protected routes
+	if (!isAuthenticated && to.meta.requiresAuth) {
+		return next({ name: "Login" }); 
+	}
+	next();
 });
 
 const checkBoardAccess = async (boardId) => {
