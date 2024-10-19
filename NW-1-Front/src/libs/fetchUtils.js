@@ -4,7 +4,7 @@ async function getItemsRes(url, header) {
 	try {
 		const response = await fetch(url, {
 			headers: {
-				"Authorization": `Bearer ${header}`
+				"Authorization": header ? `Bearer ${header}` : ""
 			},
 		});
 		const result = await response.json();
@@ -21,7 +21,7 @@ async function getItems(url, header) {
 	try {
 		const data = await fetch(url, {
 			headers: {
-				"Authorization": `Bearer ${header}`
+				"Authorization": header ? `Bearer ${header}` : ""
 			},
 		});
 		if (data.status === 401) {
@@ -39,7 +39,7 @@ async function getItemById(url, id, header) {
 	try {
 		data = await fetch(`${url}/${id}`, {
 			headers: {
-				"Authorization": `Bearer ${header}`
+				"Authorization": header ? `Bearer ${header}` : ""
 			},
 		});
 		const item = await data.json();
@@ -106,8 +106,11 @@ async function addItem(url, newItem, header) {
 				...newItem,
 			}),
 		});
-		const addedItem = await res.json();
-		return addedItem;
+		const result = await res.json();
+		return {
+			status: res.status,
+			addedData : result
+		};
 	} catch (error) {
 		console.log(`error: ${error}`);
 	}

@@ -3,10 +3,13 @@ import { defineStore, acceptHMRUpdate } from "pinia";
 
 export const useLoginStore = defineStore("loginStore", () => {
 	const token = ref(null);
+	const refreshToken = ref(null);
 	const name = ref("");
 	const oid = ref(null);
 
 	const login = (newToken) => {
+		token.value = newToken.access_token;
+		refreshToken.value = newToken.refresh_token;
 		name.value = newToken.name;
 		oid.value = newToken.oid;
 		const d = new Date(newToken.exp * 1000);
@@ -14,6 +17,7 @@ export const useLoginStore = defineStore("loginStore", () => {
 		document.cookie = "name =" + newToken.name + ";" + expires + ";path=/";
 		document.cookie = "token=" + token.value + ";" + expires + ";path=/";
 		document.cookie = "oid=" + newToken.oid + ";" + expires + ";path=/";
+		document.cookie = `refresh_token=${newToken.refresh_token}; expires=${expires}; path=/;`;
 	};
 	const getCookie = (cookieName) => {
 		const nameEQ = cookieName + "=";
@@ -26,7 +30,7 @@ export const useLoginStore = defineStore("loginStore", () => {
 		return null;
 	};
 	const getName = () => {
-		if (name.value === "") {
+		if (!name.value) {
 			name.value = getCookie("name");
 		}
 		return name.value;
@@ -37,6 +41,10 @@ export const useLoginStore = defineStore("loginStore", () => {
 		}
 		return token.value
 	}
+	const getRefreshToken = () => {
+		if (!refreshToken.value) refreshToken.value = getCookie("refresh_token");
+		return refreshToken.value;
+	};
 	const getUserId = () => {
 		if (!oid.value) {
 			oid.value = getCookie("oid");
@@ -47,22 +55,24 @@ export const useLoginStore = defineStore("loginStore", () => {
 		token.value = newToken;
 	};
 	const isAuthenticated = () => {
-		return getCookie("name") !== null;
-		// return getCookie("name") !== null && token !== null || undefined;
+		return getCookie("token") !== null;
 	};
 	const logout = () => {
 		token.value = null;
+		refreshToken.value = null;
 		name.value = "";
 		oid.value = null;
 		document.cookie = "name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		document.cookie = "oid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+		document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 	};
 	return {
 		login,
 		logout,
 		getName,
 		getToken,
+		getRefreshToken,
 		getUserId,
 		setToken,
 		isAuthenticated,

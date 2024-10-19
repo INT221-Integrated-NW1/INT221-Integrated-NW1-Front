@@ -210,7 +210,7 @@ const openVisibilityModal = () => {
   showModal.value = true;
 };
 const confirmChange = async () => {
-  showModal.value = false; // Close modal
+  showModal.value = false;
   await toggleVisibility();
 };
 </script>
