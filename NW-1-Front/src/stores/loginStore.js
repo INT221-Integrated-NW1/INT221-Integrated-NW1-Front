@@ -15,8 +15,8 @@ export const useLoginStore = defineStore("loginStore", () => {
 		const d = new Date(newToken.exp * 1000);
 		const expires = "expires=" + d.toUTCString();
 		document.cookie = "name =" + newToken.name + ";" + expires + ";path=/";
-		document.cookie = "token=" + token.value + ";" + expires + ";path=/";
 		document.cookie = "oid=" + newToken.oid + ";" + expires + ";path=/";
+		document.cookie = `token=${newToken.access_token}; expires=${expires}; path=/;`;
 		document.cookie = `refresh_token=${newToken.refresh_token}; expires=${expires}; path=/;`;
 	};
 	const getCookie = (cookieName) => {
@@ -36,10 +36,11 @@ export const useLoginStore = defineStore("loginStore", () => {
 		return name.value;
 	};
 	const getToken = () => {
-		if (!token.value) {
-			token.value = getCookie("token")
+		const storedToken = getCookie("token");
+		if (!token.value && storedToken) {
+			token.value = storedToken;
 		}
-		return token.value
+		return token.value || null;
 	}
 	const getRefreshToken = () => {
 		if (!refreshToken.value) refreshToken.value = getCookie("refresh_token");
