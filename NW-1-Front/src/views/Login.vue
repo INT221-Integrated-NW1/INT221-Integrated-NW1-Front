@@ -24,26 +24,24 @@ const login = async () => {
                 password: password.value,
             }),
         });
-        if (response.status === 200) {
+        if (response.ok) {
+            const { access_token, refresh_token } = await response.json();
             const decodeJWT = (token) => {
-                // JWT consists of three parts separated by dots
                 const base64Url = token.split('.')[1];
-                // Replace characters to make it Base64 readable
                 const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                // Decode Base64 string to JSON string
                 const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
                     return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
                 }).join(''));
-                // Parse JSON string to an object
                 return JSON.parse(jsonPayload);
             }
-            // const token = await response.text();
-            const token = await response.json()
-            loginStore.setToken(token.access_token)
-            const decodedToken = decodeJWT(token.access_token);
-            // console.log('Login successful, received token:', decodedToken);
-            // Save the token to localStorage or Vuex for later use
-            loginStore.login(decodedToken);
+            const decodedToken = decodeJWT(access_token);
+            loginStore.login({
+                access_token,
+                refresh_token,
+                name: decodedToken.name,
+                oid: decodedToken.oid,
+                exp: decodedToken.exp,
+            });
             router.push({ name: 'Board' });
         } else {
             console.error = 'Invalid username or password';
@@ -94,5 +92,4 @@ const isFormValid = computed(() => {
     </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

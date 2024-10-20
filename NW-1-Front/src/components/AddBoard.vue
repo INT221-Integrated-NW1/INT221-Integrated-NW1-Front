@@ -26,7 +26,7 @@ const createBoard = async () => {
         router.push({ name: "Login" })
         return
     }
-    if (newBoard.status === 201) {
+    if (!newBoard.status === 201) {
         console.error("Failed to add Board");
         router.push({ name: 'Board' })
         return
@@ -34,7 +34,7 @@ const createBoard = async () => {
     boardStore.addBoard(newBoard);
     boardExists.value = true;
     closeModal();
-    router.push({ name: 'Board' })
+    router.push({ name: 'TaskBoard', params: { id: newBoard.addedData.id } })
 };
 
 const closeModal = () => {
