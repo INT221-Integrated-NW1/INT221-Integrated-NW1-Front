@@ -22,7 +22,6 @@ const getAllBoards = async () => {
         const userId = loginStore.getUserId();
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards`, loginStore.getToken());
         boards.value = data.filter(board => board.user.oid === userId);
-        // boards.value = data;
         if (boards.value.length > 0) {
             router.push({ name: "TaskBoard", params: { id: boards.value[0].id } });
         }

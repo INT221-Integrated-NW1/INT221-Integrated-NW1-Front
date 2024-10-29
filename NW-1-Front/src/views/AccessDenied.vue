@@ -8,9 +8,9 @@
             <p class="text-gray-700 mb-6">
                 You need to be the board owner to perform this action.
             </p>
-            <router-link to="/board"
+            <router-link to="/login"
                 class="inline-block px-6 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 transition">
-                Go to Boards
+                 Login
             </router-link>
         </div>
     </div>

@@ -11,6 +11,9 @@ const loginStore = useLoginStore();
             <span class="itbkk-fullname text-blue-600">{{ loginStore.getName() }}</span>
             <div class="text-sm text-gray-500 dark:text-gray-400">"Welcome to SIT"</div>
         </div>
+        <button @click="loginStore.logout" class="ml-4 px-2 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700">
+            Logout
+        </button>
     </div>
 </template>
 

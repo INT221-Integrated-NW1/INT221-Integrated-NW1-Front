@@ -174,13 +174,33 @@ router.beforeEach(async (to, from, next) => {
 				} else {
 					return next({ name: "Login" });
 				}
-			} else {
-				console.error("Board not found or invalid response.");
-				return next({ name: "Login" });
 			}
 		} catch (error) {
-			console.error("Error fetching board data:", error);
-			return next({ name: "Login" });
+			if (error.message.includes("403")) {
+				console.error("Access forbidden, refreshing token...");
+				await getRefreshToken(); // Call function to refresh token
+				try {
+					// Retry fetching board data with new token
+					const response = await getItemsRes(
+						`${import.meta.env.VITE_BASE_URL}/v3/boards/${to.params.id}`,
+						loginStore.getToken() || null
+					);
+
+					if (response && response.data) {
+						const board = response.data;
+						if (board.visibility === "PUBLIC") {
+							return next(); // Allow access to PUBLIC boards
+						} else if (isAuthenticated && board.user.oid === loginStore.getUserId()) {
+							return next(); // Allow access to private boards for the owner
+						}
+					}
+				} catch (retryError) {
+					console.error("Error fetching board data after refreshing token:", retryError);
+				}
+			} else {
+				console.error("Error fetching board data:", error);
+				return next({ name: "Login" });
+			}
 		}
 	}
 	// If not accessing a board and not authenticated, restrict protected routes
