@@ -109,7 +109,7 @@ async function addItem(url, newItem, header) {
 		const result = await res.json();
 		return {
 			status: res.status,
-			addedData : result
+			addedData: result
 		};
 	} catch (error) {
 		console.log(`error: ${error}`);
