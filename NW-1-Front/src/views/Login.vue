@@ -12,6 +12,17 @@ const notiStore = useNotiStore();
 const username = ref('');
 const password = ref('');
 
+const decodeJWT = (token) => {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+        atob(base64).split('').map((c) =>
+            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+        ).join('')
+    );
+    return JSON.parse(jsonPayload);
+};
+
 const login = async () => {
     try {
         const response = await fetch(`${import.meta.env.VITE_BASE_URL}/login`, {
@@ -26,14 +37,6 @@ const login = async () => {
         });
         if (response.ok) {
             const { access_token, refresh_token } = await response.json();
-            const decodeJWT = (token) => {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                return JSON.parse(jsonPayload);
-            }
             const decodedToken = decodeJWT(access_token);
             loginStore.login({
                 access_token,

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { getItems, getItemsRes } from "@/libs/fetchUtils";
+import { getItemsRes } from "@/libs/fetchUtils";
 import { useLoginStore } from "../stores/loginStore";
 
 const history = createWebHistory(import.meta.env.BASE_URL);
@@ -172,20 +172,20 @@ router.beforeEach(async (to, from, next) => {
 				} else if (isAuthenticated && board.user.oid === loginStore.getUserId()) {
 					return next(); // Allow access to private boards for the owner
 				} else {
-					return next({ name: "Login" }); 
+					return next({ name: "Login" });
 				}
 			} else {
 				console.error("Board not found or invalid response.");
-				return next({ name: "Login" }); 
+				return next({ name: "Login" });
 			}
 		} catch (error) {
 			console.error("Error fetching board data:", error);
-			return next({ name: "Login" }); 
+			return next({ name: "Login" });
 		}
 	}
 	// If not accessing a board and not authenticated, restrict protected routes
 	if (!isAuthenticated && to.meta.requiresAuth) {
-		return next({ name: "Login" }); 
+		return next({ name: "Login" });
 	}
 	next();
 });
