@@ -44,6 +44,7 @@ async function getRefreshToken() {
 		document.cookie = `token=${token.access_token}; expires=${expire}; path=/;`;
 	} catch (error) {
 		console.log(`Error refreshing token: ${error.message}`);
+		router.push({name: "Login"})
 	}
 }
 

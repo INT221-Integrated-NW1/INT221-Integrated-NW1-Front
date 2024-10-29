@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { defineStore, acceptHMRUpdate } from "pinia";
+import router from "@/router";
 
 export const useLoginStore = defineStore("loginStore", () => {
 	const token = ref(null);
@@ -87,6 +88,7 @@ export const useLoginStore = defineStore("loginStore", () => {
 		["name", "oid", "token", "refresh_token", "tokenExpiration"].forEach((key) => {
 			document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 		});
+		router.push({name: "Login"})
 	};
 
 	return {
