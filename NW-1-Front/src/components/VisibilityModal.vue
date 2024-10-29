@@ -19,15 +19,15 @@ const confirm = () => emit('confirm');
 </script>
 
 <template>
-    <div class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-[100]"
+    <div class="itbkk-modal-alert fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70 flex justify-center items-center text-white scale-125 z-[100]"
         v-if="show">
         <div class="bg-gray-800 p-4 rounded-lg w-96 border-[4px] border-[#37373D]">
             <h3 class="text-[#FFC745] font-bold text-lg ">Confirm Visibility Change</h3>
             <hr>
             <div class="text-center overflow-hidden">
-                <p class="mb-6">
+                <p class="itbkk-message mb-6">
                     Do you want to change board visibility to
-                    <strong>{{ message }}</strong> ?
+                    <strong>{{ message.toLowerCase() }}</strong>?
                 </p>
             </div>
             <div class="flex justify-center">
