@@ -327,7 +327,7 @@ const confirmChange = async () => {
     <div class="flex justify-center">
       <div class="max-h-screen flex justify-center">
         <div class="flex items-start pt-8">
-          <button @click="router.push({ name: 'AddBoardTask' })" class="itbkk-button-add">
+          <button @click="router.push({ name: 'AddBoardTask' })" class="itbkk-button-add disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
               class="w-[3rem] h-[3rem] rounded-md bg-[#c5daff] fill-[#00215E] hover:scale-125 duration-150">
               <path
