@@ -47,11 +47,8 @@ const saveStatus = async () => {
             router.push({ name: 'StatusBoard' });
             return;
         }
-        const newStatus = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, addStatus.value, loginStore.getToken());
-        if (!newStatus.status === 201) {
-            throw new Error("Failed to add status");
-        }
-        statusStore.addStatus(newStatus);
+        const { addedData } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, addStatus.value, loginStore.getToken());
+        statusStore.addStatus(addedData);
         notiStore.setNotificationMessage(`The status "${addStatus.value.name}" has been added.`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("success");

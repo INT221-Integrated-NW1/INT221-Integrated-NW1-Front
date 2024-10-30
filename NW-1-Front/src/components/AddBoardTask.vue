@@ -40,8 +40,8 @@ const saveTask = async () => {
         if (!addTask.value.status) {
             addTask.value.status = 1;
         }
-        const newTask = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks`, addTask.value, loginStore.getToken());
-        taskStore.addTask(newTask);
+        const { addedData } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks`, addTask.value, loginStore.getToken());
+        taskStore.addTask(addedData);
         notiStore.setNotificationMessage(`The task "${addTask.value.title}" is added successfully`);
         notiStore.setShowNotification(true);
         notiStore.setNotificationType("success");
