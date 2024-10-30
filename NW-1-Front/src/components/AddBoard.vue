@@ -17,6 +17,9 @@ const createBoard = async () => {
         alert('Please enter a board name');
         return;
     }
+    if (board.value.name === null || board.value.name === "") {
+        board.value.name = `${loginStore.getName()} personal board` 
+    }
     if (boardStore.getBoards().value.length > 0) {
         alert('You can only create one board.');
         return;
@@ -58,7 +61,7 @@ const closeModal = () => {
                             class="itbkk-board-name w-full px-3 py-2 border rounded-lg" required />
                     </div>
                     <div class="flex justify-end">
-                        <button type="button" @click="createBoard" :disabled="!board.name || boardExists"
+                        <button type="button" @click="createBoard" :disabled="boardExists"
                             class="itbkk-button-ok bg-green-500 text-white font-bold px-8 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">Create</button>
                     </div>
                 </form>
