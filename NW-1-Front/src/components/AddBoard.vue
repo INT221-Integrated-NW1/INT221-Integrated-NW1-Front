@@ -54,7 +54,7 @@ const closeModal = () => {
                 <form class="text-black">
                     <div class="mb-4">
                         <label for="name" class="block text-sm font-bold mb-2">Board Name</label>
-                        <input v-model="board.name" type="text" id="name" maxlength="200"
+                        <input v-model="board.name" type="text" id="name" maxlength="120"
                             class="itbkk-board-name w-full px-3 py-2 border rounded-lg" required />
                     </div>
                     <div class="flex justify-end">
