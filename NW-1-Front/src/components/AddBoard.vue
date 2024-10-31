@@ -9,7 +9,7 @@ const router = useRouter();
 const boardStore = useBoardStore();
 const loginStore = useLoginStore();
 const showModal = ref(true);
-const board = ref({ name: "" });
+const board = ref({ name: `${loginStore.getName()} personal board`  });
 const boardExists = ref(boardStore.getBoards().value.length > 0);
 
 const createBoard = async () => {
