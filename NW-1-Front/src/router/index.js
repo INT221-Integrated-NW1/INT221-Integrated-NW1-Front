@@ -42,10 +42,10 @@ const routes = [
 				beforeEnter: async (to, from, next) => {
 					const { id: boardId } = to.params;
 					const { isOwner, isPublic } = await checkBoardAccess(boardId);
-					if (isOwner || isPublic) {
-						next();
-					} else {
+					if (!isOwner && isPublic) {
 						next({ name: "AccessDenied" });
+					} else {
+						next();
 					}
 				},
 			},
@@ -74,10 +74,18 @@ const routes = [
 					const loginStore = useLoginStore();
 					const taskId = parseInt(to.params.task);
 					const boardId = to.params.id;
+
+					// Check board access
+					const { isOwner, isPublic } = await checkBoardAccess(boardId);
+					if (!isOwner && isPublic) {
+						return next({ name: "AccessDenied" });
+					}
+
 					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${taskId}`, loginStore.getToken());
 					if (status === 200) {
 						next();
-					} else {
+					}
+					else {
 						window.alert("The requested task does not exist");
 						// next({ name: "TaskBoard" });
 						next(router.go(-1));

@@ -435,9 +435,9 @@ const confirmChange = async () => {
                       <div tabindex="0" class="itbkk-button-action">⋮</div>
                       <ul tabindex="0" class="dropdown-content menu mt-2 p-2 shadow bg-red-100 rounded-box w-52 z-[1]">
                         <li><button @click="router.push({ name: 'EditBoardTask', params: { task: task.id } })"
-                            class="itbkk-button-edit hover:bg-red-200">Edit</button></li>
+                            class="itbkk-button-edit hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">Edit</button></li>
                         <li><button @click="openConfirmModal(task)"
-                            class="itbkk-button-delete hover:bg-red-200">Delete</button>
+                            class="itbkk-button-delete hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">Delete</button>
                         </li>
                       </ul>
                     </button>
