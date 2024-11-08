@@ -28,7 +28,7 @@ const selectedStatuses = ref([]);
 const boardOwnerId = ref(null);
 
 const hasPermission = computed(() => {
-    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
+  return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
 });
 
 const getBoardId = async () => {
@@ -39,7 +39,7 @@ const getBoardId = async () => {
     visibility.value = data.visibility;
     isPublic.value = data.visibility === 'PUBLIC' ? true : false;
   } catch (error) {
-    console.error('Failed to fetch status:', error);
+    console.error('Failed to fetch board:', error);
   }
 };
 
@@ -90,24 +90,29 @@ const closeConfirmModal = () => {
 };
 const deleteTask = async (task) => {
   try {
-    const status = await deleteItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks/${task}`, loginStore.getToken());
-    if (status === 200) {
+    const { response, status } = await deleteItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks/${task}`, loginStore.getToken());
+    if (response.ok) {
       taskStore.removeTasks(status)
       notiStore.setNotificationMessage(`The task "${taskToDelete.value.title}" is deleted successfully`);
       notiStore.setShowNotification(true);
       notiStore.setNotificationType("success");
-      closeConfirmModal();
     } else if (status === 404) {
       console.error(`Failed to delete task with ID ${id}. Task does not exist.`);
       notiStore.setNotificationMessage(`An error occurred deleting the task "${taskToDelete.value.title}"`);
       notiStore.setShowNotification(true);
       notiStore.setNotificationType("error");
-      closeConfirmModal();
-    } else {
+    } else if (status === 401) {
+      notiStore.setNotificationMessage(`Refreshing the Token`);
+      notiStore.setShowNotification(true);
+      notiStore.setNotificationType("error");
+    }
+    else {
       console.error(`Failed to delete task with ID ${id}. HTTP status: ${status}`);
     }
+    closeConfirmModal();
   } catch (error) {
-    console.error(`Failed to delete task with ID ${id}:`, error);
+    console.error(`Failed to delete task: `, error);
+    closeConfirmModal();
   }
 };
 
@@ -327,7 +332,8 @@ const confirmChange = async () => {
     <div class="flex justify-center">
       <div class="max-h-screen flex justify-center">
         <div class="flex items-start pt-8">
-          <button @click="router.push({ name: 'AddBoardTask' })" class="itbkk-button-add disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">
+          <button @click="router.push({ name: 'AddBoardTask' })"
+            class="itbkk-button-add disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
               class="w-[3rem] h-[3rem] rounded-md bg-[#c5daff] fill-[#00215E] hover:scale-125 duration-150">
               <path
@@ -435,9 +441,11 @@ const confirmChange = async () => {
                       <div tabindex="0" class="itbkk-button-action">⋮</div>
                       <ul tabindex="0" class="dropdown-content menu mt-2 p-2 shadow bg-red-100 rounded-box w-52 z-[1]">
                         <li><button @click="router.push({ name: 'EditBoardTask', params: { task: task.id } })"
-                            class="itbkk-button-edit hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">Edit</button></li>
+                            class="itbkk-button-edit hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            :disabled="!hasPermission">Edit</button></li>
                         <li><button @click="openConfirmModal(task)"
-                            class="itbkk-button-delete hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">Delete</button>
+                            class="itbkk-button-delete hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            :disabled="!hasPermission">Delete</button>
                         </li>
                       </ul>
                     </button>
@@ -476,7 +484,8 @@ const confirmChange = async () => {
           class="itbkk-button-cancel p-4 rounded-lg bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
           @click="closeConfirmModal">Cancel</button>
       </div>
-      <p v-if="!hasPermission" class="text-red-400 text-[14px] text-center mt-2">You need to be board owner to perform this action.</p>
+      <p v-if="!hasPermission" class="text-red-400 text-[14px] text-center mt-2">You need to be board owner to perform
+        this action.</p>
     </div>
   </div>
   <RouterView />

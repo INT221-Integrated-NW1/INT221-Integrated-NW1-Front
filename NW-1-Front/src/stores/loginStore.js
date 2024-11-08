@@ -45,11 +45,12 @@ export const useLoginStore = defineStore("loginStore", () => {
 	};
 
 	const getToken = () => {
-		const storedToken = getCookie("token");
-		if (!token.value && storedToken) {
-			token.value = storedToken;
-		}
-		return token.value || null;
+		// const storedToken = getCookie("token");
+		// if (!token.value && storedToken) {
+		// 	token.value = storedToken;
+		// }
+		// return token.value || null;
+		return getCookie("token")
 	}
 
 	const getRefreshToken = () => {

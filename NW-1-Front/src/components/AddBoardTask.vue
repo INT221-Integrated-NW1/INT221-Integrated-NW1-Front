@@ -37,21 +37,23 @@ const saveTask = async () => {
             notiStore.setNotificationType("error");
             return;
         }
-        if (!addTask.value.status) {
-            addTask.value.status = 1;
+        const { addedData, response } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks`, addTask.value, loginStore.getToken());
+        if (!response.ok ) {
+            notiStore.setNotificationMessage(`There is a problem. Please try again later.`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            router.push({ name: 'TaskBoard' });
         }
-        const { addedData } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks`, addTask.value, loginStore.getToken());
-        taskStore.addTask(addedData);
-        notiStore.setNotificationMessage(`The task "${addTask.value.title}" is added successfully`);
-        notiStore.setShowNotification(true);
-        notiStore.setNotificationType("success");
-        addTask.value = { title: "", description: "", assignees: "", status: "" };
-        router.push({ name: 'TaskBoard' });
+        if (response.ok) {
+            taskStore.addTask(addedData);
+            notiStore.setNotificationMessage(`The task "${addTask.value.title}" is added successfully`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("success");
+            addTask.value = { title: "", description: "", assignees: "", status: "" };
+            router.push({ name: 'TaskBoard' });
+        }
     } catch (error) {
         console.error('Error saving task:', error);
-        notiStore.setNotificationMessage(`There is a problem. Please try again later.`);
-        notiStore.setShowNotification(true);
-        notiStore.setNotificationType("error");
     }
 };
 
@@ -66,16 +68,16 @@ onBeforeMount(() => {
 
 const boardOwnerId = ref(null);
 const getBoardId = async () => {
-  try {
-    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
-    boards.value = data;
-    boardOwnerId.value = data.user.oid
-  } catch (error) {
-    console.error('Failed to fetch status:', error);
-  }
+    try {
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
+        boards.value = data;
+        boardOwnerId.value = data.user.oid
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
 };
 onMounted(() => {
-  getBoardId();
+    getBoardId();
 });
 
 const hasPermission = computed(() => {
@@ -113,7 +115,8 @@ const hasPermission = computed(() => {
                     </div>
                 </form>
                 <div class="flex justify-end items-center gap-4 mt-4">
-                    <p v-if="!hasPermission" class="text-red-400 text-[20px]">You need to be board owner to perform this action.</p>
+                    <p v-if="!hasPermission" class="text-red-400 text-[20px]">You need to be board owner to perform this
+                        action.</p>
                     <button @click="saveTask" :disabled="!isFormValid() || !hasPermission"
                         class="itbkk-button-confirm bg-[#4CAF50] hover:bg-[#43A047] text-black py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Add</button>
                     <button @click="router.push({ name: 'TaskBoard' })"

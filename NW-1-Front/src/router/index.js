@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { getItemsRes } from "@/libs/fetchUtils";
-import { useLoginStore } from "../stores/loginStore";
+import { useLoginStore } from "@/stores/loginStore";
 
 const history = createWebHistory(import.meta.env.BASE_URL);
 const routes = [
@@ -27,11 +27,16 @@ const routes = [
 		component: () => import("../views/TaskBoard.vue"),
 		beforeEnter: async (to, from, next) => {
 			const { id: boardId } = to.params;
-			const { isOwner, isPublic } = await checkBoardAccess(boardId);
+			const { isOwner, isPublic, status } = await checkBoardAccess(boardId);
 			if (isOwner || isPublic) {
 				next();
-			} else {
+			}
+			else if (status === 403) {
 				next({ name: "AccessDenied" });
+			}
+			else {
+				console.log(status);
+				next({ name: "Login" });
 			}
 		},
 		children: [
@@ -60,7 +65,12 @@ const routes = [
 					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${taskId}`, loginStore.getToken());
 					if (status === 200) {
 						next();
-					} else {
+					}
+					else if (status === 401) {
+						window.alert("Refreshing Token");
+						next();
+					}
+					else {
 						window.alert("The requested task does not exist");
 						next(router.go(-1));
 					}
@@ -78,18 +88,22 @@ const routes = [
 					// Check board access
 					const { isOwner, isPublic } = await checkBoardAccess(boardId);
 					if (!isOwner && isPublic) {
-						return next({ name: "AccessDenied" });
+						next({ name: "AccessDenied" });
+						return;
 					}
 
 					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${taskId}`, loginStore.getToken());
 					if (status === 200) {
 						next();
 					}
+					else if (status === 401) {
+						window.alert("Refreshing Token");
+						next();
+					}
 					else {
+						console.error(`The requested task Id: ${taskId} does not exist`);
 						window.alert("The requested task does not exist");
-						// next({ name: "TaskBoard" });
 						next(router.go(-1));
-						console.log(`The requested task Id: ${id} does not exist`);
 					}
 				},
 			},
@@ -125,7 +139,12 @@ const routes = [
 					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses/${statusId}`, loginStore.getToken());
 					if (status === 200) {
 						next();
-					} else {
+					} 
+					else if (status === 401) {
+						window.alert("Refreshing Token");
+						next();
+					}
+					else {
 						window.alert("The requested status does not exist");
 						next(router.go(-1));
 						console.log(`The requested status Id: ${id} does not exist`);
@@ -235,12 +254,12 @@ const checkBoardAccess = async (boardId) => {
 			const isPublic = data.visibility === "PUBLIC";
 			return { isOwner, isPublic };
 		} else {
-			return { isOwner: false, isPublic: false };
+			return { isOwner: false, isPublic: false, status };
 		}
 	} catch (error) {
 		console.error("Error in checkBoardAccess:", error);
 		// ถ้าเกิดข้อผิดพลาดใด ๆ คืนค่าการเข้าถึงเป็น false
-		return { isOwner: false, isPublic: false };
+		return { isOwner: false, isPublic: false, status: 500 };
 	}
 };
 

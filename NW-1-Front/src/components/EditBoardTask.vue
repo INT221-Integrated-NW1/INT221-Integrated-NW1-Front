@@ -58,7 +58,7 @@ const saveTask = async () => {
         if (!tasksId.value.status) {
             tasksId.value.status = "No Status";
         }
-        const { data, status } = await editTask(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${tasksId.value.id}`, tasksId.value, loginStore.getToken());
+        const { data, response, status } = await editTask(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/tasks/${tasksId.value.id}`, tasksId.value, loginStore.getToken());
         if (status === 400) {
             notiStore.setNotificationMessage(`Please choose status`);
             notiStore.setNotificationType("error");
@@ -66,19 +66,23 @@ const saveTask = async () => {
             router.push({ name: 'TaskBoard' })
             return
         }
-        taskStore.editTask(data);
-        notiStore.setNotificationMessage(`The task "${tasksId.value.title}" has been updated`);
-        notiStore.setNotificationType("success");
-        notiStore.setShowNotification(true);
-        // Reset form and navigate back to task list
-        tasksId.value = { id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" };
-        router.push({ name: 'TaskBoard' });
+        if (response.ok) {
+            taskStore.editTask(data);
+            notiStore.setNotificationMessage(`The task "${tasksId.value.title}" has been updated`);
+            notiStore.setNotificationType("success");
+            notiStore.setShowNotification(true);
+            // Reset form and navigate back to task list
+            tasksId.value = { id: "", title: "", description: "", assignees: "", status: "", createdOn: "", updatedOn: "" };
+            router.push({ name: 'TaskBoard' });
+        }
+        if (!response.ok) {
+            notiStore.setNotificationMessage(`An error occurred updating the task "${tasksId.value.title}"`);
+            notiStore.setNotificationType("error");
+            notiStore.setShowNotification(true);
+            router.push({ name: 'TaskBoard' });
+        }
     } catch (error) {
-        notiStore.setNotificationMessage(`An error occurred updating the task "${tasksId.value.title}"`);
-        notiStore.setNotificationType("error");
-        notiStore.setShowNotification(true);
         console.error('Error saving task:', error);
-        router.push({ name: 'TaskBoard' });
     }
 };
 
