@@ -80,26 +80,31 @@ const statusToDelete = ref({ id: "", name: "", modal: false })
 const deleteStatus = async (statusId) => {
     try {
         const id = route.params.id;
-        const res = await deleteItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses/${statusId}`, loginStore.getToken());
+        const { response, status } = await deleteItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses/${statusId}`, loginStore.getToken());
         // Check if the deletion was successful (HTTP status code 200 means success)
-        if (res === 200) {
-            statusStore.removeStatuses(res)
+        if (response.ok) {
+            statusStore.removeStatuses(response)
             statuses.value = statuses.value.filter(status => status.id !== id);
             notiStore.setNotificationMessage(`The status "${statusToDelete.value.name}" is deleted successfully`);
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
-            closeConfirmModal();
-        } else if (res === 404) {
+        } else if (status === 404) {
             console.error(`Failed to delete status with ID ${id}. Status does not exist.`);
             notiStore.setNotificationMessage(`An error occurred deleting the status "${statusToDelete.value.name}"`);
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
-            closeConfirmModal();
-        } else {
+        } else if (status === 401) {
+            notiStore.setNotificationMessage(`Refreshing the Token`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+        }
+        else {
             console.error(`Failed to delete status with ID ${id} HTTP status: ${res}`);
         }
+        closeConfirmModal();
     } catch (error) {
-        console.error(`Failed to delete status with ID ${id}:`, error);
+        console.error(`Failed to delete status: `, error);
+        closeConfirmModal();
     }
 };
 
@@ -137,8 +142,8 @@ const newStatusId = ref({ id: "", name: "", description: "" });
 const deleteStatusWithTransfer = async () => {
     try {
         const boardId = route.params.id;
-        const res = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/statuses`, statusToDelete.value.id, newStatusId.value.id, loginStore.getToken());
-        if (res === 200) {
+        const { response, status } = await deleteTransfer(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/statuses`, statusToDelete.value.id, newStatusId.value.id, loginStore.getToken());
+        if (response.ok) {
             // ลบ status เดิมออกจาก store
             statusStore.removeStatuses(statusToDelete.value.id);
             // เพิ่ม status ใหม่เข้าไปใน store (ถ้ามีการย้าย task ไป status ใหม่)
@@ -148,14 +153,17 @@ const deleteStatusWithTransfer = async () => {
             notiStore.setNotificationMessage("Transfer and delete operation successful");
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
-            closeDeleteTransferModal();
-        } else {
-            console.error('Failed to transfer and delete status:', res.statusText);
+        } else if (status === 401) {
+            notiStore.setNotificationMessage(`Refreshing the Token`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+        }
+        else {
             notiStore.setNotificationMessage('An error occurred during the transfer and delete operation');
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("error");
-            closeDeleteTransferModal();
         }
+        closeDeleteTransferModal();
     } catch (error) {
         console.error('Error transferring and deleting status:', error);
         notiStore.setNotificationMessage('An error occurred during the transfer and delete operation');

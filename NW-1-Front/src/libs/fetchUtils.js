@@ -44,7 +44,7 @@ async function getRefreshToken() {
 		document.cookie = `token=${token.access_token}; expires=${expire}; path=/;`;
 	} catch (error) {
 		console.log(`Error refreshing token: ${error.message}`);
-		router.push({name: "Login"})
+		router.push({ name: "Login" })
 	}
 }
 
@@ -119,7 +119,10 @@ async function deleteItem(url, header) {
 		if (response.status === 401 || response.status === 403) {
 			await getRefreshToken()
 		}
-		return response.status;
+		return {
+			response,
+			status: response.status,
+		}
 	} catch (error) {
 		console.log(`error: ${error}`);
 	}
@@ -136,7 +139,10 @@ async function deleteItemById(url, id, header) {
 		if (response.status === 401 || response.status === 403) {
 			await getRefreshToken()
 		}
-		return response.status;
+		return {
+			response,
+			status: response.status,
+		}
 	} catch (error) {
 		console.log(`error: ${error}`);
 	}
@@ -153,7 +159,10 @@ async function deleteTransfer(url, oldStatusId, newStatusId, header) {
 		if (response.status === 401 || response.status === 403) {
 			await getRefreshToken()
 		}
-		return response.status;
+		return {
+			response,
+			status: response.status,
+		}
 	} catch (error) {
 		console.log(`Error deleting with transfer: ${error}`);
 	}
@@ -176,6 +185,7 @@ async function addItem(url, newItem, header) {
 		}
 		const result = await response.json();
 		return {
+			response,
 			status: response.status,
 			addedData: result
 		};
@@ -217,6 +227,7 @@ async function editTask(url, data, header) {
 		}
 		const result = await response.json();
 		return {
+			response,
 			status: response.status,
 			data: result,
 		};
