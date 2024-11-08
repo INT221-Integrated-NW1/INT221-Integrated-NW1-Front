@@ -169,6 +169,11 @@ const routes = [
 		name: "AccessDenied",
 		component: () => import("../views/AccessDenied.vue"),
 	},
+	{
+		path: "/CollabBoard",
+		name: "CollabBoard",
+		component: () => import("../views/CollabBoard.vue"),
+	},
 ];
 
 const router = createRouter({

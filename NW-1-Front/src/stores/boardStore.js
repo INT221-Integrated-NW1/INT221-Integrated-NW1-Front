@@ -2,7 +2,10 @@ import { ref } from "vue";
 import { defineStore, acceptHMRUpdate } from "pinia";
 
 export const useBoardStore = defineStore("boardStore", () => {
-	const boards = ref([]);
+	const boards = ref([{
+		personal: [],
+		collab: [],
+	}]);
 
 	const getBoards = () => {
 		return boards;
@@ -26,7 +29,8 @@ export const useBoardStore = defineStore("boardStore", () => {
 		);
 	};
 	const setBoards = (newBoards) => {
-		boards.value = newBoards;
+		boards.value.personal = newBoards.personal || [];
+		boards.value.collab = newBoards.collab || [];
 	};
 	const editBoard = (newBoard) => {
 		boards.value.forEach((board) => {
