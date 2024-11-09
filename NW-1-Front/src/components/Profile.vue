@@ -1,20 +1,39 @@
 <script setup>
+import { ref } from 'vue';
 import { useLoginStore } from '../stores/loginStore.js';
+
 const loginStore = useLoginStore();
+const isMenuOpen = ref(false)
+const clickMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value;
+}
 </script>
 
 <template>
-    <div
-        class="flex items-center p-2 pr-3 gap-2 absolute top-3 right-2 bg-blue-100 border-4 border-blue-400 rounded-lg shadow-lg">
-        <img class="w-14 h-14 rounded-full border-2 border-blue-300" src="/favicon.png" alt="profile">
-        <div class="font-medium dark:text-white">
-            <span class="itbkk-fullname text-blue-600">{{ loginStore.getName() }}</span>
-            <div class="text-sm text-gray-500 dark:text-gray-400">"Welcome to SIT"</div>
-        </div>
-        <button @click="loginStore.logout" class="ml-4 px-2 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700">
-            Logout
+  <nav class="p-2 flex items-center w-full max-h-[4em] fixed bg-transparent">
+    <div class="flex-1">
+      <router-link :to="{name: 'Board'}" >
+        <button class="flex justify-center items-center btn btn-ghost text-xl">
+          <img src="/images/home.png" alt="Home">
+          <p class="text-black">ITB-KK</p>
         </button>
+      </router-link>
     </div>
+    <div class="relative">
+      <button @click="clickMenu"
+        class="px-2 min-w-[9em] flex items-center justify-center gap-2 bg-rose-400 hover:bg-rose-500 rounded-lg text-xl font-semibold transition duration-200 ease-in-out">
+        <div class="w-12 rounded-full">
+          <img src="/images/favicon.png" alt="profile">
+        </div>
+        <p class="itbkk-fullname text-white">{{ loginStore.getName() }}</p>
+      </button>
+      <div v-if="isMenuOpen"
+        class="absolute right-0 mt-1 w-auto bg-white border border-slate-200 rounded-lg shadow-lg p-1 z-[1]">
+        <button @click="loginStore.logout"
+          class="text-black hover:text-red-500 hover:bg-slate-100 px-4 py-1 rounded-md transition duration-200">Logout</button>
+      </div>
+    </div>
+  </nav>
 </template>
 
 <style scoped></style>
