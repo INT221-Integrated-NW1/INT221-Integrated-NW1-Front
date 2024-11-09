@@ -7,14 +7,12 @@ export const useLoginStore = defineStore("loginStore", () => {
 	const refreshToken = ref(null);
 	const name = ref("");
 	const oid = ref(null);
-	const tokenExpiration = ref(null);
 
 	const login = (newToken) => {
 		token.value = newToken.access_token;
 		refreshToken.value = newToken.refresh_token;
 		name.value = newToken.name;
 		oid.value = newToken.oid;
-		tokenExpiration.value = newToken.exp;
 		const expirationDate = new Date(newToken.exp * 1000);
 		const expire = expirationDate.toUTCString();
 		const refreshTokenExpiry = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
@@ -23,7 +21,6 @@ export const useLoginStore = defineStore("loginStore", () => {
 		document.cookie = `oid=${newToken.oid}; expires=${expire}; path=/;`;
 		document.cookie = `token=${newToken.access_token}; expires=${expire}; path=/;`;
 		document.cookie = `refresh_token=${newToken.refresh_token}; expires=${refreshTokenExpiry}; path=/;`;
-		document.cookie = `tokenExpiration=${newToken.exp}; expires=${expire}; path=/;`;
 	};
 
 	const getCookie = (cookieName) => {
@@ -45,11 +42,6 @@ export const useLoginStore = defineStore("loginStore", () => {
 	};
 
 	const getToken = () => {
-		// const storedToken = getCookie("token");
-		// if (!token.value && storedToken) {
-		// 	token.value = storedToken;
-		// }
-		// return token.value || null;
 		return getCookie("token")
 	}
 
@@ -65,13 +57,6 @@ export const useLoginStore = defineStore("loginStore", () => {
 		return oid.value;
 	};
 
-	const getTokenExpiration = () => {
-		if (!tokenExpiration.value) {
-			tokenExpiration.value = getCookie("tokenExpiration");
-		}
-		return tokenExpiration.value ? parseInt(tokenExpiration.value, 10) : null;
-	};
-
 	const setToken = (newToken) => {
 		token.value = newToken;
 	};
@@ -85,8 +70,7 @@ export const useLoginStore = defineStore("loginStore", () => {
 		refreshToken.value = null;
 		name.value = "";
 		oid.value = null;
-		tokenExpiration.value = null;
-		["name", "oid", "token", "refresh_token", "tokenExpiration"].forEach((key) => {
+		["name", "oid", "token", "refresh_token"].forEach((key) => {
 			document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 		});
 		router.push({name: "Login"})
@@ -99,7 +83,6 @@ export const useLoginStore = defineStore("loginStore", () => {
 		getToken,
 		getRefreshToken,
 		getUserId,
-		getTokenExpiration,
 		setToken,
 		isAuthenticated,
 	};

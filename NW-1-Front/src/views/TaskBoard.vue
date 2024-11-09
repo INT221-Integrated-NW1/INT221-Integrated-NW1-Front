@@ -221,12 +221,12 @@ const confirmChange = async () => {
 </script>
 
 <template>
+  <Profile />
   <header class="pt-8 flex justify-center">
     <h1
-      class="itbkk-board-name mb-4 text-4xl text-center font-extrabold leading-none tracking-tight text-[rgb(51,56,145)] sm:text-4xl md:text-5xl lg:text-6xl dark:text-white">
+      class="itbkk-board-name mb-4 text-center font-extrabold leading-none tracking-tight text-[rgb(51,56,145)] sm:text-3xl md:text-4xl lg:text-5xl dark:text-white">
       {{ loginStore.getName() }}<span class="text-gray-900 dark:text-white"> Personal Board</span></h1>
   </header>
-  <Profile />
   <!-- Empty Table -->
   <div v-if="tasks.length === 0" class="pt-8">
     <div class="flex justify-center w-auto">
@@ -246,10 +246,6 @@ const confirmChange = async () => {
         <div class="w-full max-w-screen-lg pl-2">
           <div class="flex justify-between pb-2 gap-4">
             <div class="flex gap-4">
-              <RouterLink :to="{ name: 'Board' }">
-                <button
-                  class="itbkk-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
-              </RouterLink>
               <RouterLink :to="{ name: 'StatusBoard' }">
                 <button
                   class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
