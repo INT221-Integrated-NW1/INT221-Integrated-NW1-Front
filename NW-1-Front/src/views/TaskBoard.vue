@@ -20,6 +20,7 @@ const statuses = statusStore.getStatuses();
 const loginStore = useLoginStore();
 const boardStore = useBoardStore();
 const boards = boardStore.getBoards()
+const boardOwnerName = ref("")
 
 const router = useRouter()
 const route = useRoute();
@@ -35,6 +36,7 @@ const getBoardId = async () => {
   try {
     const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
     boards.value = data;
+    boardOwnerName.value = data.user.username
     boardOwnerId.value = data.user.oid
     visibility.value = data.visibility;
     isPublic.value = data.visibility === 'PUBLIC' ? true : false;
@@ -222,20 +224,20 @@ const confirmChange = async () => {
 
 <template>
   <Profile />
-  <header class="pt-8 flex justify-center">
+  <header class="pt-16 flex justify-center">
     <h1
-      class="itbkk-board-name mb-4 text-center font-extrabold leading-none tracking-tight text-[rgb(51,56,145)] sm:text-3xl md:text-4xl lg:text-5xl dark:text-white">
-      {{ loginStore.getName() }}<span class="text-gray-900 dark:text-white"> Personal Board</span></h1>
+      class="itbkk-board-name  text-center font-extrabold leading-none tracking-tight text-[rgb(51,56,145)] sm:text-3xl md:text-4xl lg:text-5xl dark:text-white">
+      {{ boardOwnerName }}<span class="text-gray-900 dark:text-white"> Personal Board</span></h1>
   </header>
   <!-- Empty Table -->
   <div v-if="tasks.length === 0" class="pt-8">
     <div class="flex justify-center w-auto">
-      <Notification class="mb-2" :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
+      <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
     </div>
     <div class="flex justify-center">
       <div class="max-h-screen flex justify-center">
         <div class="flex items-start pt-8">
-          <button @click="router.push({ name: 'AddBoardTask' })" class="itbkk-button-add">
+          <button @click="router.push({ name: 'AddBoardTask' })" class="itbkk-button-add disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
               class="w-[3rem] h-[3rem] rounded-md bg-[#c5daff] fill-[#00215E] hover:scale-125 duration-150">
               <path
@@ -250,6 +252,10 @@ const confirmChange = async () => {
                 <button
                   class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
                   Status</button>
+              </RouterLink>
+              <RouterLink :to="{ name: 'CollabBoard' }">
+                <button
+                  class="itbkk-manage-status bg-[#af7eff] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#a167ff] hover:text-[#f0f0f0]">Manage Collaborator</button>
               </RouterLink>
             </div>
             <div class="flex gap-3">
@@ -340,14 +346,14 @@ const confirmChange = async () => {
         <div class="w-full max-w-screen-lg pl-2">
           <div class="flex justify-between pb-2 gap-4">
             <div class="flex gap-4">
-              <RouterLink :to="{ name: 'Board' }">
-                <button
-                  class="itbkk-home bg-slate-100 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-black hover:bg-green-400 hover:text-[#f0f0f0]">Home</button>
-              </RouterLink>
               <RouterLink :to="{ name: 'StatusBoard' }">
                 <button
                   class="itbkk-manage-status bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">Manage
                   Status</button>
+              </RouterLink>
+              <RouterLink :to="{ name: 'CollabBoard' }">
+                <button
+                  class="itbkk-manage-status bg-[#af7eff] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#a167ff] hover:text-[#f0f0f0] disabled:opacity-70 disabled:cursor-not-allowed" :disabled="!hasPermission">Manage Collaborator</button>
               </RouterLink>
             </div>
             <div class="flex gap-3">
@@ -395,7 +401,7 @@ const confirmChange = async () => {
               </div>
             </div>
           </div>
-          <div class="relative max-h-[26.5em] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
+          <div class="relative max-h-[26.5em] bg-[rgba(255,125,168)] overflow-x-auto hide shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left rtl:text-right table-fixed text-black">
               <thead class="text-lg uppercase bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                 <tr>

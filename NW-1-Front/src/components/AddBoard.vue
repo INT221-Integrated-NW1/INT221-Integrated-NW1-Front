@@ -9,8 +9,8 @@ const router = useRouter();
 const boardStore = useBoardStore();
 const loginStore = useLoginStore();
 const showModal = ref(true);
-const board = ref({ name: `${loginStore.getName()} personal board`  });
-const boardExists = ref(boardStore.getBoards().value.length > 0);
+const board = ref({ name: `${loginStore.getName()} personal board` });
+const boardExists = ref(boardStore.getBoards().value.personal?.length > 0);
 
 const createBoard = async () => {
     if (!board.value) {
@@ -20,7 +20,7 @@ const createBoard = async () => {
     if (board.value.name === null || board.value.name === "") {
         board.value.name = `${loginStore.getName()} personal board` 
     }
-    if (boardStore.getBoards().value.length > 0) {
+    if (boardExists) {
         alert('You can only create one board.');
         return;
     }
