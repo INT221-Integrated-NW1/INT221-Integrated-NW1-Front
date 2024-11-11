@@ -110,6 +110,11 @@ const routes = [
 		]
 	},
 	{
+		path: "/board/:id/collab",
+		name: "CollabBoard",
+		component: () => import("../views/CollabBoard.vue"),
+	},
+	{
 		path: "/board/:id/status",
 		name: "StatusBoard",
 		component: () => import("../views/StatusBoard.vue"),

@@ -122,7 +122,7 @@ watchEffect(() => {
                             <AddBoard v-if="showModal" @close="closeModal" />
                         </div>
                         <div
-                            class="relative max-h-[120px] bg-[rgba(0,0,0,0.5)] overflow-x-auto hide shadow-md sm:rounded-lg">
+                            class="relative max-h-[120px] bg-[rgba(255,125,168)] overflow-x-auto hide shadow-md sm:rounded-lg">
                             <table class="w-full text-sm text-left rtl:text-right table-fixed">
                                 <thead class="text-lg uppercase bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                                     <tr class="text-black">
@@ -168,24 +168,24 @@ watchEffect(() => {
                 <div class="max-h-screen flex justify-center">
                     <div class="w-full max-w-screen-lg">
                         <div
-                            class="relative max-h-[15.5em] bg-[rgba(0,0,0,0.5)] overflow-x-hidden shadow-md sm:rounded-lg">
+                            class="relative max-h-[15.5em] bg-[#7c88f8] overflow-x-hidden shadow-md sm:rounded-lg">
                             <table class="w-full text-sm text-left rtl:text-right table-fixed">
                                 <thead class="text-md uppercase bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                                     <tr class="text-black">
                                         <th class="px-6 py-3 w-[10%] text-center">No</th>
                                         <th class="px-6 py-3 w-[30%] text-center">Name</th>
                                         <th class="px-6 py-3 w-[30%] text-center">Owner</th>
-                                        <th class="px-6 py-3 w-[20%] text-center">Access Right</th>
-                                        <th class="px-6 py-3 w-[10%] text-center">Action</th>
+                                        <th class="px-6 py-3 w-[15%] text-center">Access Right</th>
+                                        <th class="px-6 py-3 w-[15%] text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody v-if="boards.collab?.length !== 0" class="font-semibold">
-                                    <tr v-for="(board, index) in boards.collab" :key="board.id"
-                                        class="itbkk-collab-item text-[1.2em] text-black odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-2 duration-300 ease-in-out">
+                                    <tr v-for="(board, index) in boards.collab" :key="index"
+                                        class="itbkk-collab-item text-[1.2em] text-black odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
                                         <td class="text-center"> {{ index + 1 }} </td>
-                                        <td @click="router.push({ name: 'CollaborateBoard', params: { id: board.id } })"
+                                        <td @click="router.push({ name: 'TaskBoard', params: { id: board.id } })"
                                             class="itbkk-board-name text-center cursor-pointer"> {{ board.name }} </td>
-                                        <td class="itbkk-owner-name text-center px-6 py-4"> {{ board.owner.name }}</td>
+                                        <td class="itbkk-owner-name text-center px-6 py-4"> {{ board.owner?.name }}</td>
                                         <td class="itbkk-access-right text-center px-6 py-4"> {{ board.accessRight }}
                                         </td>
                                         <td class="text-center px-6 py-4 flex justify-center">
@@ -198,7 +198,7 @@ watchEffect(() => {
                                 </tbody>
                                 <tbody v-else class="font-semibold">
                                     <tr
-                                        class="itbkk-collab-item text-[1.2em] text-black odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-2 duration-300 ease-in-out">
+                                        class="itbkk-collab-item text-[1.2em] text-black odd:bg-white odd:dark:bg-gray-900 even:bg-slate-100 even:dark:bg-gray-800 transition hover:translate-x-4 duration-300 ease-in-out">
                                         <td colspan="5" class="text-center py-6 text-gray-500">No Board</td>
                                     </tr>
                                 </tbody>

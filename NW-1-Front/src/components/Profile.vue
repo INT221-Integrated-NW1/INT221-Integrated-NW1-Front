@@ -12,12 +12,12 @@ const clickMenu = () => {
 <template>
   <nav class="p-2 flex items-center w-full max-h-[4em] fixed bg-transparent">
     <div class="flex-1">
-      <router-link :to="{name: 'Board'}" >
-        <button class="flex justify-center items-center btn btn-ghost text-xl">
+      <button>
+        <router-link :to="{ name: 'Board' }" class="flex justify-center items-center btn btn-ghost text-xl">
           <img src="/images/home.png" alt="Home">
           <p class="text-black">ITB-KK</p>
-        </button>
-      </router-link>
+        </router-link>
+      </button>
     </div>
     <div class="relative">
       <button @click="clickMenu"
