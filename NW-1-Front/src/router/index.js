@@ -27,15 +27,15 @@ const routes = [
 		component: () => import("../views/TaskBoard.vue"),
 		beforeEnter: async (to, from, next) => {
 			const { id: boardId } = to.params;
-			const { isOwner, isPublic, status } = await checkBoardAccess(boardId);
-			if (isOwner || isPublic) {
+			const { isOwner, isPublic, accessRight, status } = await checkBoardAccess(boardId);
+			if (isOwner || isPublic || accessRight === "READ") {
 				next();
 			}
 			else if (status === 403) {
 				next({ name: "AccessDenied" });
 			}
 			else {
-				console.log(status);
+				console.error(`Error status: ${status}`);
 				next({ name: "Login" });
 			}
 		},
@@ -144,7 +144,7 @@ const routes = [
 					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses/${statusId}`, loginStore.getToken());
 					if (status === 200) {
 						next();
-					} 
+					}
 					else if (status === 401) {
 						window.alert("Refreshing Token");
 						next();
@@ -185,57 +185,22 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
 	const loginStore = useLoginStore();
 	const isAuthenticated = loginStore.isAuthenticated();
+	// Always allow access to the login page
 	if (to.name === "Login") {
-		// Always allow access to the login page
 		return next();
 	}
 	if (to.params.id) {
-		try {
-			// Fetch board data based on the route parameter
-			const response = await getItemsRes(
-				`${import.meta.env.VITE_BASE_URL}/v3/boards/${to.params.id}`,
-				loginStore.getToken() || null
-			);
-			// Ensure response and data are valid
-			if (response && response.data) {
-				const board = response.data;
-				if (board.visibility === "PUBLIC") {
-					return next(); // Allow access to PUBLIC boards
-				} else if (isAuthenticated && board.user.oid === loginStore.getUserId()) {
-					return next(); // Allow access to private boards for the owner
-				} else {
-					return next({ name: "Login" });
-				}
-			}
-		} catch (error) {
-			if (error.message.includes("403")) {
-				console.error("Access forbidden, refreshing token...");
-				await getRefreshToken(); // Call function to refresh token
-				try {
-					// Retry fetching board data with new token
-					const response = await getItemsRes(
-						`${import.meta.env.VITE_BASE_URL}/v3/boards/${to.params.id}`,
-						loginStore.getToken() || null
-					);
-
-					if (response && response.data) {
-						const board = response.data;
-						if (board.visibility === "PUBLIC") {
-							return next(); // Allow access to PUBLIC boards
-						} else if (isAuthenticated && board.user.oid === loginStore.getUserId()) {
-							return next(); // Allow access to private boards for the owner
-						}
-					}
-				} catch (retryError) {
-					console.error("Error fetching board data after refreshing token:", retryError);
-				}
-			} else {
-				console.error("Error fetching board data:", error);
-				return next({ name: "Login" });
-			}
+		const { isOwner, isPublic, accessRight, status } = await checkBoardAccess(to.params.id);
+		// Check if user has access
+		if (isOwner || isPublic || accessRight) {
+			return next();
+		} else if (status === 403) {
+			return next({ name: "AccessDenied" });
+		} else {
+			return next({ name: "Login" });
 		}
 	}
-	// If not accessing a board and not authenticated, restrict protected routes
+	// If route requires authentication and user is not authenticated
 	if (!isAuthenticated && to.meta.requiresAuth) {
 		return next({ name: "Login" });
 	}
@@ -246,25 +211,40 @@ const checkBoardAccess = async (boardId) => {
 	try {
 		const loginStore = useLoginStore();
 		const response = await getItemsRes(
-			`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}`,
+			`${import.meta.env.VITE_BASE_URL}/v3/boards`,
 			loginStore.getToken()
 		);
-		// ตรวจสอบว่า response ไม่เป็นค่าว่าง
 		if (!response || !response.status) {
 			throw new Error("Failed to fetch board data.");
 		}
 		const { status, data } = response;
 		if (status === 200) {
-			const isOwner = data.user.oid === loginStore.getUserId();
-			const isPublic = data.visibility === "PUBLIC";
-			return { isOwner, isPublic };
+			let isOwner = false;
+			let isPublic = false;
+			let accessRight = null;
+
+			const personalBoard = data.personal_BOARD.find(
+				(board) => board.id === boardId
+			);
+			if (personalBoard) {
+				isOwner = personalBoard.user.oid === loginStore.getUserId();
+				isPublic = personalBoard.visibility === "PUBLIC";
+			} else {
+				const collaborateBoard = data.collaborate_BOARD.find(
+					(board) => board.id === boardId
+				);
+				if (collaborateBoard) {
+					accessRight = collaborateBoard.accessRight;
+					isPublic = collaborateBoard.visibility === "PUBLIC";
+				}
+			}
+			return { isOwner, isPublic, accessRight, status };
 		} else {
-			return { isOwner: false, isPublic: false, status };
+			return { isOwner: false, isPublic: false, accessRight: null, status };
 		}
 	} catch (error) {
 		console.error("Error in checkBoardAccess:", error);
-		// ถ้าเกิดข้อผิดพลาดใด ๆ คืนค่าการเข้าถึงเป็น false
-		return { isOwner: false, isPublic: false, status: 500 };
+		return { isOwner: false, isPublic: false, accessRight: null, status: 500 };
 	}
 };
 

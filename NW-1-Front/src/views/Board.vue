@@ -26,7 +26,6 @@ const getAllBoards = async () => {
             personal: personalBoards,
             collab: collabBoards
         });
-
         if (personalBoards.length === 1 && collabBoards.length === 0) {
             router.push({ name: 'TaskBoard', params: { id: personalBoards[0].id } });
         }
@@ -115,12 +114,6 @@ watchEffect(() => {
             <div class="flex justify-center">
                 <div class="max-h-screen flex justify-center">
                     <div class="w-full max-w-screen-lg">
-                        <div class="flex justify-between pb-2 gap-4">
-                            <button @click="openModal"
-                                class="itbkk-button-create bg-[#4d8cfa] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#0062ff] hover:text-[#f0f0f0]">
-                                Create Board</button>
-                            <AddBoard v-if="showModal" @close="closeModal" />
-                        </div>
                         <div
                             class="relative max-h-[120px] bg-[rgba(255,125,168)] overflow-x-auto hide shadow-md sm:rounded-lg">
                             <table class="w-full text-sm text-left rtl:text-right table-fixed">
@@ -161,9 +154,6 @@ watchEffect(() => {
                     class="mb-4 text-center font-extrabold leading-none tracking-tight text-gray-900 sm:text-3xl md:text-4xl lg:text-5xl dark:text-white">
                     Collab Boards</h1>
             </header>
-            <div class="flex justify-center w-auto">
-                <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />
-            </div>
             <div class="flex justify-center">
                 <div class="max-h-screen flex justify-center">
                     <div class="w-full max-w-screen-lg">
