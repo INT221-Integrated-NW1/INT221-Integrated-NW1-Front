@@ -18,11 +18,7 @@ const createBoard = async () => {
         return;
     }
     if (board.value.name === null || board.value.name === "") {
-        board.value.name = `${loginStore.getName()} personal board` 
-    }
-    if (boardExists) {
-        alert('You can only create one board.');
-        return;
+        board.value.name = `${loginStore.getName()} personal board`
     }
     const newBoard = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards`, board.value, loginStore.getToken());
     if (newBoard.status === 401) {
@@ -61,13 +57,12 @@ const closeModal = () => {
                             class="itbkk-board-name w-full px-3 py-2 border rounded-lg" required />
                     </div>
                     <div class="flex justify-end">
-                        <button type="button" @click="createBoard" :disabled="boardExists"
+                        <p v-if="boardExists" class="flex-1 text-red-500 mt-2 text-center">You can only create one
+                            board.</p>
+                        <button type="button" @click="createBoard" :disabled="boardExists || board.name === ''"
                             class="itbkk-button-ok bg-green-500 text-white font-bold px-8 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">Create</button>
                     </div>
                 </form>
-                <p v-if="boardExists" class="text-red-500 mt-2 text-center">
-                    You can only create one board.
-                </p>
             </div>
         </div>
     </transition>

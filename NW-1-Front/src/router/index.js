@@ -28,7 +28,7 @@ const routes = [
 		beforeEnter: async (to, from, next) => {
 			const { id: boardId } = to.params;
 			const { isOwner, isPublic, accessRight, status } = await checkBoardAccess(boardId);
-			if (isOwner || isPublic || accessRight === "READ") {
+			if (isOwner || isPublic || accessRight) {
 				next();
 			}
 			else if (status === 403) {
@@ -120,11 +120,14 @@ const routes = [
 		component: () => import("../views/StatusBoard.vue"),
 		beforeEnter: async (to, from, next) => {
 			const { id: boardId } = to.params;
-			const { isOwner, isPublic } = await checkBoardAccess(boardId);
-			if (isOwner || isPublic) {
+			const { isOwner, isPublic, accessRight, status } = await checkBoardAccess(boardId);
+			if (isOwner || isPublic || accessRight) {
 				next();
-			} else {
+			} else if (status === 403) {
 				next({ name: "AccessDenied" });
+			}
+			else {
+				next({ name: "Login" });
 			}
 		},
 		children: [
