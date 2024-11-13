@@ -2,16 +2,21 @@ import { ref } from "vue";
 import { defineStore, acceptHMRUpdate } from "pinia";
 
 export const useBoardStore = defineStore("boardStore", () => {
-	const boards = ref([{
-		personal: [],
-		collab: [],
-	}]);
+	const boards = ref([
+		{
+			personal: [],
+			collab: [],
+		}
+	]);
 
 	const getBoards = () => {
 		return boards;
 	};
 	const addBoard = (newBoard) => {
 		boards.value.push(newBoard);
+	};
+	const addCollaborator = (collaborator) => {
+		boards.value.collab.push(collaborator);
 	};
 	const resetBoards = () => {
 		boards.value = [];
@@ -44,6 +49,7 @@ export const useBoardStore = defineStore("boardStore", () => {
 	return {
 		getBoards,
 		addBoard,
+		addCollaborator,
 		resetBoards,
 		findBoards,
 		findIndexBoards,
