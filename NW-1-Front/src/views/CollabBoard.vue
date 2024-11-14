@@ -6,7 +6,7 @@ import { useNotiStore } from '../stores/notificationStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
 import { useBoardStore } from "@/stores/boardStore";
 import { addItem, getItemsRes } from "@/libs/fetchUtils";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const notiStore = useNotiStore();
 const loginStore = useLoginStore();
@@ -31,8 +31,32 @@ const addCollab = ref({ email: "", accessRight: "" })
 const addCollaborator = async () => {
     try {
         const { addedData, status } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/collabs`, addCollab.value, loginStore.getToken());
-        boardStore.addCollaborator(addedData);
-        closeModal()
+        if (status === 201) {
+            boardStore.addCollaborator(addedData);
+            closeModal()
+        } else if (status === 401) {
+            notiStore.setShowNotification(true)
+            notiStore.setNotificationType("error")
+            notiStore.setNotificationMessage("Refreshing the token.")
+        } else if (status === 403) {
+            notiStore.setShowNotification(true)
+            notiStore.setNotificationType("error")
+            notiStore.setNotificationMessage("You do not have permission to add board collaborator.")
+            closeModal()
+        } else if (status === 404) {
+            notiStore.setShowNotification(true)
+            notiStore.setNotificationType("error")
+            notiStore.setNotificationMessage("The user does not exists.")
+        } else if (status === 409) {
+            notiStore.setShowNotification(true)
+            notiStore.setNotificationType("error")
+            notiStore.setNotificationMessage("The user is already the collaborator of this board.")
+        } else {
+            notiStore.setShowNotification(true)
+            notiStore.setNotificationType("error")
+            notiStore.setNotificationMessage("There is a problem. Please try again later.")
+            closeModal()
+        }
     } catch (error) {
         console.error('Failed to fetch status:', error);
     }
@@ -51,6 +75,11 @@ const closeModal = () => {
     showModal.value = false;
     addCollab.value = { email: "", accessRight: "" }
 };
+
+const isInvalidEmail = computed(() => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return !emailPattern.test(addCollab.value.email) || addCollab.value.email === loginStore.getUserEmail();
+});
 </script>
 
 <template>
@@ -69,7 +98,7 @@ const closeModal = () => {
                 <div class="w-full max-w-screen-lg">
                     <div class="flex gap-4 justify-between items-center mb-2">
                         <p class="itbkk-board-name text-black">{{ loginStore.getName() }} personal board > <span
-                                class="font-semibold">Collaborator</span></p>
+                                class="font-semibold text-violet-800">Collaborator</span></p>
                         <button @click="openModal"
                             class="itbkk-manage-status bg-[#28a745] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#218838] hover:text-[#f0f0f0] focus:bg-[#1e7e34]">Add
                             Collaborator
@@ -147,10 +176,10 @@ const closeModal = () => {
                 </div>
                 <div class="flex justify-center">
                     <button
-                        class="itbkk-button-confirm btn bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white"
-                        @click="addCollaborator">Add</button>
+                        class="itbkk-button-confirm px-6 py-4 rounded-lg bg-green-600 hover:bg-green-500 border-0 mr-4 flex-grow hover:scale-105 duration-150 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="isInvalidEmail" @click="addCollaborator">Add</button>
                     <button
-                        class="itbkk-button-cancel btn bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-200 text-white"
+                        class="itbkk-button-cancel px-6 py-4 rounded-lg bg-red-500 hover:bg-red-600 border-0 flex-grow hover:scale-105 duration-150 text-white"
                         @click="closeModal">Cancel</button>
                 </div>
             </form>

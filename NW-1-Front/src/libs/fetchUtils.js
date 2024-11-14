@@ -55,7 +55,7 @@ async function getItemsRes(url, header) {
 				"Authorization": header ? `Bearer ${header}` : ""
 			},
 		});
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			await getRefreshToken()
 		}
 		const result = await response.json();
@@ -75,7 +75,7 @@ async function getItems(url, header) {
 				"Authorization": header ? `Bearer ${header}` : ""
 			},
 		});
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			console.log("Get New Access Token");
 			await getRefreshToken()
 			// router.push({ name: "Login" })
@@ -95,7 +95,8 @@ async function getItemById(url, id, header) {
 				"Authorization": header ? `Bearer ${header}` : ""
 			},
 		});
-		if (data.status === 401 || data.status === 403) {
+		if (data.status === 401) {
+			console.log("Get New Access Token");
 			await getRefreshToken()
 		}
 		const item = await data.json();
@@ -116,7 +117,7 @@ async function deleteItem(url, header) {
 				"Authorization": `Bearer ${header}`
 			},
 		});
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			await getRefreshToken()
 		}
 		return {
@@ -136,7 +137,7 @@ async function deleteItemById(url, id, header) {
 				"Authorization": `Bearer ${header}`
 			},
 		});
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			await getRefreshToken()
 		}
 		return {
@@ -156,7 +157,7 @@ async function deleteTransfer(url, oldStatusId, newStatusId, header) {
 				"Authorization": `Bearer ${header}`
 			},
 		});
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			await getRefreshToken()
 		}
 		return {
@@ -180,7 +181,7 @@ async function addItem(url, newItem, header) {
 				...newItem,
 			}),
 		});
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			await getRefreshToken()
 		}
 		const result = await response.json();
@@ -203,7 +204,7 @@ async function editItem(url, data, header) {
 		},
 		body: JSON.stringify(data),
 	});
-	if (response.status === 401 || response.status === 403) {
+	if (response.status === 401) {
 		await getRefreshToken()
 	}
 	if (!response.ok) {
@@ -222,7 +223,7 @@ async function editTask(url, data, header) {
 			},
 			body: JSON.stringify(data),
 		});
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			await getRefreshToken()
 		}
 		const result = await response.json();
@@ -250,7 +251,7 @@ async function updateBoardVisibility(url, visibility, header) {
 			},
 			body: JSON.stringify({ visibility }),
 		});
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			await getRefreshToken()
 		}
 		const updatedBoard = await response.json();
@@ -277,4 +278,5 @@ export {
 	editTask,
 	getItemsRes,
 	updateBoardVisibility,
+	getRefreshToken,
 };
