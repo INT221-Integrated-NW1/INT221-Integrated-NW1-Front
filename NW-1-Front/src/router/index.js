@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { getItemsRes } from "@/libs/fetchUtils";
+import { getItemsRes, getRefreshToken } from "@/libs/fetchUtils";
 import { useLoginStore } from "@/stores/loginStore";
 
 const history = createWebHistory(import.meta.env.BASE_URL);
@@ -196,6 +196,9 @@ router.beforeEach(async (to, from, next) => {
 		const { isOwner, isPublic, accessRight, status } = await checkBoardAccess(to.params.id);
 		// Check if user has access
 		if (isOwner || isPublic || accessRight) {
+			return next();
+		} else if (status === 401) {
+			getRefreshToken()
 			return next();
 		} else if (status === 403) {
 			return next({ name: "AccessDenied" });

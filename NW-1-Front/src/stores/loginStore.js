@@ -7,18 +7,21 @@ export const useLoginStore = defineStore("loginStore", () => {
 	const refreshToken = ref(null);
 	const name = ref("");
 	const oid = ref(null);
+	const email = ref("");
 
 	const login = (newToken) => {
 		token.value = newToken.access_token;
 		refreshToken.value = newToken.refresh_token;
 		name.value = newToken.name;
 		oid.value = newToken.oid;
+		email.value = newToken.email;
 		const expirationDate = new Date(newToken.exp * 1000);
 		const expire = expirationDate.toUTCString();
 		const refreshTokenExpiry = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
 		// Set cookies
 		document.cookie = `name =${newToken.name}; expires=${expire}; path=/;`;
 		document.cookie = `oid=${newToken.oid}; expires=${expire}; path=/;`;
+		document.cookie = `email=${newToken.email}; expires=${expire}; path=/;`;
 		document.cookie = `token=${newToken.access_token}; expires=${expire}; path=/;`;
 		document.cookie = `refresh_token=${newToken.refresh_token}; expires=${refreshTokenExpiry}; path=/;`;
 	};
@@ -45,9 +48,11 @@ export const useLoginStore = defineStore("loginStore", () => {
 		return getCookie("token")
 	}
 
-	const getRefreshToken = () => {
-		if (!refreshToken.value) refreshToken.value = getCookie("refresh_token");
-		return refreshToken.value;
+	const getUserEmail = () => {
+		if (!email.value) {
+			email.value = getCookie("email");
+		}
+		return email.value;
 	};
 
 	const getUserId = () => {
@@ -70,10 +75,10 @@ export const useLoginStore = defineStore("loginStore", () => {
 		refreshToken.value = null;
 		name.value = "";
 		oid.value = null;
-		["name", "oid", "token", "refresh_token"].forEach((key) => {
+		["name", "oid", "email", "token", "refresh_token"].forEach((key) => {
 			document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 		});
-		router.push({name: "Login"})
+		router.push({ name: "Login" })
 	};
 
 	return {
@@ -81,7 +86,7 @@ export const useLoginStore = defineStore("loginStore", () => {
 		logout,
 		getName,
 		getToken,
-		getRefreshToken,
+		getUserEmail,
 		getUserId,
 		setToken,
 		isAuthenticated,

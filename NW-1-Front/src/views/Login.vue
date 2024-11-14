@@ -44,6 +44,7 @@ const login = async () => {
                 name: decodedToken.name,
                 oid: decodedToken.oid,
                 exp: decodedToken.exp,
+                email: decodedToken.email
             });
             router.push({ name: 'Board' });
         } else {
