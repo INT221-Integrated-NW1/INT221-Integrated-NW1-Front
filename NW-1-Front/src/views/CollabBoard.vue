@@ -49,7 +49,6 @@ const addCollab = ref({ email: "", accessRight: "READ" })
 const addCollaborator = async () => {
     try {
         const { addedData, status } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/collabs`, addCollab.value, loginStore.getToken());
-        console.log(addedData);
         if (status === 201) {
             boardStore.addCollaborator(addedData);
             notiStore.setShowNotification(true)
@@ -252,7 +251,7 @@ onMounted(() => {
                                         board.collaboratorEmail }}</td>
                                     <td class="itbkk-access-right text-center px-6 py-4">
                                         <select :value="board.accessRight" :disabled="!hasPermission"
-                                            @change="openModal('Change Access Right', `Do you want to change access right of '${board.collaboratorName}' to '${$event.target.value}'?`, 'accessRight', board.oid, `${$event.target.value}`)"
+                                            @change="openModal('Change Access Right', `Do you want to change access right of '${board.collaboratorName || board.name}' to '${$event.target.value}'?`, 'accessRight', board.oid, `${$event.target.value}`)"
                                             class="itbkk-select-access-right bg-white border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full disabled:opacity-50 disabled:cursor-not-allowed">
                                             <option value="READ">READ</option>
                                             <option value="WRITE">WRITE</option>
@@ -260,7 +259,7 @@ onMounted(() => {
                                     </td>
                                     <td class="text-center px-6 py-4 flex justify-center">
                                         <button
-                                            @click='openModal("Remove Collaborator", `Do you want to remove "${board.collaboratorName}" from the board?`, "remove", board.oid, null, board.collaboratorName)'
+                                            @click='openModal("Remove Collaborator", `Do you want to remove "${board.collaboratorName || board.name}" from the board?`, "remove", board.oid, null, board.collaboratorName || board.name)'
                                             :disabled="!hasPermission"
                                             class="itbkk-leave-board px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg disabled:opacity-75 disabled:cursor-not-allowed">
                                             Remove

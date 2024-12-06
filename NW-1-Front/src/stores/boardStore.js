@@ -13,7 +13,7 @@ export const useBoardStore = defineStore("boardStore", () => {
 		return boards;
 	};
 	const addBoard = (newBoard) => {
-		boards.value.push(newBoard);
+		boards.value?.push(newBoard);
 	};
 	const addCollaborator = (collaborator) => {
 		boards.value.collab.push(collaborator);
@@ -21,6 +21,14 @@ export const useBoardStore = defineStore("boardStore", () => {
 	const removeCollaborator = (collaboratorId) => {
 		const index = boards.value.collab.findIndex(
 			(collaborator) => collaborator.oid === collaboratorId
+		);
+		if (index !== -1) {
+			boards.value.collab.splice(index, 1);
+		}
+	};
+	const leaveBoard = (collaboratorId) => {
+		const index = boards.value.collab.findIndex(
+			(collaborator) => collaborator.owner.oid === collaboratorId
 		);
 		if (index !== -1) {
 			boards.value.collab.splice(index, 1);
@@ -65,6 +73,7 @@ export const useBoardStore = defineStore("boardStore", () => {
 		findBoards,
 		findIndexBoards,
 		removeBoards,
+		leaveBoard,
 		setBoards,
 	};
 });

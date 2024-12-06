@@ -3,12 +3,13 @@ import { onMounted, ref, watchEffect } from "vue";
 import Notification from "../components/Notification.vue";
 import AddBoard from "../components/AddBoard.vue"
 import Profile from "../components/Profile.vue";
-import { getItemsRes } from "../libs/fetchUtils.js"
+import { deleteItem, getItemsRes } from "../libs/fetchUtils.js"
 import { useRouter, useRoute } from "vue-router";
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
 import { useBoardStore } from '../stores/boardStore.js';
 import 'animate.css';
+import CollabModal from "@/components/CollabModal.vue";
 
 const route = useRoute();
 const router = useRouter()
@@ -16,6 +17,8 @@ const boardStore = useBoardStore();
 const boards = boardStore.getBoards();
 const notiStore = useNotiStore();
 const loginStore = useLoginStore();
+const ownerId = ref(null)
+ownerId.value = loginStore.getUserId()
 
 const getAllBoards = async () => {
     try {
@@ -60,6 +63,43 @@ watchEffect(() => {
         showModal.value = false;
     }
 });
+
+const isLeaveModal = ref(false);
+const modalTitle = ref("");
+const modalMessage = ref("");
+const boardId = ref(null)
+
+const openLeaveModal = (title, message, board) => {
+    modalTitle.value = title;
+    modalMessage.value = message;
+    boardId.value = board;
+    isLeaveModal.value = true
+}
+
+const closeLeaveModal = () => {
+    isLeaveModal.value = false
+}
+
+const leaveBoard = async () => {
+    try {
+        const { response, status } = await deleteItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId.value}/collabs/${ownerId.value}`, loginStore.getToken());
+        boardStore.leaveBoard(ownerId.value)
+        if (status === 200) {
+            boardStore.removeCollaborator(ownerId.value)
+            notiStore.setShowNotification(true)
+            notiStore.setNotificationType("success")
+            notiStore.setNotificationMessage(`Remove "${ownerId.value}" Success`)
+            closeLeaveModal()
+        } else {
+            notiStore.setShowNotification(true)
+            notiStore.setNotificationType("error")
+            notiStore.setNotificationMessage("There is a problem. Please try again later.")
+            closeLeaveModal()
+        }
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+}
 </script>
 
 <template>
@@ -188,6 +228,7 @@ watchEffect(() => {
                                         </td>
                                         <td class="text-center px-6 py-4 flex justify-center">
                                             <button
+                                                @click='openLeaveModal("Leave Board", `Do you want to leave "${board.name} board?"`, board.id)'
                                                 class="itbkk-leave-board px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg">
                                                 Leave
                                             </button>
@@ -207,6 +248,8 @@ watchEffect(() => {
             </div>
         </div>
     </div>
+    <CollabModal :isOpen="isLeaveModal" :title="modalTitle" :message="modalMessage" @close="closeLeaveModal"
+        @confirm="leaveBoard" />
 </template>
 
 <style scoped>
