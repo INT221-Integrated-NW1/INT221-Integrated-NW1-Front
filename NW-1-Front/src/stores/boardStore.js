@@ -18,6 +18,24 @@ export const useBoardStore = defineStore("boardStore", () => {
 	const addCollaborator = (collaborator) => {
 		boards.value.collab.push(collaborator);
 	};
+	const removeCollaborator = (collaboratorId) => {
+		const index = boards.value.collab.findIndex(
+			(collaborator) => collaborator.oid === collaboratorId
+		);
+		if (index !== -1) {
+			boards.value.collab.splice(index, 1);
+		}
+	};
+	const updateAccessRight = (updatedCollaborator) => {
+		const index = boards.value.collab.findIndex(
+			(collaborator) => collaborator.oid === updatedCollaborator.oid
+		);
+		if (index !== -1) {
+			boards.value.collab[index].accessRight = updatedCollaborator.accessRight;
+		} else {
+			console.error("Collaborator not found!");
+		}
+	};
 	const resetBoards = () => {
 		boards.value = [];
 	};
@@ -37,25 +55,17 @@ export const useBoardStore = defineStore("boardStore", () => {
 		boards.value.personal = newBoards.personal || [];
 		boards.value.collab = newBoards.collab || [];
 	};
-	const editBoard = (newBoard) => {
-		boards.value.forEach((board) => {
-			if (board.id === newBoard.id) {
-				board.title = newBoard.title;
-				board.assignees = newBoard.assignees;
-				board.status = newBoard.status;
-			}
-		});
-	};
 	return {
 		getBoards,
 		addBoard,
 		addCollaborator,
+		removeCollaborator,
+		updateAccessRight,
 		resetBoards,
 		findBoards,
 		findIndexBoards,
 		removeBoards,
 		setBoards,
-		editBoard,
 	};
 });
 if (import.meta.hot) {

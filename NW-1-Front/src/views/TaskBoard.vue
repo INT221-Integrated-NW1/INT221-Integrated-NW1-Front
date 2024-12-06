@@ -237,7 +237,8 @@ const confirmChange = async () => {
     <div class="flex justify-center">
       <div class="max-h-screen flex justify-center">
         <div class="flex items-start pt-8">
-          <button @click="router.push({ name: 'AddBoardTask' })" class="itbkk-button-add disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">
+          <button @click="router.push({ name: 'AddBoardTask' })"
+            class="itbkk-button-add disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!hasPermission">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
               class="w-[3rem] h-[3rem] rounded-md bg-[#c5daff] fill-[#00215E] hover:scale-125 duration-150">
               <path
@@ -255,7 +256,8 @@ const confirmChange = async () => {
               </RouterLink>
               <RouterLink :to="{ name: 'CollabBoard' }">
                 <button
-                  class="itbkk-manage-status bg-[#af7eff] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#a167ff] hover:text-[#f0f0f0]">Manage Collaborator</button>
+                  class="itbkk-manage-status bg-[#af7eff] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#a167ff] hover:text-[#f0f0f0] disabled:opacity-70 disabled:cursor-not-allowed"
+                  :disabled="!hasPermission">Manage Collaborator</button>
               </RouterLink>
             </div>
             <div class="flex gap-3">
@@ -353,7 +355,8 @@ const confirmChange = async () => {
               </RouterLink>
               <RouterLink :to="{ name: 'CollabBoard' }">
                 <button
-                  class="itbkk-manage-status bg-[#af7eff] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#a167ff] hover:text-[#f0f0f0] disabled:opacity-70 disabled:cursor-not-allowed" :disabled="!hasPermission">Manage Collaborator</button>
+                  class="itbkk-manage-status bg-[#af7eff] px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-150 text-white hover:bg-[#a167ff] hover:text-[#f0f0f0] disabled:opacity-70 disabled:cursor-not-allowed"
+                  :disabled="!hasPermission">Manage Collaborator</button>
               </RouterLink>
             </div>
             <div class="flex gap-3">
