@@ -3,7 +3,7 @@ import { onMounted, ref, watchEffect } from "vue";
 import Notification from "../components/Notification.vue";
 import AddBoard from "../components/AddBoard.vue"
 import Profile from "../components/Profile.vue";
-import { getItems } from "../libs/fetchUtils.js"
+import { getItemsRes } from "../libs/fetchUtils.js"
 import { useRouter, useRoute } from "vue-router";
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
@@ -19,7 +19,7 @@ const loginStore = useLoginStore();
 
 const getAllBoards = async () => {
     try {
-        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards`, loginStore.getToken());
+        const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards`, loginStore.getToken());
         const personalBoards = (data.personal_BOARD || []).sort((a, b) => new Date(a.created_on) - new Date(b.created_on));
         const collabBoards = (data.collaborate_BOARD || []).sort((a, b) => new Date(a.addedOn) - new Date(b.addedOn));
         boardStore.setBoards({
@@ -28,6 +28,9 @@ const getAllBoards = async () => {
         });
         if (personalBoards.length === 1 && collabBoards.length === 0) {
             router.push({ name: 'TaskBoard', params: { id: personalBoards[0].id } });
+        }
+        if (status === 401) {
+            await getAllBoards()
         }
     } catch (error) {
         console.error('Failed to fetch status:', error);
@@ -163,8 +166,7 @@ watchEffect(() => {
             <div class="flex justify-center">
                 <div class="max-h-screen flex justify-center">
                     <div class="w-full max-w-screen-lg">
-                        <div
-                            class="relative max-h-[15.5em] bg-[#7c88f8] overflow-x-hidden shadow-md sm:rounded-lg">
+                        <div class="relative max-h-[15.5em] bg-[#7c88f8] overflow-x-hidden shadow-md sm:rounded-lg">
                             <table class="w-full text-sm text-left rtl:text-right table-fixed">
                                 <thead class="text-md uppercase bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                                     <tr class="text-black">

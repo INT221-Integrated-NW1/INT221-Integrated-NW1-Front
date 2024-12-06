@@ -1,4 +1,5 @@
 import router from "@/router";
+import { useLoginStore } from "@/stores/loginStore";
 
 function getCookie(name) {
 	const value = `; ${document.cookie}`;
@@ -7,24 +8,19 @@ function getCookie(name) {
 	return null;
 }
 
-function parseJwt(token) {
-	try {
-		const base64Url = token.split('.')[1];
-		const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-		const jsonPayload = decodeURIComponent(
-			atob(base64)
-				.split('')
-				.map(c => `%${c.charCodeAt(0).toString(16).padStart(2, '0')}`)
-				.join('')
-		);
-		return JSON.parse(jsonPayload);
-	} catch (error) {
-		console.error("Invalid token:", error);
-		return null;
-	}
-}
+const decodeJWT = (token) => {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+        atob(base64).split('').map((c) =>
+            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+        ).join('')
+    );
+    return JSON.parse(jsonPayload);
+};
 
 async function getRefreshToken() {
+	const loginStore = useLoginStore();
 	try {
 		const refreshToken = getCookie("refresh_token");
 		if (!refreshToken) throw new Error("No refresh token found");
@@ -37,11 +33,15 @@ async function getRefreshToken() {
 		});
 
 		if (!response.ok) throw new Error("Failed to refresh token");
-		const token = await response.json();
-		const { exp } = parseJwt(token.access_token)
-		const expireDate = new Date(exp * 1000);
-		const expire = expireDate.toUTCString();
-		document.cookie = `token=${token.access_token}; expires=${expire}; path=/;`;
+		const { access_token } = await response.json();
+		const decodedToken = decodeJWT(access_token)
+		loginStore.refreshTokenLogin({
+			access_token,
+			name: decodedToken.name,
+			oid: decodedToken.oid,
+			exp: decodedToken.exp,
+			email: decodedToken.email
+		});
 	} catch (error) {
 		console.log(`Error refreshing token: ${error.message}`);
 		router.push({ name: "Login" })
@@ -56,6 +56,7 @@ async function getItemsRes(url, header) {
 			},
 		});
 		if (response.status === 401) {
+			console.log("Get New Access Token");
 			await getRefreshToken()
 		}
 		const result = await response.json();
@@ -78,7 +79,6 @@ async function getItems(url, header) {
 		if (response.status === 401) {
 			console.log("Get New Access Token");
 			await getRefreshToken()
-			// router.push({ name: "Login" })
 		}
 		const items = await response.json();
 		return items;
@@ -118,6 +118,7 @@ async function deleteItem(url, header) {
 			},
 		});
 		if (response.status === 401) {
+			console.log("Get New Access Token");
 			await getRefreshToken()
 		}
 		return {
@@ -138,6 +139,7 @@ async function deleteItemById(url, id, header) {
 			},
 		});
 		if (response.status === 401) {
+			console.log("Get New Access Token");
 			await getRefreshToken()
 		}
 		return {
@@ -158,6 +160,7 @@ async function deleteTransfer(url, oldStatusId, newStatusId, header) {
 			},
 		});
 		if (response.status === 401) {
+			console.log("Get New Access Token");
 			await getRefreshToken()
 		}
 		return {
@@ -182,6 +185,7 @@ async function addItem(url, newItem, header) {
 			}),
 		});
 		if (response.status === 401) {
+			console.log("Get New Access Token");
 			await getRefreshToken()
 		}
 		const result = await response.json();
@@ -205,6 +209,7 @@ async function editItem(url, data, header) {
 		body: JSON.stringify(data),
 	});
 	if (response.status === 401) {
+		console.log("Get New Access Token");
 		await getRefreshToken()
 	}
 	if (!response.ok) {
@@ -224,6 +229,7 @@ async function editTask(url, data, header) {
 			body: JSON.stringify(data),
 		});
 		if (response.status === 401) {
+			console.log("Get New Access Token");
 			await getRefreshToken()
 		}
 		const result = await response.json();
@@ -252,12 +258,40 @@ async function updateBoardVisibility(url, visibility, header) {
 			body: JSON.stringify({ visibility }),
 		});
 		if (response.status === 401) {
+			console.log("Get New Access Token");
 			await getRefreshToken()
 		}
 		const updatedBoard = await response.json();
 		return {
 			status: response.status,
 			data: updatedBoard,
+		};
+	} catch (error) {
+		return {
+			status: "error",
+			message: error.message,
+		};
+	}
+}
+
+async function updateAccessRight(url, accessRight, header) {
+	try {
+		const response = await fetch(url, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${header}`
+			},
+			body: JSON.stringify({ accessRight }),
+		});
+		if (response.status === 401) {
+			console.log("Get New Access Token");
+			await getRefreshToken()
+		}
+		const updateAccessRight = await response.json();
+		return {
+			status: response.status,
+			data: updateAccessRight,
 		};
 	} catch (error) {
 		return {
@@ -278,5 +312,6 @@ export {
 	editTask,
 	getItemsRes,
 	updateBoardVisibility,
+	updateAccessRight,
 	getRefreshToken,
 };

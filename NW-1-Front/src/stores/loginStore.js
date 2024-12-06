@@ -26,6 +26,20 @@ export const useLoginStore = defineStore("loginStore", () => {
 		document.cookie = `refresh_token=${newToken.refresh_token}; expires=${refreshTokenExpiry}; path=/;`;
 	};
 
+	const refreshTokenLogin = (accessToken) => {
+		token.value = accessToken.access_token;
+		name.value = accessToken.name;
+		oid.value = accessToken.oid;
+		email.value = accessToken.email;
+		const expirationDate = new Date(accessToken.exp * 1000);
+		const expire = expirationDate.toUTCString();
+		// Set cookies
+		document.cookie = `name =${accessToken.name}; expires=${expire}; path=/;`;
+		document.cookie = `oid=${accessToken.oid}; expires=${expire}; path=/;`;
+		document.cookie = `email=${accessToken.email}; expires=${expire}; path=/;`;
+		document.cookie = `token=${accessToken.access_token}; expires=${expire}; path=/;`;
+	};
+
 	const getCookie = (cookieName) => {
 		const nameEQ = cookieName + "=";
 		const cookies = document.cookie.split(";");
@@ -83,6 +97,7 @@ export const useLoginStore = defineStore("loginStore", () => {
 
 	return {
 		login,
+		refreshTokenLogin,
 		logout,
 		getName,
 		getToken,
