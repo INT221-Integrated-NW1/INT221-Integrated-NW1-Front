@@ -27,12 +27,7 @@ export const useBoardStore = defineStore("boardStore", () => {
 		}
 	};
 	const leaveBoard = (collaboratorId) => {
-		const index = boards.value.collab.findIndex(
-			(collaborator) => collaborator.owner.oid === collaboratorId
-		);
-		if (index !== -1) {
-			boards.value.collab.splice(index, 1);
-		}
+		boards.value.collab = boards.value.collab.filter(board => board.id !== collaboratorId);
 	};
 	const updateAccessRight = (updatedCollaborator) => {
 		const index = boards.value.collab.findIndex(
