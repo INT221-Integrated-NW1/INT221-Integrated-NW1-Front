@@ -184,11 +184,13 @@ onBeforeMount(() => {
 });
 
 const boardOwnerId = ref(null);
+const boardOwnerName = ref("")
 const getBoardId = async () => {
     try {
         const id = route.params.id;
         const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
         boards.value = data;
+        boardOwnerName.value = data.user.username
         boardOwnerId.value = data.user.oid
     } catch (error) {
         console.error('Failed to fetch status:', error);
@@ -208,7 +210,7 @@ const hasPermission = computed(() => {
     <header class="pt-8 pb-8 flex justify-center">
         <h1
             class="mb-4 text-center font-extrabold leading-none tracking-tight text-[rgb(51,56,145)] sm:text-3xl md:text-4xl lg:text-5xl dark:text-white">
-            {{ loginStore.getName() }} <span class="text-gray-900 dark:text-white"> Personal Board</span></h1>
+            {{ boardOwnerName }} <span class="text-gray-900 dark:text-white"> Personal Board</span></h1>
     </header>
     <div class="flex justify-center w-auto">
         <Notification :message="notiStore.notificationMessage" v-if="notiStore.showNotification" />

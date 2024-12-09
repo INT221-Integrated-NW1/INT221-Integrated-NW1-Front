@@ -67,12 +67,14 @@ watchEffect(() => {
 const isLeaveModal = ref(false);
 const modalTitle = ref("");
 const modalMessage = ref("");
+const removeBoardName = ref("");
 const boardId = ref(null)
 
-const openLeaveModal = (title, message, board) => {
+const openLeaveModal = (title, message, board, boardName) => {
     modalTitle.value = title;
     modalMessage.value = message;
     boardId.value = board;
+    removeBoardName.value = boardName
     isLeaveModal.value = true
 }
 
@@ -83,13 +85,16 @@ const closeLeaveModal = () => {
 const leaveBoard = async () => {
     try {
         const { response, status } = await deleteItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId.value}/collabs/${ownerId.value}`, loginStore.getToken());
-        boardStore.leaveBoard(ownerId.value)
         if (status === 200) {
-            boardStore.removeCollaborator(ownerId.value)
+            boardStore.leaveBoard(boardId.value)
             notiStore.setShowNotification(true)
             notiStore.setNotificationType("success")
-            notiStore.setNotificationMessage(`Remove "${ownerId.value}" Success`)
+            notiStore.setNotificationMessage(`Remove "${removeBoardName.value}" Success`)
             closeLeaveModal()
+        } else if (status === 401) {
+            notiStore.setShowNotification(true)
+            notiStore.setNotificationType("error")
+            notiStore.setNotificationMessage("Refreshing the token.")
         } else {
             notiStore.setShowNotification(true)
             notiStore.setNotificationType("error")
@@ -228,7 +233,7 @@ const leaveBoard = async () => {
                                         </td>
                                         <td class="text-center px-6 py-4 flex justify-center">
                                             <button
-                                                @click='openLeaveModal("Leave Board", `Do you want to leave "${board.name} board?"`, board.id)'
+                                                @click='openLeaveModal("Leave Board", `Do you want to leave "${board.name} board?"`, board.id, board.name)'
                                                 class="itbkk-leave-board px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg">
                                                 Leave
                                             </button>
