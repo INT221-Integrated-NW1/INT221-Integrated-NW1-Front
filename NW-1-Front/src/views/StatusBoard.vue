@@ -245,8 +245,8 @@ const hasPermission = computed(() => {
                     </RouterLink>
                 </div>
                 <div>
-                    <button @click="router.push({ name: 'AddBoardStatus' })"
-                        class="itbkk-button-add bg-green-400 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-white hover:bg-green-500 hover:text-[#f0f0f0] focus:ring-4 focus:outline-none focus:ring-green-300">Add
+                    <button @click="router.push({ name: 'AddBoardStatus' })" :disabled="!hasPermission"
+                        class="itbkk-button-add bg-green-400 px-6 py-2 rounded-lg text-lg font-bold hover:scale-110 duration-200 text-white hover:bg-green-500 hover:text-[#f0f0f0] focus:ring-4 focus:outline-none focus:ring-green-300 disabled:opacity-75 disabled:cursor-not-allowed">Add
                         Status</button>
                 </div>
             </div>
@@ -275,11 +275,11 @@ const hasPermission = computed(() => {
                                 <span v-else>{{ status.description }}</span>
                             </td>
                             <td class="px-6 py-4" v-if="status.name !== 'Done'">
-                                <button @click="editStatus(status)"
-                                    class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                <button @click="editStatus(status)" :disabled="!hasPermission"
+                                    class="itbkk-button-edit px-5 py-2.5 sm:mb-2 lg:mb-0 mr-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed">
                                     Edit</button>
-                                <button @click="checkStatusUsage(status.id)"
-                                    class="itbkk-button-delete px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                                <button @click="checkStatusUsage(status.id)" :disabled="!hasPermission"
+                                    class="itbkk-button-delete px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 disabled:opacity-50 disabled:cursor-not-allowed">
                                     Delete</button>
                             </td>
                             <td class="px-6 py-4" v-else>
