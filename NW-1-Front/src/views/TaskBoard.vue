@@ -3,7 +3,7 @@ import { onMounted, onBeforeMount, ref, watch, computed } from "vue";
 import Notification from "../components/Notification.vue";
 import Profile from "../components/Profile.vue";
 import VisibilityModal from "@/components/VisibilityModal.vue";
-import { getItems, deleteItem, updateBoardVisibility } from "../libs/fetchUtils.js"
+import { getItems, getItemsRes, deleteItem, updateBoardVisibility } from "../libs/fetchUtils.js"
 import { useRouter, RouterView, useRoute } from "vue-router";
 import { useTaskStore } from '../stores/taskStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
@@ -28,10 +28,6 @@ const id = route.params.id;
 const selectedStatuses = ref([]);
 const boardOwnerId = ref(null);
 
-const hasPermission = computed(() => {
-  return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
-});
-
 const getBoardId = async () => {
   try {
     const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
@@ -45,8 +41,30 @@ const getBoardId = async () => {
   }
 };
 
+const haveWriteAccess = ref("")
+const getCollaborateBoards = async () => {
+  try {
+    const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/collabs`, loginStore.getToken());
+    if (data) {
+      const currentUserCollaborations = data.filter(
+        (collaborator) => collaborator.oid === loginStore.getUserId()
+      );
+      haveWriteAccess.value = currentUserCollaborations.some(
+        (collaboration) => collaboration.accessRight === "WRITE"
+      );
+    }
+  } catch (error) {
+    console.error('Failed to fetch status:', error);
+  }
+};
+
 onMounted(() => {
   getBoardId();
+  getCollaborateBoards()
+});
+
+const hasPermission = computed(() => {
+  return loginStore.getUserId() === boardOwnerId.value || haveWriteAccess.value;
 });
 
 const getAllTasks = async (id) => {

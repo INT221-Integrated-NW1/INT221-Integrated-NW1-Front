@@ -2,7 +2,7 @@
 import { ref, onBeforeMount, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTaskStore } from '../stores/taskStore.js';
-import { getItems, editTask } from '../libs/fetchUtils.js';
+import { getItems, getItemsRes, editTask } from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useStatusStore } from '../stores/statusStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
@@ -115,21 +115,41 @@ const isFormValid = () => {
 
 const boardOwnerId = ref(null);
 const getBoardId = async () => {
-  try {
-    const id = route.params.id
-    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
-    boards.value = data;
-    boardOwnerId.value = data.user.oid
-  } catch (error) {
-    console.error('Failed to fetch status:', error);
-  }
+    try {
+        const id = route.params.id
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
+        boards.value = data;
+        boardOwnerId.value = data.user.oid
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
 };
+
+const haveWriteAccess = ref("")
+const getCollaborateBoards = async () => {
+    try {
+        const id = route.params.id
+        const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/collabs`, loginStore.getToken());
+        if (data) {
+            const currentUserCollaborations = data.filter(
+                (collaborator) => collaborator.oid === loginStore.getUserId()
+            );
+            haveWriteAccess.value = currentUserCollaborations.some(
+                (collaboration) => collaboration.accessRight === "WRITE"
+            );
+        }
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+};
+
 onMounted(() => {
-  getBoardId();
+    getBoardId();
+    getCollaborateBoards()
 });
 
 const hasPermission = computed(() => {
-    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
+    return loginStore.getUserId() === boardOwnerId.value || haveWriteAccess.value;
 });
 </script>
 
@@ -179,7 +199,8 @@ const hasPermission = computed(() => {
                 <form class="my-4 flex">
                     <div class="w-[39em]">
                         <label for="description" class="block">Description</label>
-                        <textarea v-if="!tasksId.description" v-model.trim="tasksId.description" id="description" maxlength="500" rows="5"
+                        <textarea v-if="!tasksId.description" v-model.trim="tasksId.description" id="description"
+                            maxlength="500" rows="5"
                             class="itbkk-description text-gray-500 italic p-2 mt-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-[3px] border-gray-300 rounded-md">No Description Provided</textarea>
                         <textarea v-else v-model.trim="tasksId.description" id="description" maxlength="500" rows="5"
                             class="itbkk-description p-2 mt-1 text-[#BFF1FF] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-[3px] border-gray-300 rounded-md"></textarea>
@@ -187,7 +208,8 @@ const hasPermission = computed(() => {
                 </form>
             </div>
             <div class="flex justify-end items-center gap-2 mr-4">
-                <p v-if="!hasPermission" class="text-red-400 text-[20px]">You need to be board owner to perform this action.</p>
+                <p v-if="!hasPermission" class="text-red-400 text-[20px]">You need to be board owner to perform this
+                    action.</p>
                 <button @click="saveTask" :disabled="!isFormValid() || !hasPermission"
                     class="bg-[#4CAF50] hover:bg-[#43A047] text-white py-2 px-4 rounded-lg shadow disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed">Save</button>
                 <RouterLink :to="{ name: 'TaskBoard' }">
