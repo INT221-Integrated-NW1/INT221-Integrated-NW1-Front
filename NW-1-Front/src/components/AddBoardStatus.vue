@@ -1,7 +1,7 @@
 <script setup>
 import { onBeforeMount, ref, onMounted, computed } from "vue";
 import { getItems } from "../libs/fetchUtils.js"
-import { addItem } from '../libs/fetchUtils.js';
+import { addItem, getItemsRes } from '../libs/fetchUtils.js';
 import { useRouter, useRoute } from "vue-router";
 import { useStatusStore } from '../stores/statusStore.js';
 import { useNotiStore } from '../stores/notificationStore.js';
@@ -67,26 +67,45 @@ const isFormValid = () => {
     return addStatus.value.name.trim() === "" || addStatus.value.description.trim() === ""
 }
 
+const boardOwnerId = ref(null);
+const getBoardId = async () => {
+    try {
+        const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
+        boards.value = data;
+        boardOwnerId.value = data.user.oid
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+};
+
+const haveWriteAccess = ref("")
+const getCollaborateBoards = async () => {
+    try {
+        const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/collabs`, loginStore.getToken());
+        if (data) {
+            const currentUserCollaborations = data.filter(
+                (collaborator) => collaborator.oid === loginStore.getUserId()
+            );
+            haveWriteAccess.value = currentUserCollaborations.some(
+                (collaboration) => collaboration.accessRight === "WRITE"
+            );
+        }
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+};
+
 onBeforeMount(() => {
     getAllStatus(id);
 });
 
-const boardOwnerId = ref(null);
-const getBoardId = async () => {
-  try {
-    const data = await getItems(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}`, loginStore.getToken());
-    boards.value = data;
-    boardOwnerId.value = data.user.oid
-  } catch (error) {
-    console.error('Failed to fetch status:', error);
-  }
-};
 onMounted(() => {
-  getBoardId();
+    getBoardId();
+    getCollaborateBoards()
 });
 
 const hasPermission = computed(() => {
-    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
+    return loginStore.getUserId() === boardOwnerId.value || haveWriteAccess.value;
 });
 </script>
 
@@ -142,7 +161,8 @@ const hasPermission = computed(() => {
                             </svg>
                             Add new status
                         </button>
-                        <p v-if="!hasPermission" class="text-red-400 text-[14px]">You need to be board owner to perform this action.</p>
+                        <p v-if="!hasPermission" class="text-red-400 text-[14px]">You need to be board owner to perform
+                            this action.</p>
                     </div>
                 </form>
             </div>

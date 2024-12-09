@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onBeforeMount, computed, onMounted } from 'vue';
-import { getItems } from "../libs/fetchUtils.js"
+import { getItems, getItemsRes } from "../libs/fetchUtils.js"
 import { useRoute, useRouter } from 'vue-router';
 import { editItem } from '../libs/fetchUtils.js';
 import { useNotiStore } from '../stores/notificationStore.js';
@@ -80,12 +80,32 @@ const getBoardId = async () => {
         console.error('Failed to fetch status:', error);
     }
 };
+
+const haveWriteAccess = ref("")
+const getCollaborateBoards = async () => {
+    try {
+        const id = route.params.id
+        const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/collabs`, loginStore.getToken());
+        if (data) {
+            const currentUserCollaborations = data.filter(
+                (collaborator) => collaborator.oid === loginStore.getUserId()
+            );
+            haveWriteAccess.value = currentUserCollaborations.some(
+                (collaboration) => collaboration.accessRight === "WRITE"
+            );
+        }
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+};
+
 onMounted(() => {
     getBoardId();
+    getCollaborateBoards()
 });
 
 const hasPermission = computed(() => {
-    return loginStore.getUserId() === boardOwnerId.value; // เช็คว่าผู้ใช้เป็นเจ้าของหรือไม่
+    return loginStore.getUserId() === boardOwnerId.value || haveWriteAccess.value;
 });
 </script>
 

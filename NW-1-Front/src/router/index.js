@@ -136,7 +136,7 @@ const routes = [
 				beforeEnter: async (to, from, next) => {
 					const { id: boardId } = to.params;
 					const { isOwner, writeAccess } = await checkBoardAccess(boardId);
-					if (!isOwner || !writeAccess) {
+					if (!isOwner && !writeAccess) {
 						next({ name: "AccessDenied" });
 					} else {
 						next();
@@ -231,8 +231,6 @@ const checkBoardAccess = async (boardId) => {
 			`${import.meta.env.VITE_BASE_URL}/v3/boards/info/${boardId}`,
 			loginStore.getToken()
 		);
-		console.log(data);
-		console.log(status);
 		if (status === 200) {
 			let isOwner = false;
 			let isPublic = false;
@@ -264,7 +262,7 @@ const checkBoardAccess = async (boardId) => {
 		}
 	} catch (error) {
 		console.error("Error in checkBoardAccess:", error);
-		return { isOwner: false, isPublic: false, readAccess: false, writeAccess: false, status: 500 };
+		return { isOwner: false, isPublic: false, readAccess: false, writeAccess: false, status: 403 };
 	}
 };
 
