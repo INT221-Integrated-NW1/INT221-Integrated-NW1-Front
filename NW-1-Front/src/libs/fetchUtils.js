@@ -1,4 +1,3 @@
-import router from "@/router";
 import { useLoginStore } from "@/stores/loginStore";
 
 function getCookie(name) {
@@ -44,7 +43,6 @@ async function getRefreshToken() {
 		});
 	} catch (error) {
 		console.log(`Error refreshing token: ${error.message}`);
-		router.push({ name: "Login" })
 	}
 }
 
