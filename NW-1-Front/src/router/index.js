@@ -27,16 +27,16 @@ const routes = [
 		component: () => import("../views/TaskBoard.vue"),
 		beforeEnter: async (to, from, next) => {
 			const { id: boardId } = to.params;
-			const { isOwner, isPublic, accessRight, status } = await checkBoardAccess(boardId);
-			if (isOwner || isPublic || accessRight) {
-				next();
+			const { isOwner, isPublic, readAccess, writeAccess, status } = await checkBoardAccess(boardId);
+			if (isOwner || isPublic || readAccess || writeAccess) {
+				return next();
 			}
 			else if (status === 403) {
-				next({ name: "AccessDenied" });
+				return next({ name: "AccessDenied" });
 			}
 			else {
 				console.error(`Error status: ${status}`);
-				next({ name: "Login" });
+				return next({ name: "Login" });
 			}
 		},
 		children: [
@@ -46,8 +46,8 @@ const routes = [
 				component: () => import("../components/AddBoardTask.vue"),
 				beforeEnter: async (to, from, next) => {
 					const { id: boardId } = to.params;
-					const { isOwner, isPublic } = await checkBoardAccess(boardId);
-					if (!isOwner && isPublic) {
+					const { isOwner, writeAccess } = await checkBoardAccess(boardId);
+					if (!isOwner && !writeAccess) {
 						next({ name: "AccessDenied" });
 					} else {
 						next();
@@ -84,10 +84,8 @@ const routes = [
 					const loginStore = useLoginStore();
 					const taskId = parseInt(to.params.task);
 					const boardId = to.params.id;
-
-					// Check board access
-					const { isOwner, isPublic } = await checkBoardAccess(boardId);
-					if (!isOwner && isPublic) {
+					const { isOwner, writeAccess } = await checkBoardAccess(boardId);
+					if (!isOwner && !writeAccess) {
 						next({ name: "AccessDenied" });
 						return;
 					}
@@ -120,8 +118,8 @@ const routes = [
 		component: () => import("../views/StatusBoard.vue"),
 		beforeEnter: async (to, from, next) => {
 			const { id: boardId } = to.params;
-			const { isOwner, isPublic, accessRight, status } = await checkBoardAccess(boardId);
-			if (isOwner || isPublic || accessRight) {
+			const { isOwner, isPublic, readAccess, writeAccess, status } = await checkBoardAccess(boardId);
+			if (isOwner || isPublic || readAccess || writeAccess) {
 				next();
 			} else if (status === 403) {
 				next({ name: "AccessDenied" });
@@ -134,7 +132,16 @@ const routes = [
 			{
 				path: '/board/:id/status/add',
 				name: 'AddBoardStatus',
-				component: () => import("../components/AddBoardStatus.vue")
+				component: () => import("../components/AddBoardStatus.vue"),
+				beforeEnter: async (to, from, next) => {
+					const { id: boardId } = to.params;
+					const { isOwner, writeAccess } = await checkBoardAccess(boardId);
+					if (!isOwner || !writeAccess) {
+						next({ name: "AccessDenied" });
+					} else {
+						next();
+					}
+				},
 			},
 			{
 				path: '/board/:id/status/:status-id/edit',
@@ -142,9 +149,14 @@ const routes = [
 				component: () => import("../components/EditBoardStatus.vue"),
 				beforeEnter: async (to, from, next) => {
 					const loginStore = useLoginStore();
-					const id = to.params.id;
+					const boardId = to.params.id;
 					const statusId = to.params.status
-					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses/${statusId}`, loginStore.getToken());
+					const { isOwner, writeAccess } = await checkBoardAccess(boardId);
+					if (!isOwner && !writeAccess) {
+						next({ name: "AccessDenied" });
+						return;
+					}
+					const { status, data } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/statuses/${statusId}`, loginStore.getToken());
 					if (status === 200) {
 						next();
 					}
@@ -155,7 +167,6 @@ const routes = [
 					else {
 						window.alert("The requested status does not exist");
 						next(router.go(-1));
-						console.log(`The requested status Id: ${id} does not exist`);
 					}
 				},
 			},
@@ -193,9 +204,9 @@ router.beforeEach(async (to, from, next) => {
 		return next();
 	}
 	if (to.params.id) {
-		const { isOwner, isPublic, accessRight, status } = await checkBoardAccess(to.params.id);
+		const { isOwner, isPublic, readAccess, writeAccess, status } = await checkBoardAccess(to.params.id);
 		// Check if user has access
-		if (isOwner || isPublic || accessRight) {
+		if (isOwner || isPublic || readAccess || writeAccess) {
 			return next();
 		} else if (status === 401) {
 			getRefreshToken()
@@ -216,41 +227,44 @@ router.beforeEach(async (to, from, next) => {
 const checkBoardAccess = async (boardId) => {
 	try {
 		const loginStore = useLoginStore();
-		const response = await getItemsRes(
-			`${import.meta.env.VITE_BASE_URL}/v3/boards`,
+		const { status, data } = await getItemsRes(
+			`${import.meta.env.VITE_BASE_URL}/v3/boards/info/${boardId}`,
 			loginStore.getToken()
 		);
-		if (!response || !response.status) {
-			throw new Error("Failed to fetch board data.");
-		}
-		const { status, data } = response;
+		console.log(data);
+		console.log(status);
 		if (status === 200) {
 			let isOwner = false;
 			let isPublic = false;
-			let accessRight = null;
+			let readAccess = false;
+			let writeAccess = false;
 
-			const personalBoard = data.personal_BOARD.find(
-				(board) => board.id === boardId
-			);
+			const personalBoard = data
 			if (personalBoard) {
 				isOwner = personalBoard.user.oid === loginStore.getUserId();
 				isPublic = personalBoard.visibility === "PUBLIC";
-			} else {
-				const collaborateBoard = data.collaborate_BOARD.find(
-					(board) => board.id === boardId
+			}
+
+			if (data.collaborators) {
+				const currentUserCollaboration = data.collaborators.find(
+					(collaborator) => collaborator.oid === loginStore.getUserId()
 				);
-				if (collaborateBoard) {
-					accessRight = collaborateBoard.accessRight;
-					isPublic = collaborateBoard.visibility === "PUBLIC";
+
+				if (currentUserCollaboration) {
+					if (currentUserCollaboration.accessRight === "READ") {
+						readAccess = true;
+					} else if (currentUserCollaboration.accessRight === "WRITE") {
+						writeAccess = true;
+					}
 				}
 			}
-			return { isOwner, isPublic, accessRight, status };
+			return { isOwner, isPublic, readAccess, writeAccess, status };
 		} else {
-			return { isOwner: false, isPublic: false, accessRight: null, status };
+			return { isOwner: false, isPublic: false, readAccess: false, writeAccess: false, status };
 		}
 	} catch (error) {
 		console.error("Error in checkBoardAccess:", error);
-		return { isOwner: false, isPublic: false, accessRight: null, status: 500 };
+		return { isOwner: false, isPublic: false, readAccess: false, writeAccess: false, status: 500 };
 	}
 };
 
