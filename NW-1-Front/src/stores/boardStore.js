@@ -13,7 +13,7 @@ export const useBoardStore = defineStore("boardStore", () => {
 		return boards;
 	};
 	const addBoard = (newBoard) => {
-		boards.value?.push(newBoard);
+		boards.value.personal.push(newBoard);
 	};
 	const addCollaborator = (collaborator) => {
 		boards.value.collab.push(collaborator);
