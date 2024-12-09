@@ -31,13 +31,50 @@ const getBoardId = async () => {
     }
 };
 
+// const getCollaborateBoards = async () => {
+//     try {
+//         const isAuthenticated = loginStore.isAuthenticated();
+//         const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/collabs`, loginStore.getToken());
+//         const sortedData = data.sort((a, b) => new Date(a.addedOn) - new Date(b.addedOn));
+//         boardStore.setBoards({ collab: sortedData });
+//     } catch (error) {
+//         console.error('Failed to fetch status:', error);
+//     }
+// };
+
+const isAuthenticated = loginStore.isAuthenticated();
 const getCollaborateBoards = async () => {
     try {
-        const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/collabs`, loginStore.getToken());
-        const sortedData = data.sort((a, b) => new Date(a.addedOn) - new Date(b.addedOn));
-        boardStore.setBoards({ collab: sortedData });
+        if (!isAuthenticated) {
+            // Not authenticated
+            const { data, status } = await getItemsRes(
+                `${import.meta.env.VITE_BASE_URL}/v3/boards/info/${boardId}`,
+                loginStore.getToken()
+            );
+            if (status === 200) {
+                const sortedData = data.collaborators.sort((a, b) => new Date(a.addedOn) - new Date(b.addedOn));
+                boardStore.setBoards({ collab: sortedData });
+            } else {
+                console.error(`Failed to fetch board info, status: ${status}`);
+                return;
+            }
+        }
+        if (isAuthenticated) {
+            // Authenticated users
+            const { data, status } = await getItemsRes(
+                `${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/collabs`,
+                loginStore.getToken()
+            );
+            console.log(data);
+            if (status === 200) {
+                const sortedData = data.sort((a, b) => new Date(a.addedOn) - new Date(b.addedOn));
+                boardStore.setBoards({ collab: sortedData });
+            } else {
+                console.error(`Failed to fetch collaborate boards, status: ${status}`);
+            }
+        }
     } catch (error) {
-        console.error('Failed to fetch status:', error);
+        console.error('Failed to fetch boards:', error);
     }
 };
 
