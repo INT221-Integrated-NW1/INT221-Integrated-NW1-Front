@@ -13,6 +13,15 @@ const routes = [
 		path: "/board",
 		name: "Board",
 		component: () => import("../views/Board.vue"),
+		beforeEnter: (to, from, next) => {
+			const loginStore = useLoginStore()
+			const isAuthenticated = loginStore.isAuthenticated()
+			if (!isAuthenticated) {
+				next(router.go(-1))
+			} else {
+				next()
+			}
+		},
 		children: [
 			{
 				path: '/board/add',
