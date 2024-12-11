@@ -61,6 +61,7 @@ async function getItemsRes(url, header) {
 		if (response.status === 401) {
 			console.log("Get New Access Token");
 			await getRefreshToken()
+			return { status: response.status }
 		}
 		const result = await response.json();
 		return {

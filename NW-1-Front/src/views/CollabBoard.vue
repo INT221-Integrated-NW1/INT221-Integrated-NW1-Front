@@ -2,7 +2,7 @@
 import Notification from "../components/Notification.vue";
 import CollabModal from "@/components/CollabModal.vue";
 import Profile from "../components/Profile.vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
 import { useNotiStore } from '../stores/notificationStore.js';
 import { useLoginStore } from '../stores/loginStore.js';
 import { useBoardStore } from "@/stores/boardStore";
@@ -14,7 +14,6 @@ const loginStore = useLoginStore();
 const boardStore = useBoardStore();
 const boards = boardStore.getBoards()
 
-const router = useRouter()
 const route = useRoute();
 const boardId = route.params.id
 
@@ -30,17 +29,6 @@ const getBoardId = async () => {
         console.error('Failed to fetch board:', error);
     }
 };
-
-// const getCollaborateBoards = async () => {
-//     try {
-//         const isAuthenticated = loginStore.isAuthenticated();
-//         const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/collabs`, loginStore.getToken());
-//         const sortedData = data.sort((a, b) => new Date(a.addedOn) - new Date(b.addedOn));
-//         boardStore.setBoards({ collab: sortedData });
-//     } catch (error) {
-//         console.error('Failed to fetch status:', error);
-//     }
-// };
 
 const isAuthenticated = loginStore.isAuthenticated();
 const getCollaborateBoards = async () => {
@@ -65,7 +53,6 @@ const getCollaborateBoards = async () => {
                 `${import.meta.env.VITE_BASE_URL}/v3/boards/${boardId}/collabs`,
                 loginStore.getToken()
             );
-            console.log(data);
             if (status === 200) {
                 const sortedData = data.sort((a, b) => new Date(a.addedOn) - new Date(b.addedOn));
                 boardStore.setBoards({ collab: sortedData });
@@ -224,13 +211,8 @@ const closeModal = () => {
 
 const handleConfirm = async (action) => {
     if (action === "remove") {
-        console.log("Remove confirmed!");
         await removeCollaborator()
-    } else if (action === 'save') {
-        console.log("Save confirmed!");
-        // เพิ่มโค้ดสำหรับบันทึกที่นี่
     } else if (action === 'accessRight') {
-        console.log("Change accessRight!");
         await changeAccessRight()
     }
     closeModal();

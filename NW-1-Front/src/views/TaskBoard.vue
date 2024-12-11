@@ -27,6 +27,7 @@ const route = useRoute();
 const id = route.params.id;
 const selectedStatuses = ref([]);
 const boardOwnerId = ref(null);
+const isAuthenticated = loginStore.isAuthenticated()
 
 const getBoardId = async () => {
   try {
@@ -45,7 +46,7 @@ const haveWriteAccess = ref("")
 const getCollaborateBoards = async () => {
   try {
     const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/collabs`, loginStore.getToken());
-    if (data) {
+    if (data && isAuthenticated) {
       const currentUserCollaborations = data.filter(
         (collaborator) => collaborator.oid === loginStore.getUserId()
       );
