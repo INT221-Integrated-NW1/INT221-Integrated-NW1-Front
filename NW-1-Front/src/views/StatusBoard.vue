@@ -20,6 +20,7 @@ const boardStore = useBoardStore();
 const boards = boardStore.getBoards()
 const notiStore = useNotiStore();
 const loginStore = useLoginStore();
+const isAuthenticated = loginStore.isAuthenticated();
 
 const router = useRouter();
 const route = useRoute();
@@ -202,7 +203,7 @@ const getCollaborateBoards = async () => {
     try {
         const id = route.params.id;
         const { data, status } = await getItemsRes(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/collabs`, loginStore.getToken());
-        if (data) {
+        if (data && isAuthenticated) {
             const currentUserCollaborations = data.filter(
                 (collaborator) => collaborator.oid === loginStore.getUserId()
             );

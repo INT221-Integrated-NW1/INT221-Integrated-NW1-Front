@@ -37,19 +37,25 @@ const saveTask = async () => {
             notiStore.setNotificationType("error");
             return;
         }
-        const { addedData, response } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks`, addTask.value, loginStore.getToken());
-        if (!response.ok) {
-            notiStore.setNotificationMessage(`There is a problem. Please try again later.`);
-            notiStore.setShowNotification(true);
-            notiStore.setNotificationType("error");
-            router.push({ name: 'TaskBoard' });
-        }
+        const { addedData, response, status } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/tasks`, addTask.value, loginStore.getToken());
         if (response.ok) {
             taskStore.addTask(addedData);
             notiStore.setNotificationMessage(`The task "${addTask.value.title}" is added successfully`);
             notiStore.setShowNotification(true);
             notiStore.setNotificationType("success");
             addTask.value = { title: "", description: "", assignees: "", status: "" };
+            router.push({ name: 'TaskBoard' });
+        }
+        else if (status === 401) {
+            notiStore.setNotificationMessage(`Refreshing the Token`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            router.push({ name: 'TaskBoard' });
+        }
+        else if (!response.ok) {
+            notiStore.setNotificationMessage(`There is a problem. Please try again later.`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
             router.push({ name: 'TaskBoard' });
         }
     } catch (error) {

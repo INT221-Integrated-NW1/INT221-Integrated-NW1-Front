@@ -47,13 +47,20 @@ const saveStatus = async () => {
             router.push({ name: 'StatusBoard' });
             return;
         }
-        const { addedData } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, addStatus.value, loginStore.getToken());
-        statusStore.addStatus(addedData);
-        notiStore.setNotificationMessage(`The status "${addStatus.value.name}" has been added.`);
-        notiStore.setShowNotification(true);
-        notiStore.setNotificationType("success");
-        router.push({ name: 'StatusBoard' });
-        addStatus.value = { name: "", description: "" };
+        const { addedData, status, response } = await addItem(`${import.meta.env.VITE_BASE_URL}/v3/boards/${id}/statuses`, addStatus.value, loginStore.getToken());
+        if (response.ok) {
+            statusStore.addStatus(addedData);
+            notiStore.setNotificationMessage(`The status "${addStatus.value.name}" has been added.`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("success");
+            router.push({ name: 'StatusBoard' });
+            addStatus.value = { name: "", description: "" };
+        } else if (status === 401) {
+            notiStore.setNotificationMessage(`Refreshing the Token`);
+            notiStore.setShowNotification(true);
+            notiStore.setNotificationType("error");
+            router.push({ name: 'TaskBoard' });
+        }
     } catch (error) {
         console.error('Error saving status:', error);
         notiStore.setNotificationMessage(`An error occurred, the status "${addStatus.value.name}" could not be added.`);
